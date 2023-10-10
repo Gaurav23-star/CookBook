@@ -3,9 +3,13 @@ const db = require('./db')
 const app = express()
 const port = 8080
 const bodyParser = require("body-parser");
+
  
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+const authRouter = require('./authenticate')
+app.use('/', authRouter)
 
 // Define endpoint constants
 const USER_DEFINED_RECIPES_ENDPOINT = '/user-defined-recipes';
