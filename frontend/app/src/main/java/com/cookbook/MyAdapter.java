@@ -34,6 +34,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         holder.nameView.setText(items.get(position).getName());
         holder.accountView.setText(items.get(position).getAuthor());
         holder.imageView.setImageResource(items.get(position).getImage());
+        holder.timeView.setText(items.get(position).getTime());
+        holder.ing1View.setText(items.get(position).getIng1());
+        holder.ing2View.setText(items.get(position).getIng2());
     }
 
     @Override

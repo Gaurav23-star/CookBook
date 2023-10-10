@@ -21,7 +21,9 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
         RecyclerView recyclerView = findViewById(R.id.recyclerview);
         List<Item> items = new ArrayList<Item>();
-        items.add(new Item("Yummy apple pie!", "jmama258",R.drawable.applepie));
+        items.add(new Item("Yummy apple pie!", "joemama258",R.drawable.applepie,"2hrs", "Apple", "Pie Crust"));
+        items.add(new Item("Garfield's Favorite Lasagna", "jarbuckle", R.drawable.lasagna, "1:30hrs", "Ground Beef", "Lasagna Noodles"));
+        items.add(new Item("Grandma's Tortilla Española", "smaye", R.drawable.tortilla, "45mins", "Eggs", "Potatoes"));
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(new MyAdapter(getApplicationContext(),items,this));
