@@ -23,8 +23,8 @@ app.get(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
         const result = await db.pool.query("select * from " + USER_DEFINED_RECIPES_TABLE);
         res.send(convertBigIntsToNumbers(result));
     } catch (err) {
-        res.send(convertBigIntsToNumbers(err))
         console.log(err);
+        res.send(convertBigIntsToNumbers(err))
     }
 });
  
@@ -50,30 +50,29 @@ app.post(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
 
         res.send(convertBigIntsToNumbers(result));
     } catch (err) {
-        res.send(convertBigIntsToNumbers(err));
         console.log(err);
+        res.send(convertBigIntsToNumbers(err));
     }
 });
 
-app.put(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
-    let task = req.body;
-    try {
-        const result = await db.pool.query("update tasks set description = ?, completed = ? where id = ?", [task.description, task.completed, task.id]);
-        res.send(result);
-    } catch (err) {
-        res.send(err);
-        throw err;
-    } 
-});
- 
+// DELETE method for user-defined-recipes
 app.delete(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
-    let id = req.query.id;
     try {
-        const result = await db.pool.query("delete from tasks where id = ?", [id]);
-        res.send(result);
+        const recipe_id = req.query.recipe_id;
+        if (recipe_id == undefined) {
+            res.send('You must provide a recipe_id to delete.\n');
+            return;
+        }
+
+        const sql = `DELETE FROM ${USER_DEFINED_RECIPES_TABLE} WHERE recipe_id = ?`;
+
+        const result = await db.pool.query(sql, [recipe_id]);
+        
+        res.send(convertBigIntsToNumbers(result));
     } catch (err) {
-        throw err;
-    } 
+        console.log(err);
+        res.send(convertBigIntsToNumbers(err));
+    }
 });
 
 function convertBigIntsToNumbers(obj) {
