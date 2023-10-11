@@ -13,11 +13,13 @@ app.use('/', authRouter)
 
 // Define endpoint constants
 const USER_DEFINED_RECIPES_ENDPOINT = '/user-defined-recipes';
+const USERS_ENDPOINT = '/users';
 
 // Define tables
 const USER_DEFINED_RECIPES_TABLE = 'user_defined_recipes';
+const USERS_TABLE = 'users';
  
-// GET method for user-defined-recipes
+// GET method for /user-defined-recipes
 app.get(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
     try {
         const result = await db.pool.query("select * from " + USER_DEFINED_RECIPES_TABLE);
@@ -28,7 +30,7 @@ app.get(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
     }
 });
  
-// POST method for user-defined-recipes
+// POST method for /user-defined-recipes
 app.post(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
     try {
         const userDefinedRecipe = req.body;
@@ -55,7 +57,7 @@ app.post(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
     }
 });
 
-// DELETE method for user-defined-recipes
+// DELETE method for /user-defined-recipes
 app.delete(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
     try {
         const recipe_id = req.query.recipe_id;
@@ -75,6 +77,33 @@ app.delete(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
     }
 });
 
+// POST method for /users
+app.post(USERS_ENDPOINT, async (req, res) => {
+    try {
+        const user = req.body;
+
+        const keys = [];
+        const values = [];
+        for (const [key, value] of Object.entries(user)) {
+            if (value !== null && value !== undefined) {
+                keys.push(key);
+                values.push(value);
+            }
+        }
+
+        const placeholders = values.map(() => "?").join(", ");
+        
+        const sql = `INSERT INTO ${USERS_TABLE} (${keys.join(", ")}) VALUES (${placeholders})`;
+
+        const result = await db.pool.query(sql, values);
+
+        res.send(convertBigIntsToNumbers(result));
+    } catch (err) {
+        console.log(err);
+        res.send(convertBigIntsToNumbers(err));
+    }
+});
+
 function convertBigIntsToNumbers(obj) {
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
@@ -86,5 +115,5 @@ function convertBigIntsToNumbers(obj) {
     }
     return obj;
 }
- 
+
 app.listen(port, () => console.log(`Listening on port ${port}`));
