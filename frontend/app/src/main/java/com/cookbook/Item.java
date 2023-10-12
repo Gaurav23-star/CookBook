@@ -7,6 +7,7 @@ public class Item {
     String time;
     String ing1;
     String ing2;
+    int admin;
     public Item(String name, String author, int image, String time, String ing1, String ing2) {
         this.name = name;
         this.author = author;
@@ -14,6 +15,7 @@ public class Item {
         this.time = time;
         this.ing1= ing1;
         this.ing2=ing2;
+        this.admin=R.drawable.ic_baseline_settings_24;
     }
 
     public String getName() {
@@ -62,5 +64,13 @@ public class Item {
 
     public void setIng2(String ing2) {
         this.ing2 = ing2;
+    }
+
+    public int getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(int admin) {
+        this.admin = admin;
     }
 }

@@ -4,16 +4,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Dialog;
 import android.os.Bundle;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
-
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity implements RecyclerViewInterface{
-
+    boolean admin=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,11 +29,27 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         items.add(new Item("Grandma's Tortilla Española", "smaye", R.drawable.tortilla, "45mins", "Eggs", "Potatoes"));
         items.add(new Item("One Pot Sausage and Vegs", "smaye", R.drawable.onepot, "30mins", "Sausage", "Potatoes"));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new MyAdapter(getApplicationContext(),items,this));
+        MyAdapter adapter = new MyAdapter(getApplicationContext(),items,this);
+        //find way to hide admin
+        recyclerView.setAdapter(adapter);
+
+
+
     }
 
     @Override
     public void onItemClick(int position) {
-        Toast.makeText(HomeActivity.this, "On Click listener works",Toast.LENGTH_SHORT).show();
+        if (!admin) {
+            Toast.makeText(HomeActivity.this, "user this should open a page eventually ", Toast.LENGTH_SHORT).show();
+        } else {
+            final Dialog dialog = new Dialog(this);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setCancelable(true);
+            dialog.setContentView(R.layout.admin_dialog);
+            final Button banUser = dialog.findViewById(R.id.banUser);
+            final Button banButton = dialog.findViewById(R.id.banButton);
+
+            dialog.show();
+        }
     }
 }

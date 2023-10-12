@@ -77,11 +77,21 @@
         android:background="@drawable/circulartextview"
         tools:text="ing2"/>
 
-
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:gravity="right"
+        android:id="@+id/admin"
+        android:layout_toEndOf="@id/imageview"
+        android:layout_below="@id/account"
+        android:layout_marginRight="10dp"
+        android:src="@drawable/ic_baseline_settings_24" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_below="@id/imageview"
         android:layout_marginTop="10dp"
         android:background="#DAD8D8"/>
+
+
 </RelativeLayout>

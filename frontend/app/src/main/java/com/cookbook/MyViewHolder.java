@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class MyViewHolder extends RecyclerView.ViewHolder{
 
-    ImageView imageView;
+    ImageView imageView, adminView;
     TextView nameView, accountView,timeView, ing1View, ing2View;
     public MyViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
         super(itemView);
@@ -19,11 +19,13 @@ public class MyViewHolder extends RecyclerView.ViewHolder{
         timeView=itemView.findViewById(R.id.time);
         ing1View=itemView.findViewById(R.id.ing1);
         ing2View=itemView.findViewById(R.id.ing2);
+        adminView=itemView.findViewById(R.id.admin);
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(recyclerViewInterface!=null){
                     int position = getBindingAdapterPosition();
+
 
                     if(position!= RecyclerView.NO_POSITION){
                         recyclerViewInterface.onItemClick(position);

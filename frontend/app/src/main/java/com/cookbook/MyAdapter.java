@@ -1,7 +1,9 @@
 package com.cookbook;
 
+
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -37,6 +39,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         holder.timeView.setText(items.get(position).getTime());
         holder.ing1View.setText(items.get(position).getIng1());
         holder.ing2View.setText(items.get(position).getIng2());
+        holder.adminView.setImageResource(items.get(position).getAdmin());
     }
 
     @Override
