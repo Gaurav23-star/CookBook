@@ -13,7 +13,8 @@ app.use('/', authRouter)
 
 // Define endpoint constants
 const USER_DEFINED_RECIPES_ENDPOINT = '/user-defined-recipes';
-const USERS_ENDPOINT = '/users';
+const CREATE_ACCOUNT_ENDPOINT = '/create-account';
+const LOGIN_ENDPOINT = '/login';
 
 // Define tables
 const USER_DEFINED_RECIPES_TABLE = 'user_defined_recipes';
@@ -26,7 +27,7 @@ app.get(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
         res.send(convertBigIntsToNumbers(result));
     } catch (err) {
         console.log(err);
-        res.send(convertBigIntsToNumbers(err))
+        res.status(500).send(convertBigIntsToNumbers(err))
     }
 });
  
@@ -53,7 +54,7 @@ app.post(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
         res.send(convertBigIntsToNumbers(result));
     } catch (err) {
         console.log(err);
-        res.send(convertBigIntsToNumbers(err));
+        res.status(500).send(convertBigIntsToNumbers(err));
     }
 });
 
@@ -73,12 +74,12 @@ app.delete(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
         res.send(convertBigIntsToNumbers(result));
     } catch (err) {
         console.log(err);
-        res.send(convertBigIntsToNumbers(err));
+        res.status(500).send(convertBigIntsToNumbers(err));
     }
 });
 
-// POST method for /users
-app.post(USERS_ENDPOINT, async (req, res) => {
+// POST method for /create-account
+app.post(CREATE_ACCOUNT_ENDPOINT, async (req, res) => {
     try {
         const user = req.body;
 
@@ -100,7 +101,35 @@ app.post(USERS_ENDPOINT, async (req, res) => {
         res.send(convertBigIntsToNumbers(result));
     } catch (err) {
         console.log(err);
-        res.send(convertBigIntsToNumbers(err));
+        res.status(500).send(convertBigIntsToNumbers(err));
+    }
+});
+
+// POST method for /login
+app.post(LOGIN_ENDPOINT, async (req, res) => {
+    try {
+        const { email_id, password } = req.body;
+
+        if (email_id && password) {
+            console.log(email_id); console.log(password);
+            // Replace this with your authentication logic
+            const sql = `SELECT * FROM ${USERS_TABLE} WHERE email_id = ? AND password = ?`;
+
+            const result = await db.pool.query(sql, [email_id, password]);
+            console.log(result);
+
+            if (result.length > 0) {
+                const user = result[0];
+                res.status(200).json({ message: 'Login successful', user: user });
+            } else {
+                res.status(401).json({ message: 'Invalid credentials' });
+            }
+        } else {
+            res.status(400).json({ message: 'Email and password are required' });
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(convertBigIntsToNumbers(err));
     }
 });
 
