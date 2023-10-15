@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cookbook.model.User;
+
 import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
@@ -17,12 +19,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     Context context;
     List<Item> items;
+    int admin;
 
-
-    public MyAdapter(@NonNull Context context, List<Item> items, RecyclerViewInterface recyclerViewInterface) {
+    public MyAdapter(@NonNull Context context, List<Item> items, RecyclerViewInterface recyclerViewInterface, int admin) {
         this.context = context;
         this.items = items;
         this.recyclerViewInterface = recyclerViewInterface;
+        this.admin=admin;
     }
 
     @NonNull
@@ -40,6 +43,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         holder.ing1View.setText(items.get(position).getIng1());
         holder.ing2View.setText(items.get(position).getIng2());
         holder.adminView.setImageResource(items.get(position).getAdmin());
+        if(admin==0){
+            holder.adminView.setVisibility(View.GONE);
+        }
     }
 
     @Override
