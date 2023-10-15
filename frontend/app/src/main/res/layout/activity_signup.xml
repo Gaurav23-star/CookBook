@@ -77,7 +77,7 @@
         android:id="@+id/errorTextViewSignUp"
         android:layout_width="371dp"
         android:layout_height="28dp"
-        android:layout_marginTop="160dp"
+        android:layout_marginTop="148dp"
         android:hint="Error"
         android:textAlignment="center"
         android:textColor="#C80000"
