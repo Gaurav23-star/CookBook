@@ -20,6 +20,20 @@ public class User implements Serializable {
     protected int isAdmin;
     protected int isBanned;
 
+    public User(int user_id, String first_name, String last_name, String email_id, String password, int isAdmin, int isBanned) {
+        this.user_id = user_id;
+        this.first_name = first_name;
+        this.last_name = last_name;
+        this.email_id = email_id;
+        this.password = password;
+        this.isAdmin = isAdmin;
+        this.isBanned = isBanned;
+    }
+
+    public User() {
+
+    }
+
     public int getUser_id() {return user_id;}
     public void setUser_id(int user_id) {this.user_id = user_id;}
 

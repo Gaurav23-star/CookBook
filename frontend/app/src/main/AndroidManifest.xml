@@ -24,6 +24,10 @@
                 android:value="" />
         </activity>
         <activity
+            android:name=".SignUpActivity"
+            android:exported="false"
+            android:parentActivityName=".LoginActivity"/>
+        <activity
             android:name=".LoginActivity"
             android:exported="false" />
         <activity

@@ -9,11 +9,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.util.Patterns;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 import com.cookbook.model.User;
-import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,12 +19,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
-
-import org.json.JSONObject;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String LOGIN_URL = "http://172.16.122.20:8080/login";
@@ -124,7 +116,6 @@ public class LoginActivity extends AppCompatActivity {
                 passwordEditText.setText("");
             }
         });
-
     }
 
     @SuppressLint("SetTextI18n")
@@ -136,8 +127,6 @@ public class LoginActivity extends AppCompatActivity {
                 errorTextView.setVisibility(View.VISIBLE);
             }
         });
-
-
     }
 
     private String convertStreamToString(InputStream is) {
@@ -171,6 +160,8 @@ public class LoginActivity extends AppCompatActivity {
     public void onSignUpClick(View view){
         //TODO
         System.out.println("Signup clicked!");
-
+        final Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
