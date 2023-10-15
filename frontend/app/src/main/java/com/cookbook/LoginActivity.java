@@ -3,8 +3,15 @@ package com.cookbook;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
+
+import com.cookbook.model.User;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,6 +22,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public class LoginActivity extends AppCompatActivity {
+    //private static final String LOGIN_URL = "http://127.0.0.1:8080/login";
+
     private static final String LOGIN_URL = "http://172.16.122.20:8080/login";
     private EditText emailEditText;
     private EditText passwordEditText;
@@ -27,6 +36,7 @@ public class LoginActivity extends AppCompatActivity {
 
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
+
     }
 
     public void onLoginClick(final View view) {
@@ -55,11 +65,17 @@ public class LoginActivity extends AppCompatActivity {
                 final int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     final InputStream responseBody = connection.getInputStream();
-                    System.out.println("Response body: " + convertStreamToString(responseBody));
+                    String response = convertStreamToString(responseBody);
+                    System.out.println("Response body: " + response);
+                    System.out.println(getUserFromJson(response).toString());
+
                 } else {
+                    System.out.println("ERROR " + responseCode);
                     throw new Exception("HTTP Request Failed with response code: " + responseCode);
+
                 }
             } catch (Exception e) {
+                System.out.println("EXCEPTION OCcURRED " + e);
                 e.printStackTrace();
             }
         });
@@ -70,5 +86,33 @@ public class LoginActivity extends AppCompatActivity {
     private String convertStreamToString(InputStream is) {
         final Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
         return scanner.hasNext() ? scanner.next() : "";
+    }
+
+    private User getUserFromJson(String json){
+        try {
+            JSONObject jsonObject = new JSONObject(json);
+            JSONObject userJson = jsonObject.getJSONObject("user");
+            User user = new User(
+            userJson.getInt("user_id"),
+            userJson.getString("first_name"),
+            userJson.getString("last_name"),
+            userJson.getString("email_id"),
+                    userJson.getInt("isAdmin") == 1,
+            userJson.getInt("isBanned") == 1
+            );
+            return user;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+
+    public void onSignUpClick(View view){
+        //TODO
+        System.out.println("Signup clicked!");
+
     }
 }

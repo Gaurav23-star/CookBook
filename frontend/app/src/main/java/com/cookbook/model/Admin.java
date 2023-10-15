@@ -2,8 +2,8 @@ package com.cookbook.model;
 
 public class Admin extends User {
 
-    public Admin (int userID, String username, String firstName, String lastName, String email, boolean isAdmin) {
-        super(userID, username, firstName, lastName, email, isAdmin);
+    public Admin (int userID, String firstName, String lastName, String email, boolean isAdmin, boolean isBanned) {
+        super(userID, firstName, lastName, email, isAdmin, isBanned);
     }
 
     //prototypes
