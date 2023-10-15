@@ -2,12 +2,13 @@ package com.cookbook;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
-
+import android.widget.TextView;
 import com.cookbook.model.User;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,6 +26,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final String LOGIN_URL = "http://172.16.122.20:8080/login";
     private EditText emailEditText;
     private EditText passwordEditText;
+    private TextView errorTextView;
 
 
     @Override
@@ -35,16 +37,18 @@ public class LoginActivity extends AppCompatActivity {
 
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
+        errorTextView = findViewById(R.id.ErrorTextView);
 
 
     }
 
     public void onLoginClick(final View view) {
+        this.errorTextView.setVisibility(View.INVISIBLE);
         final String email = emailEditText.getText().toString();
         final String password = passwordEditText.getText().toString();
 
         //return if input is not valid
-        if(!isValidEmail(email, emailEditText) || !isValidPassword(password, passwordEditText)) return;
+        if(!isValidEmail(email) || !isValidPassword(password)) return;
 
         System.out.println("Email: " + email + ", Password: " + password);
 
@@ -70,21 +74,56 @@ public class LoginActivity extends AppCompatActivity {
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     final InputStream responseBody = connection.getInputStream();
                     String response = convertStreamToString(responseBody);
+                    User user = getUserFromJson(response);
                     System.out.println("Response body: " + response);
-                    System.out.println(getUserFromJson(response).toString());
+                    System.out.println(user.toString());
+                    changeActivityToUserHome(user);
 
                 } else {
                     System.out.println("ERROR " + responseCode);
-                    throw new Exception("HTTP Request Failed with response code: " + responseCode);
-
+                    printInvalidCredentialsLoginFailure();
                 }
             } catch (Exception e) {
+                printServerDownFailure();
                 System.out.println("EXCEPTION OCcURRED " + e);
                 e.printStackTrace();
             }
         });
 
         thread.start();
+    }
+
+    private void changeActivityToUserHome(User user){
+        final Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+        intent.putExtra("current_user", user);
+        startActivity(intent);
+        finish();
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void printInvalidCredentialsLoginFailure(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                errorTextView.setText("invalid credentials. please try again.");
+                errorTextView.setVisibility(View.VISIBLE);
+                passwordEditText.setText("");
+            }
+        });
+
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void printServerDownFailure(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                errorTextView.setText("something went wrong. please try later.");
+                errorTextView.setVisibility(View.VISIBLE);
+            }
+        });
+
+
     }
 
     private String convertStreamToString(InputStream is) {
@@ -113,22 +152,22 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    private boolean isValidEmail(String email, EditText emailEditText){
+    private boolean isValidEmail(String email){
         //can add more checking logic here
 
         if(email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()){
-            emailEditText.requestFocus();
-            emailEditText.setError("Please Enter Valid Email");
+            this.emailEditText.requestFocus();
+            this.emailEditText.setError("Please Enter Valid Email");
             return false;
         }
         return true;
     }
 
-    private boolean isValidPassword(String password, EditText passwordEditText){
+    private boolean isValidPassword(String password){
         //Can add more checking logic here
         if(password.isEmpty()){
-            passwordEditText.requestFocus();
-            passwordEditText.setError("You must enter a password");
+            this.passwordEditText.requestFocus();
+            this.passwordEditText.setError("You must enter a password");
             return false;
         }
         return true;

@@ -10,14 +10,23 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.cookbook.model.User;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity implements RecyclerViewInterface{
+
+    private static User currentUser;
     boolean admin=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //retrieve user passed in by login activity
+        User currentUser = (User) getIntent().getSerializableExtra("current_user");
+
+        System.out.println("Current User " + currentUser.toString());
         setContentView(R.layout.activity_home);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerview);
