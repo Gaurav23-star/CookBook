@@ -10,34 +10,38 @@ so to protect from doing this by mistake.
 public class User {
 
     //fields
-    protected int userID;
-    protected String username;
-    protected String firstName;
-    protected String lastName;
-    protected String email;
-    protected boolean isAdmin;
+    protected int user_id;
+    protected String first_name;
+    protected String last_name;
+    protected String email_id;
+    protected String password;
+    protected int isAdmin;
+    protected int isBanned;
 
-    //cons
-    public User (int userID, String username, String firstName, String lastName, String email, boolean isAdmin) {
-        this.userID = userID;
-        this.username = username;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.isAdmin = isAdmin;
-    }
+    public int getUser_id() {return user_id;}
+    public void setUser_id(int user_id) {this.user_id = user_id;}
 
-    //getters
-    public int getUserID() {return userID;}
-    public String getUsername() {return username;}
-    public String getFirstName() {return firstName;}
-    public String getLastName() {return lastName;}
-    public String getEmail() {return email;}
-    public boolean getIsAdmin(){return isAdmin;}
+    public String getFirst_name() {return first_name;}
+    public void setFirst_name(String first_name) {this.first_name = first_name;}
+
+    public String getLast_name() {return last_name;}
+    public void setLast_name(String last_name) {this.last_name = last_name;}
+
+    public String getEmail_id() {return email_id;}
+    public void setEmail_id(String email_id) {this.email_id = email_id;}
+
+    public String getPassword() {return password;}
+    public void setPassword(String password) {this.password = password;}
+
+    public int getIsAdmin() {return isAdmin;}
+    public void setIsAdmin(int isAdmin) {this.isAdmin = isAdmin;}
+
+    public int getIsBanned() {return isBanned;}
+    public void setIsBanned(int isBanned) {this.isBanned = isBanned;}
 
     @Override @NonNull
     public String toString() {
-        return username;
+        return email_id;
     }
 
 /*

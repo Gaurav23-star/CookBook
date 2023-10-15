@@ -1,4 +1,5 @@
 package com.cookbook;
+import com.cookbook.model.*;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,11 +14,21 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.*;
+
+import org.json.JSONObject;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String LOGIN_URL = "http://172.16.122.20:8080/login";
     private EditText emailEditText;
     private EditText passwordEditText;
+
+    static User user;
+
+    private Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +66,17 @@ public class LoginActivity extends AppCompatActivity {
                 final int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     final InputStream responseBody = connection.getInputStream();
-                    System.out.println("Response body: " + convertStreamToString(responseBody));
+
+                    String jsonString = convertStreamToString(responseBody);
+                    System.out.println("Response body: " + jsonString);
+
+                    JSONObject jsonObject = new JSONObject(jsonString);
+                    JSONObject userJson = jsonObject.getJSONObject("user");
+
+                    user = gson.fromJson(userJson.toString(), User.class);
+
+                    System.out.println(user);
+
                 } else {
                     throw new Exception("HTTP Request Failed with response code: " + responseCode);
                 }
