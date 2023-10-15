@@ -3,16 +3,14 @@ package com.cookbook;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.view.KeyEvent;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cookbook.model.User;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -28,6 +26,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText emailEditText;
     private EditText passwordEditText;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,11 +36,16 @@ public class LoginActivity extends AppCompatActivity {
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
 
+
     }
 
     public void onLoginClick(final View view) {
         final String email = emailEditText.getText().toString();
         final String password = passwordEditText.getText().toString();
+
+        //return if input is not valid
+        if(!isValidEmail(email, emailEditText) || !isValidPassword(password, passwordEditText)) return;
+
         System.out.println("Email: " + email + ", Password: " + password);
 
         final Thread thread = new Thread(() -> {
@@ -106,6 +110,28 @@ public class LoginActivity extends AppCompatActivity {
             e.printStackTrace();
             return null;
         }
+    }
+
+
+    private boolean isValidEmail(String email, EditText emailEditText){
+        //can add more checking logic here
+
+        if(email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+            emailEditText.requestFocus();
+            emailEditText.setError("Please Enter Valid Email");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isValidPassword(String password, EditText passwordEditText){
+        //Can add more checking logic here
+        if(password.isEmpty()){
+            passwordEditText.requestFocus();
+            passwordEditText.setError("You must enter a password");
+            return false;
+        }
+        return true;
     }
 
 
