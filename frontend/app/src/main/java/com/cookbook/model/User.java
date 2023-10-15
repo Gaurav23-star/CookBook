@@ -12,93 +12,41 @@ so to protect from doing this by mistake.
 public class User implements Serializable {
 
     //fields
-    private int userID;
-    //We don't have username in our database schema yet
-    //private String username;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private boolean isAdmin;
-    private boolean isBanned;
+    protected int user_id;
+    protected String first_name;
+    protected String last_name;
+    protected String email_id;
+    protected String password;
+    protected int isAdmin;
+    protected int isBanned;
 
-    //cons
-    public User (int userID, String firstName, String lastName, String email, boolean isAdmin, boolean isBanned) {
-        this.userID = userID;
-        //this.username = username;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.isAdmin = isAdmin;
-        this.isBanned = isBanned;
-    }
-    public User (){
+    public int getUser_id() {return user_id;}
+    public void setUser_id(int user_id) {this.user_id = user_id;}
 
-    }
+    public String getFirst_name() {return first_name;}
+    public void setFirst_name(String first_name) {this.first_name = first_name;}
 
-    @Override
+    public String getLast_name() {return last_name;}
+    public void setLast_name(String last_name) {this.last_name = last_name;}
+
+    public String getEmail_id() {return email_id;}
+    public void setEmail_id(String email_id) {this.email_id = email_id;}
+
+    public String getPassword() {return password;}
+    public void setPassword(String password) {this.password = password;}
+
+    public int getIsAdmin() {return isAdmin;}
+    public void setIsAdmin(int isAdmin) {this.isAdmin = isAdmin;}
+
+    public int getIsBanned() {return isBanned;}
+    public void setIsBanned(int isBanned) {this.isBanned = isBanned;}
+
+    @Override @NonNull
     public String toString() {
-        return "User{" +
-                "userID=" + userID +
-               // ", username='" + username + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", isAdmin=" + isAdmin +
-                ", isBanned=" + isBanned +
-                '}';
+        return email_id;
     }
 
-    //getters and setters
-    public int getUserID() {
-        return userID;
-    }
-
-    public void setUserID(int userID) {
-        this.userID = userID;
-    }
-
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public boolean isAdmin() {
-        return isAdmin;
-    }
-
-    public void setAdmin(boolean admin) {
-        isAdmin = admin;
-    }
-
-    public boolean isBanned() {
-        return isBanned;
-    }
-
-    public void setBanned(boolean banned) {
-        isBanned = banned;
-    }
-
-    /*
+/*
     not sure whats redundant here
     implement this later, add the getters as well
 
