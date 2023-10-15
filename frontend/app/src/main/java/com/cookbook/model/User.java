@@ -2,12 +2,14 @@ package com.cookbook.model;
 
 import androidx.annotation.NonNull;
 
+import java.io.Serializable;
+
 /*
 Abstract super class for users and admins.
 We will never need to instantiate a "user" object,
 so to protect from doing this by mistake.
  */
-public class User {
+public class User implements Serializable {
 
     //fields
     protected int user_id;
