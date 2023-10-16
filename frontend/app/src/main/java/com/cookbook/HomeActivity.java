@@ -35,7 +35,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         super.onCreate(savedInstanceState);
 
         //retrieve user passed in by login activity
-        User currentUser = (User) getIntent().getSerializableExtra("current_user");
+        currentUser = (User) getIntent().getSerializableExtra("current_user");
 
         System.out.println("Current User " + currentUser.toString());
         setContentView(R.layout.activity_home);
