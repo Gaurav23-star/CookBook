@@ -93,8 +93,8 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
         thread.start();*/
 
-        String jsonData = "{\"recipe\":{\"recipe_id\": 15,\"recipe_name\":\"testname\",\"servings\": 1,\"preparation_time_minutes\": 30,\"ingredients\":\"testingredients\",\"description\":\"testdescription\",\"instructions\":\"testinstructions\",\"user_id\":9 }}";
-        System.out.println(jsonData);
+        String jsonData = "{\"recipe\":{\"recipe_id\": 15,\"recipe_name\":\"Apple Pie\",\"servings\": 8,\"preparation_time_minutes\": 60,\"ingredients\":\"Apple, Pie Crust\",\"description\":\"This is my grandma's world famous recipe\",\"instructions\":\"1. Make the Apple Pie\",\"user_id\":smaye }}";
+        //System.out.println(jsonData);
         try {
             JSONObject jsonObject = new JSONObject(jsonData);
             JSONObject recipeJson = jsonObject.getJSONObject("recipe");
@@ -103,9 +103,41 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        RecyclerView recyclerView = findViewById(R.id.recyclerview);
-
         items.add(new Item(recipe));
+        String jsonData2 = "{\"recipe\":{\"recipe_id\": 16,\"recipe_name\":\"Garfield's favorite lasagna\",\"servings\": 1,\"preparation_time_minutes\": 45,\"ingredients\":\"Meat, Pasta\",\"description\":\"Garfield just loves this amazing lasagna recipe!\",\"instructions\":\"1. Make the lasagna\",\"user_id\":jarbuckle }}";
+        //System.out.println(jsonData);
+        try {
+            JSONObject jsonObject = new JSONObject(jsonData2);
+            JSONObject recipeJson = jsonObject.getJSONObject("recipe");
+            recipe = gson.fromJson(recipeJson.toString(), Recipe.class);
+            System.out.println(recipe.getDescription()+" "+recipe.getRecipe_id());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        items.add(new Item(recipe));
+        String jsonData3 = "{\"recipe\":{\"recipe_id\": 17,\"recipe_name\":\"One Pot Sausage and Vegs\",\"servings\": 1,\"preparation_time_minutes\": 30,\"ingredients\":\"Sausage, Peppers\",\"description\":\"Easy one pot recipe!\",\"instructions\":\"1. Make the one pot recipe\",\"user_id\":seanny258 }}";
+        //System.out.println(jsonData);
+        try {
+            JSONObject jsonObject = new JSONObject(jsonData3);
+            JSONObject recipeJson = jsonObject.getJSONObject("recipe");
+            recipe = gson.fromJson(recipeJson.toString(), Recipe.class);
+            System.out.println(recipe.getDescription()+" "+recipe.getRecipe_id());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        items.add(new Item(recipe));
+        String jsonData4 = "{\"recipe\":{\"recipe_id\": 18,\"recipe_name\":\"Fish and chips\",\"servings\": 1,\"preparation_time_minutes\": 45,\"ingredients\":\"Fish, Potatoes\",\"description\":\"Want to be british? Why? Anyway here the recipe\",\"instructions\":\"1. Make the fish and chips\",\"user_id\":thebrit }}";
+        //System.out.println(jsonData);
+        try {
+            JSONObject jsonObject = new JSONObject(jsonData4);
+            JSONObject recipeJson = jsonObject.getJSONObject("recipe");
+            recipe = gson.fromJson(recipeJson.toString(), Recipe.class);
+            System.out.println(recipe.getDescription()+" "+recipe.getRecipe_id());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        items.add(new Item(recipe));
+        RecyclerView recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         MyAdapter adapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin());
         //find way to hide admin
