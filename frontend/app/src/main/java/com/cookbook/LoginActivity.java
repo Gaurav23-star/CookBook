@@ -162,6 +162,5 @@ public class LoginActivity extends AppCompatActivity {
         System.out.println("Signup clicked!");
         final Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
         startActivity(intent);
-        finish();
     }
 }
