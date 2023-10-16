@@ -115,6 +115,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
     @Override
     public void onItemClick(int position) {
+        System.out.println(items.toString() + " "+recipe.toString());
         if (currentUser.getIsAdmin()==0) {
             changeActivityToUserHome(currentUser, items.get(position).getRecipe());
 

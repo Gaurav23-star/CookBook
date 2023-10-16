@@ -20,6 +20,7 @@ public class Item {
         this.ing1= recipe.getIngredients();
         this.ing2=recipe.getIngredients();
         this.admin=R.drawable.ic_baseline_settings_24;
+        this.recipe=recipe;
     }
 
     public String getName() {
@@ -84,5 +85,19 @@ public class Item {
 
     public void setRecipe(Recipe recipe) {
         this.recipe = recipe;
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "name='" + name + '\'' +
+                ", author='" + author + '\'' +
+                ", image=" + image +
+                ", time='" + time + '\'' +
+                ", ing1='" + ing1 + '\'' +
+                ", ing2='" + ing2 + '\'' +
+                ", admin=" + admin +
+                ", recipe=" + recipe +
+                '}';
     }
 }

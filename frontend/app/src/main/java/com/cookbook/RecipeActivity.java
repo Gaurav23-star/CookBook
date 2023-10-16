@@ -26,7 +26,7 @@ public class RecipeActivity extends AppCompatActivity {
         TextView instructionsView = findViewById(R.id.instructionsView);
         recipePicture.setImageResource(R.drawable.applepie);
         titleView.setText(currentRecipe.getRecipe_name());
-        nameView.setText(currentRecipe.getUser_id());
+        nameView.setText(Integer.toString(currentRecipe.getUser_id()));
         ingredientsView.setText(currentRecipe.getIngredients());
         instructionsView.setText(currentRecipe.getInstructions());
 
