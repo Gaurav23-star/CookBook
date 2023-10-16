@@ -3,7 +3,7 @@ const router = express.Router()
 const db = require('./db')
 
 //endpoints
-const LOGIN = '/login';
+const LOGIN = '/login2';
 const SIGNUP = '/signup';
 
 //define tables
