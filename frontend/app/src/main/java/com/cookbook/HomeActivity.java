@@ -32,7 +32,7 @@ import java.util.Scanner;
 
 public class HomeActivity extends AppCompatActivity implements RecyclerViewInterface{
 
-    private static User currentUser = new User();
+    private static User currentUser;
     private static final String RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
     private Gson gson = new Gson();
     List<Item> items = new ArrayList<Item>();
@@ -40,15 +40,9 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        currentUser.setUser_id(1);
-        currentUser.setEmail_id("test@gmial.com");
-        currentUser.setFirst_name("Joe");
-        currentUser.setLast_name("mama");
-        currentUser.setPassword("password");
-        currentUser.setIsBanned(0);
-        currentUser.setIsAdmin(0);
+
         //retrieve user passed in by login activity
-       // User currentUser = (User) getIntent().getSerializableExtra("current_user");
+       currentUser = (User) getIntent().getSerializableExtra("current_user");
 
         System.out.println("Current User " + currentUser.toString());
         setContentView(R.layout.activity_home);
@@ -168,6 +162,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     }
     private void changeActivityToUserHome(User user, Recipe recipe){
         final Intent intent = new Intent(HomeActivity.this, RecipeActivity.class);
+        intent.putExtra("current_user",user);
         intent.putExtra("current_recipe", recipe);
         startActivity(intent);
         finish();
