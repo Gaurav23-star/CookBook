@@ -6,14 +6,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.cookbook.model.Recipe;
 import com.cookbook.model.User;
+import com.google.gson.Gson;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -28,18 +32,27 @@ import java.util.Scanner;
 
 public class HomeActivity extends AppCompatActivity implements RecyclerViewInterface{
 
-    private static User currentUser;
+    private static User currentUser = new User();
     private static final String RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
+    private Gson gson = new Gson();
+    List<Item> items = new ArrayList<Item>();
+    static Recipe recipe;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        currentUser.setUser_id(1);
+        currentUser.setEmail_id("test@gmial.com");
+        currentUser.setFirst_name("Joe");
+        currentUser.setLast_name("mama");
+        currentUser.setPassword("password");
+        currentUser.setIsBanned(0);
+        currentUser.setIsAdmin(0);
         //retrieve user passed in by login activity
-        currentUser = (User) getIntent().getSerializableExtra("current_user");
+       // User currentUser = (User) getIntent().getSerializableExtra("current_user");
 
         System.out.println("Current User " + currentUser.toString());
         setContentView(R.layout.activity_home);
-        final Thread thread = new Thread(() -> {
+        /*final Thread thread = new Thread(() -> {
             try {
                 final URL url = new URL(RECIPE_URL);
                 final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -78,13 +91,53 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             }
         });
 
-        thread.start();
+        thread.start();*/
+
+        String jsonData = "{\"recipe\":{\"recipe_id\": 15,\"recipe_name\":\"Apple Pie\",\"servings\": 8,\"preparation_time_minutes\": 60,\"ingredients\":\"Apple, Pie Crust\",\"description\":\"This is my grandma's world famous recipe\",\"instructions\":\"1. Make the Apple Pie\",\"user_id\":smaye }}";
+        //System.out.println(jsonData);
+        try {
+            JSONObject jsonObject = new JSONObject(jsonData);
+            JSONObject recipeJson = jsonObject.getJSONObject("recipe");
+            recipe = gson.fromJson(recipeJson.toString(), Recipe.class);
+            System.out.println(recipe.getDescription()+" "+recipe.getRecipe_id());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        items.add(new Item(recipe));
+        String jsonData2 = "{\"recipe\":{\"recipe_id\": 16,\"recipe_name\":\"Garfield's favorite lasagna\",\"servings\": 1,\"preparation_time_minutes\": 45,\"ingredients\":\"Meat, Pasta\",\"description\":\"Garfield just loves this amazing lasagna recipe!\",\"instructions\":\"1. Make the lasagna\",\"user_id\":jarbuckle }}";
+        //System.out.println(jsonData);
+        try {
+            JSONObject jsonObject = new JSONObject(jsonData2);
+            JSONObject recipeJson = jsonObject.getJSONObject("recipe");
+            recipe = gson.fromJson(recipeJson.toString(), Recipe.class);
+            System.out.println(recipe.getDescription()+" "+recipe.getRecipe_id());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        items.add(new Item(recipe));
+        String jsonData3 = "{\"recipe\":{\"recipe_id\": 17,\"recipe_name\":\"One Pot Sausage and Vegs\",\"servings\": 1,\"preparation_time_minutes\": 30,\"ingredients\":\"Sausage, Peppers\",\"description\":\"Easy one pot recipe!\",\"instructions\":\"1. Make the one pot recipe\",\"user_id\":seanny258 }}";
+        //System.out.println(jsonData);
+        try {
+            JSONObject jsonObject = new JSONObject(jsonData3);
+            JSONObject recipeJson = jsonObject.getJSONObject("recipe");
+            recipe = gson.fromJson(recipeJson.toString(), Recipe.class);
+            System.out.println(recipe.getDescription()+" "+recipe.getRecipe_id());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        items.add(new Item(recipe));
+        String jsonData4 = "{\"recipe\":{\"recipe_id\": 18,\"recipe_name\":\"Fish and chips\",\"servings\": 1,\"preparation_time_minutes\": 45,\"ingredients\":\"Fish, Potatoes\",\"description\":\"Want to be british? Why? Anyway here the recipe\",\"instructions\":\"1. Make the fish and chips\",\"user_id\":thebrit }}";
+        //System.out.println(jsonData);
+        try {
+            JSONObject jsonObject = new JSONObject(jsonData4);
+            JSONObject recipeJson = jsonObject.getJSONObject("recipe");
+            recipe = gson.fromJson(recipeJson.toString(), Recipe.class);
+            System.out.println(recipe.getDescription()+" "+recipe.getRecipe_id());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        items.add(new Item(recipe));
         RecyclerView recyclerView = findViewById(R.id.recyclerview);
-        List<Item> items = new ArrayList<Item>();
-        items.add(new Item("Yummy apple pie!", "joemama258",R.drawable.applepie,"2hrs", "Apple", "Pie Crust"));
-        items.add(new Item("Garfield's Favorite Lasagna", "jarbuckle", R.drawable.lasagna, "1:30hrs", "Ground Beef", "Lasagna Noodles"));
-        items.add(new Item("Grandma's Tortilla Española", "smaye", R.drawable.tortilla, "45mins", "Eggs", "Potatoes"));
-        items.add(new Item("One Pot Sausage and Vegs", "smaye", R.drawable.onepot, "30mins", "Sausage", "Potatoes"));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         MyAdapter adapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin());
         //find way to hide admin
@@ -94,8 +147,10 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
     @Override
     public void onItemClick(int position) {
+        System.out.println(items.toString() + " "+recipe.toString());
         if (currentUser.getIsAdmin()==0) {
-            Toast.makeText(HomeActivity.this, "user this should open a page eventually ", Toast.LENGTH_SHORT).show();
+            changeActivityToUserHome(currentUser, items.get(position).getRecipe());
+
         } else {
             final Dialog dialog = new Dialog(this);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -111,5 +166,10 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         final Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
         return scanner.hasNext() ? scanner.next() : "";
     }
-
+    private void changeActivityToUserHome(User user, Recipe recipe){
+        final Intent intent = new Intent(HomeActivity.this, RecipeActivity.class);
+        intent.putExtra("current_recipe", recipe);
+        startActivity(intent);
+        finish();
+    }
 }
