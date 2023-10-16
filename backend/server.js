@@ -24,7 +24,7 @@ const USERS_TABLE = 'users';
 app.get(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
     try {
         const result = await db.pool.query("SELECT * FROM " + USER_DEFINED_RECIPES_TABLE);
-        res.sendStatus(200).send(convertBigIntsToNumbers(result));
+        res.status(200).send(convertBigIntsToNumbers(result));
     } catch (err) {
         console.log(err);
         res.status(500).send(convertBigIntsToNumbers(err))
@@ -51,7 +51,7 @@ app.post(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
 
         const result = await db.pool.query(sql, values);
 
-        res.sendStatus(200).send(convertBigIntsToNumbers(result));
+        res.status(200).send(convertBigIntsToNumbers(result));
     } catch (err) {
         console.log(err);
         res.status(500).send(convertBigIntsToNumbers(err));
@@ -63,7 +63,7 @@ app.delete(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
     try {
         const recipe_id = req.query.recipe_id;
         if (recipe_id == undefined) {
-            res.sendStatus(400).send('You must provide a recipe_id to delete.\n');
+            res.status(400).send('You must provide a recipe_id to delete.\n');
             return;
         }
 
@@ -71,7 +71,7 @@ app.delete(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
 
         const result = await db.pool.query(sql, [recipe_id]);
         
-        res.sendStatus(200).send(convertBigIntsToNumbers(result));
+        res.status(200).send(convertBigIntsToNumbers(result));
     } catch (err) {
         console.log(err);
         res.status(500).send(convertBigIntsToNumbers(err));
@@ -98,7 +98,7 @@ app.post(CREATE_ACCOUNT_ENDPOINT, async (req, res) => {
 
         const result = await db.pool.query(sql, values);
 
-        res.sendStatus(200).send(convertBigIntsToNumbers(result));
+        res.status(200).send(convertBigIntsToNumbers(result));
     } catch (err) {
         console.log(err);
         res.status(500).send(convertBigIntsToNumbers(err));
