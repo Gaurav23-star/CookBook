@@ -1,5 +1,7 @@
 package com.cookbook;
 
+import com.cookbook.model.Recipe;
+
 public class Item {
     String name;
     String author;
@@ -8,13 +10,15 @@ public class Item {
     String ing1;
     String ing2;
     int admin;
-    public Item(String name, String author, int image, String time, String ing1, String ing2) {
-        this.name = name;
-        this.author = author;
-        this.image = image;
-        this.time = time;
-        this.ing1= ing1;
-        this.ing2=ing2;
+    Recipe recipe;
+
+    public Item(Recipe recipe) {
+        this.name = recipe.getRecipe_name();
+        this.author = Integer.toString(recipe.getUser_id());
+        this.image = R.drawable.applepie;
+        this.time = Integer.toString(recipe.getPreparation_time_minutes())+"mins";
+        this.ing1= recipe.getIngredients();
+        this.ing2=recipe.getIngredients();
         this.admin=R.drawable.ic_baseline_settings_24;
     }
 
@@ -72,5 +76,13 @@ public class Item {
 
     public void setAdmin(int admin) {
         this.admin = admin;
+    }
+
+    public Recipe getRecipe() {
+        return recipe;
+    }
+
+    public void setRecipe(Recipe recipe) {
+        this.recipe = recipe;
     }
 }
