@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.cookbook.model.Recipe;
 import com.cookbook.model.User;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
@@ -40,6 +41,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().hide();
 
         //retrieve user passed in by login activity
        currentUser = (User) getIntent().getSerializableExtra("current_user");
@@ -137,6 +139,30 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         //find way to hide admin
         recyclerView.setAdapter(adapter);
 
+        // ------ Navigation Choice ----
+        handleNavigationChange();
+//        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+//        bottomNavigationView.setSelectedItemId(R.id.bottom_home);
+//
+//        bottomNavigationView.setOnItemSelectedListener(item ->{
+//            switch (item.getItemId()){
+//                case R.id.bottom_home:
+//                    return true;
+//                case R.id.bottom_person:
+//                    startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+//                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+//                    finish();
+//                    return true;
+//                case R.id.bottom_settings:
+//                    startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
+//                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+//                    finish();
+//                    return true;
+//            }
+//            return false;
+//        });
+
+
     }
 
     @Override
@@ -166,5 +192,28 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         intent.putExtra("current_recipe", recipe);
         startActivity(intent);
         finish();
+    }
+
+    public void handleNavigationChange(){
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.bottom_home);
+
+        bottomNavigationView.setOnItemSelectedListener(item ->{
+            switch (item.getItemId()){
+                case R.id.bottom_home:
+                    return true;
+                case R.id.bottom_person:
+                    startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    finish();
+                    return true;
+                case R.id.bottom_settings:
+                    startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    finish();
+                    return true;
+            }
+            return false;
+        });
     }
 }

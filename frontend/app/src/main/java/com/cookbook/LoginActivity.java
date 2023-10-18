@@ -1,4 +1,5 @@
 package com.cookbook;
+
 import com.cookbook.model.*;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,7 +28,6 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordEditText;
     private TextView errorTextView;
 
-
     static User user;
 
     private Gson gson = new Gson();
@@ -48,8 +48,9 @@ public class LoginActivity extends AppCompatActivity {
         final String email = emailEditText.getText().toString();
         final String password = passwordEditText.getText().toString();
 
-        //return if input is not valid
-        if(!isValidEmail(email) || !isValidPassword(password)) return;
+        // return if input is not valid
+        if (!isValidEmail(email) || !isValidPassword(password))
+            return;
 
         System.out.println("Email: " + email + ", Password: " + password);
 
@@ -90,16 +91,16 @@ public class LoginActivity extends AppCompatActivity {
                     throw new Exception("HTTP Request Failed with response code: " + responseCode);
                 }
             } catch (Exception e) {
-               printServerDownFailure();
-               System.out.println("EXCEPTION OCcURRED " + e);
-            
-                } 
+                printServerDownFailure();
+                System.out.println("EXCEPTION OCcURRED " + e);
+
+            }
         });
 
         thread.start();
     }
 
-    private void changeActivityToUserHome(User user){
+    private void changeActivityToUserHome(User user) {
         final Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
         intent.putExtra("current_user", user);
         startActivity(intent);
@@ -107,7 +108,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @SuppressLint("SetTextI18n")
-    private void printInvalidCredentialsLoginFailure(){
+    private void printInvalidCredentialsLoginFailure() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -119,7 +120,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @SuppressLint("SetTextI18n")
-    private void printServerDownFailure(){
+    private void printServerDownFailure() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -134,10 +135,10 @@ public class LoginActivity extends AppCompatActivity {
         return scanner.hasNext() ? scanner.next() : "";
     }
 
-    private boolean isValidEmail(String email){
-        //can add more checking logic here
+    private boolean isValidEmail(String email) {
+        // can add more checking logic here
 
-        if(email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+        if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             this.emailEditText.requestFocus();
             this.emailEditText.setError("Please Enter Valid Email");
             return false;
@@ -145,9 +146,9 @@ public class LoginActivity extends AppCompatActivity {
         return true;
     }
 
-    private boolean isValidPassword(String password){
-        //Can add more checking logic here
-        if(password.isEmpty()){
+    private boolean isValidPassword(String password) {
+        // Can add more checking logic here
+        if (password.isEmpty()) {
             this.passwordEditText.requestFocus();
             this.passwordEditText.setError("You must enter a password");
             return false;
@@ -155,10 +156,8 @@ public class LoginActivity extends AppCompatActivity {
         return true;
     }
 
-
-
-    public void onSignUpClick(View view){
-        //TODO
+    public void onSignUpClick(View view) {
+        // TODO
         System.out.println("Signup clicked!");
         final Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
         startActivity(intent);
