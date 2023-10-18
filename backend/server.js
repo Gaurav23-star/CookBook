@@ -8,7 +8,7 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-const authRouter = require('./authenticate')
+//const authRouter = require('./authenticate')
 app.use('/', authRouter)
 
 // Define endpoint constants
