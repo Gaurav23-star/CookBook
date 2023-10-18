@@ -203,14 +203,22 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 case R.id.bottom_home:
                     return true;
                 case R.id.bottom_person:
-                    startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+
+                    Intent intent_Person = new Intent(getApplicationContext(), ProfileActivity.class);
+                    intent_Person.putExtra("current_user",currentUser);
+                    startActivity(intent_Person);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
                     return true;
                 case R.id.bottom_settings:
-                    startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
+                    final Intent intent_Settings = new Intent(getApplicationContext(), SettingsActivity.class);
+                    intent_Settings.putExtra("current_user",currentUser);
+                    startActivity(intent_Settings);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
+                    //startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
+                    //overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    //finish();
                     return true;
             }
             return false;
