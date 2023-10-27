@@ -19,7 +19,7 @@ router.get(LOGIN, async (req, res) => {
 
     if(email && password){
         console.log("LOGIN Requested. email = " + email + " password = " + password);
-        const result = await db.pool.query('SELECT user_id, first_name, last_name FROM ' + USERS_TABLE + ' WHERE email_id = ?', [email])
+        const result = await db.pool.query('SELECT user_id, first_name, last_name FROM ' + USERS_TABLE + ' WHERE email_id = ? AND password = ?', [email, password])
         
         if(result.length > 0){
             res.status(200).json(result[0])

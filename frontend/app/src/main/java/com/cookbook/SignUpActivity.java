@@ -11,7 +11,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.cookbook.model.User;
 import org.json.JSONObject;
-import org.mindrot.jbcrypt.BCrypt;
+
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -64,8 +64,8 @@ public class SignUpActivity extends AppCompatActivity {
         String firstName = firstNameEditText.getText().toString();
         String lastName = lastNameEditText.getText().toString();
         String email = emailEditText.getText().toString();
-        String plain_password = passwordEditText.getText().toString();
-        String password = BCrypt.hashpw(plain_password, BCrypt.gensalt());
+        String password = passwordEditText.getText().toString();
+
 
         if(!isValidName(firstName, lastName) || !isValidEmail(email) || !isValidPassword(password)) return;
 

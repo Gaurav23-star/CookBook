@@ -8,7 +8,7 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-const authRouter = require('./authenticate')
+//const authRouter = require('./authenticate')
 app.use('/', authRouter)
 
 // Define endpoint constants
@@ -108,14 +108,15 @@ app.post(CREATE_ACCOUNT_ENDPOINT, async (req, res) => {
 // POST method for /login
 app.post(LOGIN_ENDPOINT, async (req, res) => {
     try {
-        const { email_id} = req.body;
+        const { email_id, password } = req.body;
 
-        if (email_id) {
-            console.log(email_id);// console.log(password);
+        if (email_id && password) {
+            console.log(email_id); console.log(password);
             // Replace this with your authentication logic
-            const sql = `SELECT * FROM ${USERS_TABLE} WHERE email_id = ?;`;
+            const sql = `SELECT * FROM ${USERS_TABLE} WHERE email_id = ? AND password = ?`;
 
-            const result = await db.pool.query(sql, [email_id]);
+            const result = await db.pool.query(sql, [email_id, password]);
+
             console.log(result);
 
             if (result.length > 0) {
