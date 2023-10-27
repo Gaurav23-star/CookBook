@@ -38,9 +38,7 @@ public class ProfileActivity extends AppCompatActivity {
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
 
-//                    startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
-//                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-//                    finish();
+
                     return true;
                 case R.id.bottom_home:
                       Intent intent_Home = new Intent(getApplicationContext(), HomeActivity.class);
@@ -48,9 +46,7 @@ public class ProfileActivity extends AppCompatActivity {
                       startActivity(intent_Home);
                       overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                       finish();
-//                    startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-//                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-//                    finish();
+
                     return true;
             }
             return false;

@@ -13,6 +13,7 @@ import android.util.Patterns;
 import android.widget.TextView;
 import com.cookbook.model.User;
 import org.json.JSONObject;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -47,6 +48,9 @@ public class LoginActivity extends AppCompatActivity {
         this.errorTextView.setVisibility(View.INVISIBLE);
         final String email = emailEditText.getText().toString();
         final String password = passwordEditText.getText().toString();
+        // gensalt's log_rounds parameter determines the complexity
+        // the work factor is 2**log_rounds, and the default is 10
+        //String hashed = BCrypt.hashpw(password, BCrypt.gensalt());
 
         // return if input is not valid
         if (!isValidEmail(email) || !isValidPassword(password))
