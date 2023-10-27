@@ -211,6 +211,13 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
                     return true;
+                case R.id.bottom_notifications:
+                    Intent intent_Notifications = new Intent(getApplicationContext(), NotificationsActivity.class);
+                    intent_Notifications.putExtra("current_user",currentUser);
+                    startActivity(intent_Notifications);
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    finish();
+                    return true;
                 case R.id.bottom_settings:
                     final Intent intent_Settings = new Intent(getApplicationContext(), SettingsActivity.class);
                     intent_Settings.putExtra("current_user",currentUser);

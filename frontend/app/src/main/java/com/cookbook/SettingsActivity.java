@@ -68,6 +68,13 @@ public class SettingsActivity extends AppCompatActivity implements RecyclerViewI
                     finish();
 
                     return true;
+                case R.id.bottom_notifications:
+                    Intent intent_Notifications = new Intent(getApplicationContext(), NotificationsActivity.class);
+                    intent_Notifications.putExtra("current_user",currentUser);
+                    startActivity(intent_Notifications);
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    finish();
+                    return true;
                 case R.id.bottom_home:
 
                     Intent intent_Home = new Intent(getApplicationContext(), HomeActivity.class);
