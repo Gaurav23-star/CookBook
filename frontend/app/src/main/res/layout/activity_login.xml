@@ -4,13 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F85757"
+    android:background="#FFFFFF"
     android:paddingLeft="16dp"
     android:paddingTop="16dp"
     android:paddingRight="16dp"
     android:paddingBottom="16dp"
     android:visibility="visible"
     tools:context=".LoginActivity">
+
 
     <EditText
         android:id="@+id/emailEditText"
