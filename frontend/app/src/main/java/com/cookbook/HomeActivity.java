@@ -134,6 +134,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         }
         items.add(new Item(recipe));
         RecyclerView recyclerView = findViewById(R.id.recyclerview);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         MyAdapter adapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin());
         //find way to hide admin
@@ -216,9 +217,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                     startActivity(intent_Settings);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
-                    //startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
-                    //overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-                    //finish();
+
                     return true;
             }
             return false;

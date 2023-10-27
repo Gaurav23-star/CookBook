@@ -116,6 +116,7 @@ app.post(LOGIN_ENDPOINT, async (req, res) => {
             const sql = `SELECT * FROM ${USERS_TABLE} WHERE email_id = ? AND password = ?`;
 
             const result = await db.pool.query(sql, [email_id, password]);
+
             console.log(result);
 
             if (result.length > 0) {

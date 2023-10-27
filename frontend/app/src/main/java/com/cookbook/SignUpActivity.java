@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.cookbook.model.User;
 import org.json.JSONObject;
+
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -63,6 +65,7 @@ public class SignUpActivity extends AppCompatActivity {
         String lastName = lastNameEditText.getText().toString();
         String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
+
 
         if(!isValidName(firstName, lastName) || !isValidEmail(email) || !isValidPassword(password)) return;
 

@@ -1,14 +1,26 @@
 package com.cookbook;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
 
+import com.cookbook.Settings.SettingsItem;
 import com.cookbook.model.User;
+import com.cookbook.Settings.SettingsAdapter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class SettingsActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.List;
+
+public class SettingsActivity extends AppCompatActivity implements RecyclerViewInterface {
+
 
     private static User currentUser;
     @Override
@@ -20,7 +32,24 @@ public class SettingsActivity extends AppCompatActivity {
         //retrieve user passed in
         currentUser = (User) getIntent().getSerializableExtra("current_user");
 
+        RecyclerView recyclerView = findViewById(R.id.settings_recyclerview);
+
+        List<SettingsItem> settingItems = new ArrayList<SettingsItem>();
+        settingItems.add(new SettingsItem("Account"));
+        settingItems.add(new SettingsItem("Appearance"));
+        settingItems.add(new SettingsItem("Language"));
+        settingItems.add(new SettingsItem("Blocked Users"));
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(new SettingsAdapter(getApplicationContext(), settingItems, this));
+
         handleNavigationChange();
+
+    }
+
+
+    public void onLogOutClick(View view) {
+        System.out.println("LOGGED OUT");
     }
 
     public void handleNavigationChange(){
@@ -37,9 +66,7 @@ public class SettingsActivity extends AppCompatActivity {
                     startActivity(intent_Person);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
-//                    startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-//                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-//                    finish();
+
                     return true;
                 case R.id.bottom_home:
 
@@ -49,12 +76,16 @@ public class SettingsActivity extends AppCompatActivity {
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
 
-//                    startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-//                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-//                    finish();
+
                     return true;
             }
             return false;
         });
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        System.out.println(position );
+        System.out.println("OIFOISDJFNIODSNFDIONF");
     }
 }
