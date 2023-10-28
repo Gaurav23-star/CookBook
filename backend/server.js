@@ -100,6 +100,59 @@ app.delete(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
     }
 });
 
+//PUT method for /user-defined-recipes to edit user defined recipes
+app.put(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
+    try {
+        const recipe_id = req.query.recipe_id;
+        if (recipe_id == undefined) {
+            res.status(400).send('You must provide a recipe_id to update.\n');
+            return;
+        }
+
+        const user_id = req.query.user_id;
+        if (user_id == undefined) {
+            res.status(400).send('You must provide the user_id of the current user in order to update a recipe.\n');
+            return;
+        }
+
+        const recipe = req.body;
+
+        const keys = [];
+        const values = [];
+        for (const [key, value] of Object.entries(recipe)) {
+            if (value !== null && value !== undefined) {
+                keys.push(key);
+                values.push(value);
+            }
+        }
+
+        const placeholders = values.map(() => "?").join(", ");
+        
+        const sql = `UPDATE ${USER_DEFINED_RECIPES_TABLE} SET ${keys.join(" = ? ,") + " = ?"} WHERE recipe_id = ${recipe_id} AND user_id = ${user_id}`;
+
+        const result = await db.pool.query(sql, values);
+        res.status(200).send(convertBigIntsToNumbers(result));
+
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(convertBigIntsToNumbers(err));
+    }
+})
+
+//GET method for /user-defined-recipes to get recipes created by perticular user
+app.get(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
+    try {
+        const user_id = req.query.user_id;
+        const query = `SELECT * FROM ${USER_DEFINED_RECIPES_TABLE} WHERE user_id = ?`;
+        const result = await db.pool.query(query, user_id);
+        res.status(200).send(convertBigIntsToNumbers(result));
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(convertBigIntsToNumbers(err))
+    }
+})
+
 // POST method for /create-account
 app.post(CREATE_ACCOUNT_ENDPOINT, async (req, res) => {
     try {
