@@ -23,7 +23,8 @@
         android:background="@drawable/bottom_background"
         android:elevation="2dp"
         app:menu="@menu/bottom_menu"
-        app:itemIconSize="30dp" />
+        app:itemIconSize="30dp"
+        app:labelVisibilityMode="labeled" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/settings_recyclerview"

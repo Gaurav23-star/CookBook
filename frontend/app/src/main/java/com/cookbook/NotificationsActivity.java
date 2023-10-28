@@ -47,6 +47,14 @@ public class NotificationsActivity extends AppCompatActivity {
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
                     return true;
+                case R.id.bottom_favorites:
+                    Intent intent_Favorites = new Intent(getApplicationContext(), FavoriteActivity.class);
+                    intent_Favorites.putExtra("current_user",currentUser);
+                    startActivity(intent_Favorites);
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    finish();
+                    return true;
+
                 case R.id.bottom_home:
                     Intent intent_Home = new Intent(getApplicationContext(), HomeActivity.class);
                     intent_Home.putExtra("current_user",currentUser);

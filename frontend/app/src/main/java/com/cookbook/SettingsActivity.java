@@ -4,16 +4,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import com.cookbook.Settings.SettingsItem;
+import com.cookbook.model.Settings.SettingsItem;
 import com.cookbook.model.User;
-import com.cookbook.Settings.SettingsAdapter;
+import com.cookbook.model.Settings.SettingsAdapter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
@@ -91,6 +90,14 @@ public class SettingsActivity extends AppCompatActivity implements RecyclerViewI
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
                     return true;
+                case R.id.bottom_favorites:
+                    Intent intent_Favorites = new Intent(getApplicationContext(), FavoriteActivity.class);
+                    intent_Favorites.putExtra("current_user",currentUser);
+                    startActivity(intent_Favorites);
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    finish();
+                    return true;
+
                 case R.id.bottom_home:
 
                     Intent intent_Home = new Intent(getApplicationContext(), HomeActivity.class);

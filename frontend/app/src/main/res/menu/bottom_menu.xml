@@ -5,6 +5,11 @@
         android:id="@+id/bottom_person"
         android:icon="@drawable/baseline_person_24"
         android:title="Profile"/>
+    <item
+        android:id="@+id/bottom_favorites"
+        android:icon="@drawable/baseline_favorite_24"
+        android:title="Favorites"
+        />
 
     <item
         android:id="@+id/bottom_home"
