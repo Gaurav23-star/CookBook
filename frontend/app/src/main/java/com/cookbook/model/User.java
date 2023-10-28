@@ -19,8 +19,9 @@ public class User implements Serializable {
     protected String password;
     protected int isAdmin;
     protected int isBanned;
+    protected String username;
 
-    public User(int user_id, String first_name, String last_name, String email_id, String password, int isAdmin, int isBanned) {
+    public User(int user_id, String first_name, String last_name, String email_id, String password, int isAdmin, int isBanned, String username) {
         this.user_id = user_id;
         this.first_name = first_name;
         this.last_name = last_name;
@@ -28,6 +29,7 @@ public class User implements Serializable {
         this.password = password;
         this.isAdmin = isAdmin;
         this.isBanned = isBanned;
+        this.username = username;
     }
 
     public User() {
@@ -54,6 +56,8 @@ public class User implements Serializable {
 
     public int getIsBanned() {return isBanned;}
     public void setIsBanned(int isBanned) {this.isBanned = isBanned;}
+
+    public String getUsername() {return username;}
 
     @Override @NonNull
     public String toString() {
