@@ -23,7 +23,13 @@ const USERS_TABLE = 'users';
 // GET method for /user-defined-recipes
 app.get(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
     try {
-        const result = await db.pool.query("SELECT * FROM " + USER_DEFINED_RECIPES_TABLE);
+        const user_id = req.query.user_id;
+        let condition;
+        if (user_id == undefined) condition = "TRUE";
+        else condition = `user_id = ${user_id}`;
+
+        const sql = `SELECT * FROM ${USER_DEFINED_RECIPES_TABLE} WHERE ${condition}`
+        const result = await db.pool.query(sql);
         res.status(200).send(convertBigIntsToNumbers(result));
     } catch (err) {
         console.log(err);
@@ -52,6 +58,56 @@ app.post(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
         const result = await db.pool.query(sql, values);
 
         res.status(200).send(convertBigIntsToNumbers(result));
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(convertBigIntsToNumbers(err));
+    }
+});
+
+// PATCH method for /user-defined-recipes
+app.patch(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
+    try {
+        const recipe_id = req.query.recipe_id;
+        if (recipe_id == undefined) {
+            res.status(400).send('You must provide the recipe_id to update as a URL parameter.\n');
+            return;
+        }
+
+        const sqlRecipeExistsQuery = `SELECT COUNT(*) FROM ${USER_DEFINED_RECIPES_TABLE} WHERE recipe_id = ?`;
+        const recipeExists = (await db.pool.query(sqlRecipeExistsQuery, [recipe_id]))[0]['COUNT(*)'];
+        if (recipeExists == 0) {
+            res.status(200).send('No recipe exists with the provided id.\n');
+            return;
+        }
+
+        const updates = req.body;
+
+        const keys = [];
+        const values = [];
+        for (const [key, value] of Object.entries(updates)) {
+            if (value !== null && value !== undefined) {
+                keys.push(key);
+                values.push(value);
+            }
+        }
+
+        let sqlUpdateQuery = `UPDATE ${USER_DEFINED_RECIPES_TABLE} SET `;
+        for (let i = 0; i < keys.length; i++) {
+            sqlUpdateQuery = sqlUpdateQuery.concat(`${keys[i]} = ?`);
+            if (i !== keys.length - 1) sqlUpdateQuery = sqlUpdateQuery.concat(', ');
+        }
+        sqlUpdateQuery = sqlUpdateQuery.concat(' WHERE recipe_id = ?');
+
+        values.push(Number(recipe_id));
+
+        try {
+            const result = await db.pool.query(sqlUpdateQuery, values);
+
+            res.status(200).send(convertBigIntsToNumbers(result));
+        } catch (err) {
+            // Error in SQL query is fault of client (send 200 OK)
+            res.status(200).send(convertBigIntsToNumbers(err));
+        }
     } catch (err) {
         console.log(err);
         res.status(500).send(convertBigIntsToNumbers(err));
