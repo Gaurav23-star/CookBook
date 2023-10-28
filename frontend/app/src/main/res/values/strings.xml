@@ -23,6 +23,7 @@
     <string name="DeleteAccount">Delete Account></string>
     <string name="Username">Username</string>
     <string name="Fullname">Full Name</string>
+    <string name="UserHasNoNotifications">You have no notifications</string>
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
