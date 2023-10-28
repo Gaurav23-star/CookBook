@@ -7,7 +7,7 @@
     <string name="signup">SIGNUP</string>
     <string name="firstName">First Name</string>
     <string name="lastName">Last Name</string>
-
+    <string name="logout">LOGOUT</string>
 
     <string name="title_activity_recipe">RecipeActivity</string>
     <!-- Strings used for fragments for navigation -->

@@ -120,8 +120,8 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void changeActivityToUserHome(User user){
-        final Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
-        intent.putExtra("current_user", user);
+        final Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+        //intent.putExtra("current_user", user);
         startActivity(intent);
         finish();
     }
@@ -193,9 +193,6 @@ public class SignUpActivity extends AppCompatActivity {
         final Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
         return scanner.hasNext() ? scanner.next() : "";
     }
-
-
-
 
 
 }

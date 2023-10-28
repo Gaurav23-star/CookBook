@@ -27,6 +27,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -42,9 +43,11 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide();
-
+        System.out.println("VALUE OF CURRENT USER = " + currentUser);
         //retrieve user passed in by login activity
-       currentUser = (User) getIntent().getSerializableExtra("current_user");
+        if(getIntent().getSerializableExtra("current_user") != null){
+            currentUser = (User) getIntent().getSerializableExtra("current_user");
+        }
 
         System.out.println("Current User " + currentUser.toString());
         setContentView(R.layout.activity_home);
@@ -204,12 +207,14 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                     return true;
                 case R.id.bottom_person:
                     startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    overridePendingTransition(0, 0);
+                    //overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
                     return true;
                 case R.id.bottom_settings:
                     startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
-                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    overridePendingTransition(0,0);
+                    //overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
                     return true;
             }

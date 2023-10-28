@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -83,6 +84,7 @@ public class LoginActivity extends AppCompatActivity {
                     JSONObject userJson = jsonObject.getJSONObject("user");
 
                     user = gson.fromJson(userJson.toString(), User.class);
+                    save_user_to_device(user);
                     changeActivityToUserHome(user);
                     System.out.println(user);
 
@@ -161,5 +163,12 @@ public class LoginActivity extends AppCompatActivity {
         System.out.println("Signup clicked!");
         final Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
         startActivity(intent);
+    }
+
+
+    //save user information to device
+    private void save_user_to_device(User user){
+        SharedPreferences sharedPreferences = getSharedPreferences("Saved User", MODE_PRIVATE);
+        sharedPreferences.edit().putString("current_user", new Gson().toJson(user)).apply();
     }
 }
