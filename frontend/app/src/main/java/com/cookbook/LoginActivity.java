@@ -85,8 +85,9 @@ public class LoginActivity extends AppCompatActivity {
                     JSONObject userJson = jsonObject.getJSONObject("user");
 
                     user = gson.fromJson(userJson.toString(), User.class);
+                    System.out.println(user.getUsername());
                     changeActivityToUserHome(user);
-                    System.out.println(user);
+                    //System.out.println(user);
 
                 } else {
                     printInvalidCredentialsLoginFailure();
@@ -94,7 +95,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             } catch (Exception e) {
                 printServerDownFailure();
-                System.out.println("EXCEPTION OCcURRED " + e);
+                System.out.println("EXCEPTION OCCURRED " + e);
 
             }
         });
