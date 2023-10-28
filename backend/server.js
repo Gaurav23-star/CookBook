@@ -23,7 +23,13 @@ const USERS_TABLE = 'users';
 // GET method for /user-defined-recipes
 app.get(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
     try {
-        const result = await db.pool.query("SELECT * FROM " + USER_DEFINED_RECIPES_TABLE);
+        const user_id = req.query.user_id;
+        let condition;
+        if (user_id == undefined) condition = "TRUE";
+        else condition = `user_id = ${user_id}`;
+
+        const sql = `SELECT * FROM ${USER_DEFINED_RECIPES_TABLE} WHERE ${condition}`
+        const result = await db.pool.query(sql);
         res.status(200).send(convertBigIntsToNumbers(result));
     } catch (err) {
         console.log(err);
