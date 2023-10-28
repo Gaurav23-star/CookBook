@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.cookbook.model.User;
 import org.json.JSONObject;
+
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -26,6 +28,7 @@ public class SignUpActivity extends AppCompatActivity {
     private EditText firstNameEditText;
     private EditText lastNameEditText;
     private EditText emailEditText;
+    private EditText usernameEditText;
     private EditText passwordEditText;
     private Button signupButton;
     private TextView errorTextView;
@@ -44,6 +47,7 @@ public class SignUpActivity extends AppCompatActivity {
         lastNameEditText = findViewById(R.id.lastNameEditText);
         emailEditText = findViewById(R.id.emailEditTextSignUp);
         passwordEditText = findViewById(R.id.passwordEditTextSignUp);
+        usernameEditText = findViewById(R.id.usernameEditTextSignUp);
         signupButton = findViewById(R.id.signupButton);
         errorTextView = findViewById(R.id.errorTextViewSignUp);
 
@@ -63,6 +67,7 @@ public class SignUpActivity extends AppCompatActivity {
         String lastName = lastNameEditText.getText().toString();
         String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
+        String username = usernameEditText.getText().toString();
 
         if(!isValidName(firstName, lastName) || !isValidEmail(email) || !isValidPassword(password)) return;
 
@@ -80,7 +85,8 @@ public class SignUpActivity extends AppCompatActivity {
                 final String jsonData = "{\"first_name\": \"" + firstName + "\"," +
                                         "\"last_name\": \"" + lastName + "\", " +
                                         "\"email_id\":\"" + email + "\", " +
-                                        "\"password\":\"" + password + "\"}";
+                                        "\"password\":\"" + password + "\", " +
+                                        "\"username\":\"" + username + "\"}";
 
                 System.out.println("Json Payload: " + jsonData);
 
@@ -100,7 +106,7 @@ public class SignUpActivity extends AppCompatActivity {
                     JSONObject jsonObject = new JSONObject(jsonString);
                     int userId = jsonObject.getInt("insertId");
 
-                    user = new User(userId, firstName, lastName, email, password, 0, 0);
+                    user = new User(userId, firstName, lastName, email, password, 0, 0, username);
                     changeActivityToUserHome(user);
                 } else {
                     System.out.println("Response code is " + responseCode);
@@ -108,7 +114,7 @@ public class SignUpActivity extends AppCompatActivity {
                 }
             } catch (Exception e) {
                 printServerDownFailure();
-                System.out.println("EXCEPTION OCcURRED " + e);
+                System.out.println("EXCEPTION OCCURRED " + e);
             }
         });
         thread.start();

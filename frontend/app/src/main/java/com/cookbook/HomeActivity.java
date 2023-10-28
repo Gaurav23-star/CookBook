@@ -137,6 +137,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         }
         items.add(new Item(recipe));
         RecyclerView recyclerView = findViewById(R.id.recyclerview);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         MyAdapter adapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin());
         //find way to hide admin
@@ -206,16 +207,26 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 case R.id.bottom_home:
                     return true;
                 case R.id.bottom_person:
+
                     startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
                     overridePendingTransition(0, 0);
                     //overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
                     return true;
-                case R.id.bottom_settings:
-                    startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
-                    overridePendingTransition(0,0);
-                    //overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                case R.id.bottom_notifications:
+                    Intent intent_Notifications = new Intent(getApplicationContext(), NotificationsActivity.class);
+                    intent_Notifications.putExtra("current_user",currentUser);
+                    startActivity(intent_Notifications);
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
+                    return true;
+                case R.id.bottom_settings:
+                    final Intent intent_Settings = new Intent(getApplicationContext(), SettingsActivity.class);
+                    intent_Settings.putExtra("current_user",currentUser);
+                    startActivity(intent_Settings);
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    finish();
+
                     return true;
             }
             return false;

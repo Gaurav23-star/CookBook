@@ -14,6 +14,7 @@ import android.util.Patterns;
 import android.widget.TextView;
 import com.cookbook.model.User;
 import org.json.JSONObject;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -48,6 +49,7 @@ public class LoginActivity extends AppCompatActivity {
         this.errorTextView.setVisibility(View.INVISIBLE);
         final String email = emailEditText.getText().toString();
         final String password = passwordEditText.getText().toString();
+
 
         // return if input is not valid
         if (!isValidEmail(email) || !isValidPassword(password))
@@ -85,8 +87,9 @@ public class LoginActivity extends AppCompatActivity {
 
                     user = gson.fromJson(userJson.toString(), User.class);
                     save_user_to_device(user);
+                    System.out.println(user.getUsername());
                     changeActivityToUserHome(user);
-                    System.out.println(user);
+                    //System.out.println(user);
 
                 } else {
                     printInvalidCredentialsLoginFailure();
@@ -94,7 +97,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             } catch (Exception e) {
                 printServerDownFailure();
-                System.out.println("EXCEPTION OCcURRED " + e);
+                System.out.println("EXCEPTION OCCURRED " + e);
 
             }
         });

@@ -67,11 +67,33 @@ app.delete(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
             return;
         }
 
-        const sql = `DELETE FROM ${USER_DEFINED_RECIPES_TABLE} WHERE recipe_id = ?`;
+        const user_id = req.query.user_id;
+        if (user_id == undefined) {
+            res.status(400).send('You must provide the user_id of the current user in order to delete a recipe.\n');
+            return;
+        }
 
-        const result = await db.pool.query(sql, [recipe_id]);
-        
-        res.status(200).send(convertBigIntsToNumbers(result));
+        const sqlRecipeExistsQuery = `SELECT COUNT(*) FROM ${USER_DEFINED_RECIPES_TABLE} WHERE recipe_id = ?`;
+        const recipeExists = await db.pool.query(sqlRecipeExistsQuery, [recipe_id]);
+        if (recipeExists[0]['COUNT(*)'] == 0) {
+            res.status(200).send('No recipe exists with the provided id.\n');
+            return;
+        }
+
+        const sqlUserIsAdminQuery = `SELECT isAdmin FROM ${USERS_TABLE} WHERE user_id = ?`;
+        const isAdmin = await db.pool.query(sqlUserIsAdminQuery, [user_id]);
+
+        const sqlUserIdOfRecipeToDeleteQuery = `SELECT user_id FROM ${USER_DEFINED_RECIPES_TABLE} WHERE recipe_id = ?`;
+        const userIdOfRecipeToDelete = await db.pool.query(sqlUserIdOfRecipeToDeleteQuery, [recipe_id]);
+
+        if (isAdmin[0]['isAdmin'] == 1 || user_id == userIdOfRecipeToDelete[0]['user_id']) {
+            const sqlDeleteRecipeQuery = `DELETE FROM ${USER_DEFINED_RECIPES_TABLE} WHERE recipe_id = ?`;
+            const result = await db.pool.query(sqlDeleteRecipeQuery, [recipe_id]);
+            
+            res.status(200).send(convertBigIntsToNumbers(result));
+        } else {
+            res.status(401).send('The provided user is not authorized to delete this recipe.\n');
+        }
     } catch (err) {
         console.log(err);
         res.status(500).send(convertBigIntsToNumbers(err));
@@ -116,6 +138,7 @@ app.post(LOGIN_ENDPOINT, async (req, res) => {
             const sql = `SELECT * FROM ${USERS_TABLE} WHERE email_id = ? AND password = ?`;
 
             const result = await db.pool.query(sql, [email_id, password]);
+
             console.log(result);
 
             if (result.length > 0) {
