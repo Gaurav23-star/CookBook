@@ -1,4 +1,4 @@
-package com.cookbook.Settings;
+package com.cookbook.model.Settings;
 
 import android.content.Context;
 import android.view.LayoutInflater;

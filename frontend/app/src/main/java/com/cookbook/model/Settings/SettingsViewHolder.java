@@ -1,4 +1,4 @@
-package com.cookbook.Settings;
+package com.cookbook.model.Settings;
 
 import android.view.View;
 import android.widget.Button;

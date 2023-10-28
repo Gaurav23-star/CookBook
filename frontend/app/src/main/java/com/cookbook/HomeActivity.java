@@ -206,10 +206,20 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             switch (item.getItemId()){
                 case R.id.bottom_home:
                     return true;
+                case R.id.bottom_favorites:
+                    Intent intent_Favorites = new Intent(getApplicationContext(), FavoriteActivity.class);
+                    intent_Favorites.putExtra("current_user",currentUser);
+                    startActivity(intent_Favorites);
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    finish();
+                    return true;
                 case R.id.bottom_person:
-
-                    startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-                    overridePendingTransition(0, 0);
+                    Intent intent_Person = new Intent(getApplicationContext(), ProfileActivity.class);
+                    intent_Person.putExtra("current_user",currentUser);
+                    startActivity(intent_Person);
+                    overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                    //startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+                    //overridePendingTransition(0, 0);
                     //overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
                     return true;

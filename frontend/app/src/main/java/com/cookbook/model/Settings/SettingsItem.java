@@ -1,4 +1,4 @@
-package com.cookbook.Settings;
+package com.cookbook.model.Settings;
 
 public class SettingsItem {
     String name;
