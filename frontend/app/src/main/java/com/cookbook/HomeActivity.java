@@ -18,6 +18,7 @@ import com.cookbook.model.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.Gson;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,6 +30,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLOutput;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
@@ -37,7 +39,9 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     private static User currentUser;
     private static final String RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
     private Gson gson = new Gson();
-    List<Item> items = new ArrayList<Item>();
+    private JSONArray jsonArray;
+    //List<Item> items = new ArrayList<Item>();
+    List<Item> items = Collections.synchronizedList(new ArrayList<Item>());
     static Recipe recipe;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,26 +52,23 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         if(getIntent().getSerializableExtra("current_user") != null){
             currentUser = (User) getIntent().getSerializableExtra("current_user");
         }
-
+        //user id 2 will be admin account / default page
         System.out.println("Current User " + currentUser.toString());
         setContentView(R.layout.activity_home);
-        /*final Thread thread = new Thread(() -> {
+        final Thread thread = new Thread(() -> {
             try {
                 final URL url = new URL(RECIPE_URL);
                 final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
                 connection.setRequestMethod("GET");
-                connection.setRequestProperty("Content-Type", "application/json");
-                connection.setDoOutput(true);
-                int userid = 1;
+                connection.setRequestProperty("Content-length", "0");
+                connection.setDoOutput(false);
+
+                int userid = 2;
                 final String jsonData = "{\"user_id\":\"" + userid + "\"}";
                 System.out.println("Json Payload: " + jsonData);
 
-                final OutputStream os = connection.getOutputStream();
-                final OutputStreamWriter osw = new OutputStreamWriter(os, StandardCharsets.UTF_8);
-
-                osw.write(jsonData);
-                osw.flush();
+                connection.connect();
 
                 final int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -76,8 +77,11 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                     String jsonString = convertStreamToString(responseBody);
                     System.out.println("Response body: " + jsonString);
 
-                    JSONObject jsonObject = new JSONObject(jsonString);
-                    JSONObject recipeJson = jsonObject.getJSONObject("recipe");
+                    jsonArray = new JSONArray(jsonString);
+                    System.out.println(jsonArray.length());
+
+
+
 
                 } else {
 
@@ -90,9 +94,31 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             }
         });
 
-        thread.start();*/
+        thread.start();
+        JSONObject jsonObject;
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        synchronized (this) {
+            for (int i = 0; i < jsonArray.length(); i++) {
 
-        String jsonData = "{\"recipe\":{\"recipe_id\": 15,\"recipe_name\":\"Apple Pie\",\"servings\": 8,\"preparation_time_minutes\": 60,\"ingredients\":\"Apple, Pie Crust\",\"description\":\"This is my grandma's world famous recipe\",\"instructions\":\"1. Make the Apple Pie\",\"user_id\":smaye }}";
+                try {
+                    jsonObject = jsonArray.getJSONObject(i);
+                    System.out.println(jsonObject.toString());
+                    recipe = gson.fromJson(jsonObject.toString(), Recipe.class);
+                    System.out.println(recipe.getRecipe_name());
+                    //items.add(new Item(recipe));
+                    addItemThreadSafe(recipe);
+                    System.out.println("item added");
+                } catch (Exception e) {
+                    System.out.println("EXCEPTION OCcURRED " + e);
+                }
+
+            }
+        }
+        /*String jsonData = "{\"recipe\":{\"recipe_id\": 15,\"recipe_name\":\"Apple Pie\",\"servings\": 8,\"preparation_time_minutes\": 60,\"ingredients\":\"Apple, Pie Crust\",\"description\":\"This is my grandma's world famous recipe\",\"instructions\":\"1. Make the Apple Pie\",\"user_id\":smaye }}";
         //System.out.println(jsonData);
         try {
             JSONObject jsonObject = new JSONObject(jsonData);
@@ -135,7 +161,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        items.add(new Item(recipe));
+        items.add(new Item(recipe));*/
         RecyclerView recyclerView = findViewById(R.id.recyclerview);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -198,6 +224,12 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         finish();
     }
 
+    //method to ensure thread safety
+    public synchronized void addItemThreadSafe(Recipe recipe) {
+        items.add(new Item (recipe));
+    }
+
+
     public void handleNavigationChange(){
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.bottom_home);
@@ -210,14 +242,14 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                     Intent intent_Favorites = new Intent(getApplicationContext(), FavoriteActivity.class);
                     intent_Favorites.putExtra("current_user",currentUser);
                     startActivity(intent_Favorites);
-                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
                     finish();
                     return true;
                 case R.id.bottom_person:
                     Intent intent_Person = new Intent(getApplicationContext(), ProfileActivity.class);
                     intent_Person.putExtra("current_user",currentUser);
                     startActivity(intent_Person);
-                    overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                    overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
                     //startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
                     //overridePendingTransition(0, 0);
                     //overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);

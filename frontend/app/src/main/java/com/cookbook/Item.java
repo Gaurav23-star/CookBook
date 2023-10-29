@@ -14,7 +14,7 @@ public class Item {
 
     public Item(Recipe recipe) {
         this.name = recipe.getRecipe_name();
-        this.author = recipe.getUser_id();
+        this.author = Integer.toString(recipe.getUser_id());
         this.image = R.drawable.foodplaceholder;
         this.time = Integer.toString(recipe.getPreparation_time_minutes())+"mins";
         String[] ings = recipe.getIngredients().split(",");
