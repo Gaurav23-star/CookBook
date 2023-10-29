@@ -39,8 +39,6 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     private static User currentUser;
     private static final String RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
     private Gson gson = new Gson();
-    private JSONArray jsonArray;
-    //List<Item> items = new ArrayList<Item>();
     List<Item> items = Collections.synchronizedList(new ArrayList<Item>());
     static Recipe recipe;
     @Override
@@ -52,34 +50,38 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         if(getIntent().getSerializableExtra("current_user") != null){
             currentUser = (User) getIntent().getSerializableExtra("current_user");
         }
-        //user id 2 will be admin account / default page
+        //user id 2 will be admin account / default page for now
         System.out.println("Current User " + currentUser.toString());
         setContentView(R.layout.activity_home);
         final Thread thread = new Thread(() -> {
             try {
                 final URL url = new URL(RECIPE_URL);
                 final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
+                //sets type of request
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("Content-length", "0");
                 connection.setDoOutput(false);
-
-                int userid = 2;
-                final String jsonData = "{\"user_id\":\"" + userid + "\"}";
-                System.out.println("Json Payload: " + jsonData);
-
+                //since get we just need to do this i think?
                 connection.connect();
 
                 final int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     final InputStream responseBody = connection.getInputStream();
-
+                    //get response
                     String jsonString = convertStreamToString(responseBody);
                     System.out.println("Response body: " + jsonString);
 
-                    jsonArray = new JSONArray(jsonString);
+                    JSONArray jsonArray = new JSONArray(jsonString);
                     System.out.println(jsonArray.length());
-
+                    //add each item in jsonarray to recyclerview
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        System.out.println(jsonObject.toString());
+                        recipe = gson.fromJson(jsonObject.toString(), Recipe.class);
+                        System.out.println(recipe.getRecipe_name());
+                        addItemThreadSafe(recipe);
+                        System.out.println("item added");
+                    }
 
 
 
@@ -95,102 +97,22 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         });
 
         thread.start();
-        JSONObject jsonObject;
         try {
+            //waiting for thread to finish so parent doesnt display recyclerView without child filling recyclerView
             thread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        synchronized (this) {
-            for (int i = 0; i < jsonArray.length(); i++) {
 
-                try {
-                    jsonObject = jsonArray.getJSONObject(i);
-                    System.out.println(jsonObject.toString());
-                    recipe = gson.fromJson(jsonObject.toString(), Recipe.class);
-                    System.out.println(recipe.getRecipe_name());
-                    //items.add(new Item(recipe));
-                    addItemThreadSafe(recipe);
-                    System.out.println("item added");
-                } catch (Exception e) {
-                    System.out.println("EXCEPTION OCcURRED " + e);
-                }
-
-            }
-        }
-        /*String jsonData = "{\"recipe\":{\"recipe_id\": 15,\"recipe_name\":\"Apple Pie\",\"servings\": 8,\"preparation_time_minutes\": 60,\"ingredients\":\"Apple, Pie Crust\",\"description\":\"This is my grandma's world famous recipe\",\"instructions\":\"1. Make the Apple Pie\",\"user_id\":smaye }}";
-        //System.out.println(jsonData);
-        try {
-            JSONObject jsonObject = new JSONObject(jsonData);
-            JSONObject recipeJson = jsonObject.getJSONObject("recipe");
-            recipe = gson.fromJson(recipeJson.toString(), Recipe.class);
-            System.out.println(recipe.getDescription()+" "+recipe.getRecipe_id());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        items.add(new Item(recipe));
-        String jsonData2 = "{\"recipe\":{\"recipe_id\": 16,\"recipe_name\":\"Garfield's favorite lasagna\",\"servings\": 1,\"preparation_time_minutes\": 45,\"ingredients\":\"Meat, Pasta\",\"description\":\"Garfield just loves this amazing lasagna recipe!\",\"instructions\":\"1. Make the lasagna\",\"user_id\":jarbuckle }}";
-        //System.out.println(jsonData);
-        try {
-            JSONObject jsonObject = new JSONObject(jsonData2);
-            JSONObject recipeJson = jsonObject.getJSONObject("recipe");
-            recipe = gson.fromJson(recipeJson.toString(), Recipe.class);
-            System.out.println(recipe.getDescription()+" "+recipe.getRecipe_id());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        items.add(new Item(recipe));
-        String jsonData3 = "{\"recipe\":{\"recipe_id\": 17,\"recipe_name\":\"One Pot Sausage and Vegs\",\"servings\": 1,\"preparation_time_minutes\": 30,\"ingredients\":\"Sausage, Peppers\",\"description\":\"Easy one pot recipe!\",\"instructions\":\"1. Make the one pot recipe\",\"user_id\":seanny258 }}";
-        //System.out.println(jsonData);
-        try {
-            JSONObject jsonObject = new JSONObject(jsonData3);
-            JSONObject recipeJson = jsonObject.getJSONObject("recipe");
-            recipe = gson.fromJson(recipeJson.toString(), Recipe.class);
-            System.out.println(recipe.getDescription()+" "+recipe.getRecipe_id());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        items.add(new Item(recipe));
-        String jsonData4 = "{\"recipe\":{\"recipe_id\": 18,\"recipe_name\":\"Fish and chips\",\"servings\": 1,\"preparation_time_minutes\": 45,\"ingredients\":\"Fish, Potatoes\",\"description\":\"Want to be british? Why? Anyway here the recipe\",\"instructions\":\"1. Make the fish and chips\",\"user_id\":thebrit }}";
-        //System.out.println(jsonData);
-        try {
-            JSONObject jsonObject = new JSONObject(jsonData4);
-            JSONObject recipeJson = jsonObject.getJSONObject("recipe");
-            recipe = gson.fromJson(recipeJson.toString(), Recipe.class);
-            System.out.println(recipe.getDescription()+" "+recipe.getRecipe_id());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        items.add(new Item(recipe));*/
         RecyclerView recyclerView = findViewById(R.id.recyclerview);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
         MyAdapter adapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin());
-        //find way to hide admin
         recyclerView.setAdapter(adapter);
 
         // ------ Navigation Choice ----
         handleNavigationChange();
-//        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-//        bottomNavigationView.setSelectedItemId(R.id.bottom_home);
-//
-//        bottomNavigationView.setOnItemSelectedListener(item ->{
-//            switch (item.getItemId()){
-//                case R.id.bottom_home:
-//                    return true;
-//                case R.id.bottom_person:
-//                    startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-//                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-//                    finish();
-//                    return true;
-//                case R.id.bottom_settings:
-//                    startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
-//                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-//                    finish();
-//                    return true;
-//            }
-//            return false;
-//        });
 
 
     }
@@ -250,9 +172,6 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                     intent_Person.putExtra("current_user",currentUser);
                     startActivity(intent_Person);
                     overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
-                    //startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-                    //overridePendingTransition(0, 0);
-                    //overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
                     return true;
                 case R.id.bottom_notifications:
