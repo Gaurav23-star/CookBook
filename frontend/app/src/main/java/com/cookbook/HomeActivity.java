@@ -148,7 +148,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
                 }
             } catch (Exception e) {
-                System.out.println("EXCEPTION OCcURRED " + e);
+                System.out.println("EXCEPTION OCCURRED " + e);
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -164,7 +164,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     public void onItemClick(int position) {
         System.out.println(items.toString() + " "+recipe.toString());
         if (currentUser.getIsAdmin()==0) {
-            changeActivityToUserHome(currentUser, items.get(position).getRecipe());
+        changeActivityToUserHome(currentUser, items.get(position).getRecipe());
 
         } else {
             final Dialog dialog = new Dialog(this);
@@ -172,9 +172,23 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.admin_dialog);
             final Button banUser = dialog.findViewById(R.id.banUser);
-            final Button banButton = dialog.findViewById(R.id.banButton);
+            final Button deleteRecipe = dialog.findViewById(R.id.deleteRecipe);
 
             dialog.show();
+
+            deleteRecipe.setOnClickListener(view -> {
+                System.out.println("banUser selected");
+                deleteRecipe(items.get(position).getRecipe());
+                dialog.dismiss();
+            });
+
+            banUser.setOnClickListener(view -> {
+                System.out.println("deleteRecipe selected");
+                dialog.dismiss();
+            });
+
+
+
         }
     }
     private String convertStreamToString(InputStream is) {
@@ -235,5 +249,35 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             }
             return false;
         });
+    }
+
+    public void deleteRecipe (Recipe recipe) {
+
+        final Thread thread = new Thread (() -> {
+            try {
+                int recipe_id = recipe.getRecipe_id();
+                int user_id = recipe.getUser_id();
+                String deleteURL = RECIPE_URL + "?recipe_id=" + recipe_id + "&user_id=" + user_id;
+                URL url = new URL(deleteURL);
+                final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                //sets type of request
+                connection.setRequestMethod("DELETE");
+                connection.setRequestProperty("Content-length", "0");
+                connection.setDoOutput(false);
+                //since get we just need to do this i think as well?
+                connection.connect();
+
+                final int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    System.out.println("DELETED SUCCESSFULLY");
+                } else {
+                    System.out.println("Could not delete for some reason.");
+                }
+
+            } catch (Exception e) {
+                System.out.println("EXCEPTION OCCURRED " + e);
+            }
+        });
+        thread.start();
     }
 }

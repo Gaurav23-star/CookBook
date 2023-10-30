@@ -98,7 +98,6 @@ public class LoginActivity extends AppCompatActivity {
             } catch (Exception e) {
                 printServerDownFailure();
                 System.out.println("EXCEPTION OCCURRED " + e);
-
             }
         });
 
