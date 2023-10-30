@@ -1,5 +1,9 @@
 package com.cookbook;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -7,6 +11,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -94,9 +99,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
     private void add_recipes_to_ui(){
         RecyclerView recyclerView = findViewById(R.id.recyclerview);
-
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
         MyAdapter adapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin());
         recyclerView.setAdapter(adapter);
     }
@@ -164,7 +167,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     public void onItemClick(int position) {
         System.out.println(items.toString() + " "+recipe.toString());
         if (currentUser.getIsAdmin()==0) {
-            changeActivityToUserHome(currentUser, items.get(position).getRecipe());
+            changeActivityToRecipeActivity(currentUser, items.get(position).getRecipe());
 
         } else {
             final Dialog dialog = new Dialog(this);
@@ -181,12 +184,11 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         final Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
         return scanner.hasNext() ? scanner.next() : "";
     }
-    private void changeActivityToUserHome(User user, Recipe recipe){
+    private void changeActivityToRecipeActivity(User user, Recipe recipe){
         final Intent intent = new Intent(HomeActivity.this, RecipeActivity.class);
         intent.putExtra("current_user",user);
         intent.putExtra("current_recipe", recipe);
         startActivity(intent);
-        finish();
     }
 
     //method to ensure thread safety
@@ -236,4 +238,29 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             return false;
         });
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        System.out.println("HOME ACTIVITY RESUMED");
+        SharedPreferences sharedPreferences = getSharedPreferences("Updated_recipe", MODE_PRIVATE);
+        if(sharedPreferences.contains("updated_recipe")){
+            System.out.println("GOT UPDATED RECIPE");
+            System.out.println(sharedPreferences.getString("updated_recipe", "null"));
+            String update_recipe = sharedPreferences.getString("updated_recipe", "null");
+
+            //update the recipe list with edited recipe
+            if(!update_recipe.equals("null")){
+                Recipe uRecipe = new Gson().fromJson(update_recipe, Recipe.class);
+                for(Item recipe : items){
+                    if(recipe.getRecipe().getRecipe_id() == uRecipe.getRecipe_id()){
+                        recipe.update_item(uRecipe);
+                        break;
+                    }
+                }
+                add_recipes_to_ui();
+            }
+        }
+    }
+
 }
