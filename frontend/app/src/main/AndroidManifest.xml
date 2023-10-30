@@ -29,13 +29,6 @@
             android:name=".ProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".RecipeActivity"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
             android:name=".LoginActivity"
             android:exported="false" />
         <activity
@@ -45,6 +38,15 @@
         <activity
             android:name=".HomeActivity"
             android:exported="false" />
+        <activity
+            android:name=".RecipeActivity"
+            android:exported="false"
+            android:parentActivityName=".HomeActivity"
+            android:windowSoftInputMode="adjustPan">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
         <activity
             android:name=".MainActivity"
             android:exported="true">
