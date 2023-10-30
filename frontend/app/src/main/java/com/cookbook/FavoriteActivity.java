@@ -34,7 +34,7 @@ public class FavoriteActivity extends AppCompatActivity {
                     Intent intent_Person = new Intent(getApplicationContext(), ProfileActivity.class);
                     intent_Person.putExtra("current_user",currentUser);
                     startActivity(intent_Person);
-                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
                     finish();
                     return true;
                 case R.id.bottom_settings:

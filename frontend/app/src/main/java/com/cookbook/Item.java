@@ -14,12 +14,17 @@ public class Item {
 
     public Item(Recipe recipe) {
         this.name = recipe.getRecipe_name();
-        this.author = recipe.getUser_id();
+        this.author = Integer.toString(recipe.getUser_id());
         this.image = R.drawable.foodplaceholder;
         this.time = Integer.toString(recipe.getPreparation_time_minutes())+"mins";
         String[] ings = recipe.getIngredients().split(",");
         this.ing1= ings[0];
-        this.ing2=ings[1];
+        if(ings.length==1){
+            this.ing2="society";
+        }else{
+            this.ing2=ings[1];
+        }
+
         this.admin=R.drawable.ic_baseline_settings_24;
         this.recipe=recipe;
     }

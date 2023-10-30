@@ -3,170 +3,161 @@ package com.cookbook;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.cookbook.model.Recipe;
 import com.cookbook.model.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.Gson;
 
-import org.json.JSONException;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class HomeActivity extends AppCompatActivity implements RecyclerViewInterface{
 
+    private SwipeRefreshLayout swipeRefreshLayout;
     private static User currentUser;
     private static final String RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
-    private Gson gson = new Gson();
-    List<Item> items = new ArrayList<Item>();
+    private final Gson gson = new Gson();
+    private static final List<Item> items = Collections.synchronizedList(new ArrayList<Item>());
     static Recipe recipe;
+
+    private TextView server_error_text;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
         System.out.println("VALUE OF CURRENT USER = " + currentUser);
         //retrieve user passed in by login activity
         if(getIntent().getSerializableExtra("current_user") != null){
             currentUser = (User) getIntent().getSerializableExtra("current_user");
         }
-
+        //user id 2 will be admin account / default page for now
         System.out.println("Current User " + currentUser.toString());
         setContentView(R.layout.activity_home);
-        /*final Thread thread = new Thread(() -> {
+        swipeRefreshLayout = findViewById(R.id.refreshLayout);
+        server_error_text = findViewById(R.id.serverErrorTextView);
+
+        //if recipes not loaded from server, then load
+        if(items.size() == 0){
+            System.out.println("LIST IS EMPTY");
+            get_recipes_from_server();
+        }
+        //if we already have recipes loaded, then
+        // just update the UI, no need to reload from server again
+        else{
+            add_recipes_to_ui();
+        }
+
+        //Let recipes list refreshable, reload data from server if user refreshes
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                server_error_text.setVisibility(View.GONE);
+                get_recipes_from_server();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
+        // ------ Navigation Choice ----
+        handleNavigationChange();
+
+
+    }
+
+
+    private void display_server_down_error(String errorText){
+        server_error_text.setText(errorText);
+        server_error_text.setVisibility(View.VISIBLE);
+    }
+
+
+    private void add_recipes_to_ui(){
+        RecyclerView recyclerView = findViewById(R.id.recyclerview);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        MyAdapter adapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin());
+        recyclerView.setAdapter(adapter);
+    }
+
+
+    private void get_recipes_from_server(){
+        final Thread thread = new Thread(() -> {
+            Handler handler = new Handler(Looper.getMainLooper());
             try {
                 final URL url = new URL(RECIPE_URL);
                 final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
+                //sets type of request
                 connection.setRequestMethod("GET");
-                connection.setRequestProperty("Content-Type", "application/json");
-                connection.setDoOutput(true);
-                int userid = 1;
-                final String jsonData = "{\"user_id\":\"" + userid + "\"}";
-                System.out.println("Json Payload: " + jsonData);
-
-                final OutputStream os = connection.getOutputStream();
-                final OutputStreamWriter osw = new OutputStreamWriter(os, StandardCharsets.UTF_8);
-
-                osw.write(jsonData);
-                osw.flush();
+                connection.setRequestProperty("Content-length", "0");
+                connection.setDoOutput(false);
+                //since get we just need to do this i think?
+                connection.connect();
 
                 final int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     final InputStream responseBody = connection.getInputStream();
-
+                    //get response
                     String jsonString = convertStreamToString(responseBody);
                     System.out.println("Response body: " + jsonString);
 
-                    JSONObject jsonObject = new JSONObject(jsonString);
-                    JSONObject recipeJson = jsonObject.getJSONObject("recipe");
+                    JSONArray jsonArray = new JSONArray(jsonString);
+                    System.out.println(jsonArray.length());
+                    items.clear();
+                    //add each item in jsonarray to recyclerview
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        System.out.println(jsonObject.toString());
+                        recipe = gson.fromJson(jsonObject.toString(), Recipe.class);
+                        System.out.println(recipe.getRecipe_name());
+                        addItemThreadSafe(recipe);
+                        System.out.println("item added");
+                    }
+
+                    //load the ui
+                    handler.post(this::add_recipes_to_ui);
 
                 } else {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            display_server_down_error("Something went wrong.");
+                        }
+                    });
 
-                    throw new Exception("HTTP Request Failed with response code: " + responseCode);
                 }
             } catch (Exception e) {
-
                 System.out.println("EXCEPTION OCcURRED " + e);
-
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        display_server_down_error("Server is down, Please Try again");
+                    }
+                });
             }
         });
-
-        thread.start();*/
-
-        String jsonData = "{\"recipe\":{\"recipe_id\": 15,\"recipe_name\":\"Apple Pie\",\"servings\": 8,\"preparation_time_minutes\": 60,\"ingredients\":\"Apple, Pie Crust\",\"description\":\"This is my grandma's world famous recipe\",\"instructions\":\"1. Make the Apple Pie\",\"user_id\":smaye }}";
-        //System.out.println(jsonData);
-        try {
-            JSONObject jsonObject = new JSONObject(jsonData);
-            JSONObject recipeJson = jsonObject.getJSONObject("recipe");
-            recipe = gson.fromJson(recipeJson.toString(), Recipe.class);
-            System.out.println(recipe.getDescription()+" "+recipe.getRecipe_id());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        items.add(new Item(recipe));
-        String jsonData2 = "{\"recipe\":{\"recipe_id\": 16,\"recipe_name\":\"Garfield's favorite lasagna\",\"servings\": 1,\"preparation_time_minutes\": 45,\"ingredients\":\"Meat, Pasta\",\"description\":\"Garfield just loves this amazing lasagna recipe!\",\"instructions\":\"1. Make the lasagna\",\"user_id\":jarbuckle }}";
-        //System.out.println(jsonData);
-        try {
-            JSONObject jsonObject = new JSONObject(jsonData2);
-            JSONObject recipeJson = jsonObject.getJSONObject("recipe");
-            recipe = gson.fromJson(recipeJson.toString(), Recipe.class);
-            System.out.println(recipe.getDescription()+" "+recipe.getRecipe_id());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        items.add(new Item(recipe));
-        String jsonData3 = "{\"recipe\":{\"recipe_id\": 17,\"recipe_name\":\"One Pot Sausage and Vegs\",\"servings\": 1,\"preparation_time_minutes\": 30,\"ingredients\":\"Sausage, Peppers\",\"description\":\"Easy one pot recipe!\",\"instructions\":\"1. Make the one pot recipe\",\"user_id\":seanny258 }}";
-        //System.out.println(jsonData);
-        try {
-            JSONObject jsonObject = new JSONObject(jsonData3);
-            JSONObject recipeJson = jsonObject.getJSONObject("recipe");
-            recipe = gson.fromJson(recipeJson.toString(), Recipe.class);
-            System.out.println(recipe.getDescription()+" "+recipe.getRecipe_id());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        items.add(new Item(recipe));
-        String jsonData4 = "{\"recipe\":{\"recipe_id\": 18,\"recipe_name\":\"Fish and chips\",\"servings\": 1,\"preparation_time_minutes\": 45,\"ingredients\":\"Fish, Potatoes\",\"description\":\"Want to be british? Why? Anyway here the recipe\",\"instructions\":\"1. Make the fish and chips\",\"user_id\":thebrit }}";
-        //System.out.println(jsonData);
-        try {
-            JSONObject jsonObject = new JSONObject(jsonData4);
-            JSONObject recipeJson = jsonObject.getJSONObject("recipe");
-            recipe = gson.fromJson(recipeJson.toString(), Recipe.class);
-            System.out.println(recipe.getDescription()+" "+recipe.getRecipe_id());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        items.add(new Item(recipe));
-        RecyclerView recyclerView = findViewById(R.id.recyclerview);
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        MyAdapter adapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin());
-        //find way to hide admin
-        recyclerView.setAdapter(adapter);
-
-        // ------ Navigation Choice ----
-        handleNavigationChange();
-//        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-//        bottomNavigationView.setSelectedItemId(R.id.bottom_home);
-//
-//        bottomNavigationView.setOnItemSelectedListener(item ->{
-//            switch (item.getItemId()){
-//                case R.id.bottom_home:
-//                    return true;
-//                case R.id.bottom_person:
-//                    startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-//                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-//                    finish();
-//                    return true;
-//                case R.id.bottom_settings:
-//                    startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
-//                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-//                    finish();
-//                    return true;
-//            }
-//            return false;
-//        });
-
-
+        thread.start();
     }
 
     @Override
@@ -198,6 +189,12 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         finish();
     }
 
+    //method to ensure thread safety
+    public synchronized void addItemThreadSafe(Recipe recipe) {
+        items.add(new Item (recipe));
+    }
+
+
     public void handleNavigationChange(){
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.bottom_home);
@@ -210,17 +207,14 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                     Intent intent_Favorites = new Intent(getApplicationContext(), FavoriteActivity.class);
                     intent_Favorites.putExtra("current_user",currentUser);
                     startActivity(intent_Favorites);
-                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
                     finish();
                     return true;
                 case R.id.bottom_person:
                     Intent intent_Person = new Intent(getApplicationContext(), ProfileActivity.class);
                     intent_Person.putExtra("current_user",currentUser);
                     startActivity(intent_Person);
-                    overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
-                    //startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-                    //overridePendingTransition(0, 0);
-                    //overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
                     finish();
                     return true;
                 case R.id.bottom_notifications:
