@@ -8,24 +8,212 @@
     tools:context=".ProfileActivity">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/profilePageTextView"
+        android:layout_width="115dp"
+        android:layout_height="24dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="95dp"
+        android:layout_marginTop="5dp"
         android:text="Profile Page"
-        android:textSize="40sp"
         android:textColor="@color/black"
-        android:layout_centerInParent="true"/>
+        android:textSize="10sp" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/bottomNavigationView"
-        android:layout_alignParentBottom="true"
-        android:background="@drawable/bottom_background"
-        android:layout_marginTop="30dp"
-        android:elevation="2dp"
-        app:menu="@menu/bottom_menu"
-        app:itemIconSize="30dp"
-        app:labelVisibilityMode="labeled" />
+        android:id="@+id/scrollviewId"
+        android:layout_below="@id/profilePageTextView"
+        android:layout_above="@+id/bottomNavigationView">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/userNameTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/CookBkUser23"
+                    android:gravity="center"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:textSize="20sp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/topBar"
+                android:padding="16sp"
+                >
+
+<!--                <com.google.android.material.imageview.ShapeableImageView-->
+<!--                    android:layout_width="80sp"-->
+<!--                    android:layout_height="80sp"-->
+<!--                    android:layout_margin="10sp"-->
+<!--                    android:padding="5sp"-->
+<!--                    android:src="@drawable/foodplaceholder"-->
+<!--                    app:shapeAppearanceOverlay="@style/circleImageView"-->
+<!--                    app:strokeColor="@android:color/holo_red_dark"-->
+<!--                    app:strokeWidth="10sp" />-->
+                <de.hdodenhof.circleimageview.CircleImageView
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/profileImage"
+                    android:layout_width="90sp"
+                    android:layout_height="95sp"
+                    android:padding="0sp"
+                    android:layout_margin="0sp"
+                    android:src="@drawable/foodplaceholder"
+                    app:civ_border_width="2dp"
+                    app:civ_border_color="@android:color/black"/>
+
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="4dp"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/postsNumber"
+                                android:textColor="@color/black"
+                                android:layout_gravity="center"
+                                android:textSize="18sp"
+                                android:textStyle="bold"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:text="Posts"/>
+                        </LinearLayout>
+
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="35sp"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/followersNumber"
+                                android:textColor="@color/black"
+                                android:layout_gravity="center"
+                                android:textSize="18sp"
+                                android:textStyle="bold"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:text="Followers"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="35sp"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/followingNumber"
+                                android:textColor="@color/black"
+                                android:layout_gravity="center"
+                                android:textSize="18sp"
+                                android:textStyle="bold"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:text="Following"/>
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/FullNameTextView"
+                    android:paddingLeft="5sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/PlaceHolderFullName"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:textSize="17sp"/>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/bioTextView"
+                    android:paddingLeft="4sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/PlaceHolderBio"
+                    android:textSize="15sp"
+                    android:textColor="@color/black"/>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
+        <!--        android:layout_width="match_parent"-->
+        <!--        android:layout_height="wrap_content"-->
+        <!--        android:id="@+id/bottomNavigationView"-->
+        <!--        android:layout_alignParentBottom="true"-->
+        <!--        android:background="@drawable/bottom_background"-->
+        <!--        android:layout_marginTop="30dp"-->
+        <!--        android:elevation="2dp"-->
+        <!--        app:menu="@menu/bottom_menu"-->
+        <!--        app:itemIconSize="30dp"-->
+        <!--        app:labelVisibilityMode="labeled" />-->
+
+
+
+
+    </ScrollView>
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/bottomNavigationView"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/bottom_background"
+            android:layout_marginTop="30dp"
+            android:elevation="2dp"
+            app:menu="@menu/bottom_menu"
+            app:itemIconSize="30dp"
+            app:labelVisibilityMode="labeled" />
 
 
 </RelativeLayout>
