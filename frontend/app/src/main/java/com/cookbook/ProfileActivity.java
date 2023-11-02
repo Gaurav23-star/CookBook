@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -36,8 +37,6 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
     private SwipeRefreshLayout swipeRefreshLayout;
     static Recipe recipe;
 
-    //private static final String RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
-    //private static final String RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes?user_id=45";
     private static String RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
 
     private final Gson gson = new Gson();
@@ -45,6 +44,10 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
     private static final List<Item> items = Collections.synchronizedList(new ArrayList<Item>());
 
     private TextView server_error_text;
+
+    private TextView postsNumber;
+    private TextView followersNumber;
+    private TextView followingNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +58,13 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         if(getIntent().getSerializableExtra("current_user") != null){
             currentUser = (User) getIntent().getSerializableExtra("current_user");
         }
+        RECIPE_URL += "?user_id=" + (currentUser.getUser_id());
+        setContentView(R.layout.activity_profile);
+
         swipeRefreshLayout = findViewById(R.id.profile_refreshLayout);
         server_error_text = findViewById(R.id.profile_serverErrorTextView);
 
 
-        setContentView(R.layout.activity_profile);
         //user created recipes not loaded from server
         if(items.size()== 0){
             System.out.println("--------LIST IS EMPTY--------");
@@ -69,7 +74,14 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
             add_recipes_to_ui();
         }
 
-
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                server_error_text.setVisibility(View.GONE);
+                get_user_created_recipes_from_server();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         // ------ Navigation Choice ----
         handleNavigationChange();
@@ -77,13 +89,9 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
 
     private void add_recipes_to_ui(){
         RecyclerView recyclerView = findViewById(R.id.profile_recyclerview);
-        //recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        //MyAdapter adapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin());
-        //recyclerView.setAdapter(adapter);
-        MyAdapter adapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin());
-        //recyclerView.setHasFixedSize(true);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 3);
-        //gridLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        ProfileAdapter adapter = new ProfileAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin());// ---
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 3);
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setAdapter(adapter);
 
@@ -93,7 +101,6 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         final Thread thread = new Thread(() -> {
             Handler handler = new Handler(Looper.getMainLooper());
             try {
-                RECIPE_URL += "?user_id=" + (currentUser.getUser_id());
                 final URL url = new URL(RECIPE_URL);
                 final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 //sets type of request
@@ -212,4 +219,29 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
     public void onItemClick(int position) {
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        System.out.println("HOME ACTIVITY RESUMED");
+        SharedPreferences sharedPreferences = getSharedPreferences("Updated_recipe", MODE_PRIVATE);
+        if(sharedPreferences.contains("updated_recipe")){
+            System.out.println("GOT UPDATED RECIPE");
+            System.out.println(sharedPreferences.getString("updated_recipe", "null"));
+            String update_recipe = sharedPreferences.getString("updated_recipe", "null");
+
+            //update the recipe list with edited recipe
+            if(!update_recipe.equals("null")){
+                Recipe uRecipe = new Gson().fromJson(update_recipe, Recipe.class);
+                for(Item recipe : items){
+                    if(recipe.getRecipe().getRecipe_id() == uRecipe.getRecipe_id()){
+                        recipe.update_item(uRecipe);
+                        break;
+                    }
+                }
+                add_recipes_to_ui();
+            }
+        }
+    }
+
 }

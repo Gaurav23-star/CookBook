@@ -9,16 +9,17 @@
 
     <TextView
         android:id="@+id/profile_serverErrorTextView"
-        android:layout_width="115dp"
-        android:layout_height="24dp"
+        android:layout_width="268dp"
+        android:layout_height="23dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="95dp"
-        android:layout_marginTop="5dp"
-        android:text="Profile Page"
-        android:textColor="@color/black"
-        android:textSize="10sp" />
+        android:layout_marginStart="72dp"
+        android:layout_marginTop="-1dp"
+        android:text="@string/server_is_down"
+        android:textColor="@color/red"
+        android:textSize="18sp"
+        android:visibility="gone"/>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -55,15 +56,7 @@
                 android:padding="16sp"
                 >
 
-<!--                <com.google.android.material.imageview.ShapeableImageView-->
-<!--                    android:layout_width="80sp"-->
-<!--                    android:layout_height="80sp"-->
-<!--                    android:layout_margin="10sp"-->
-<!--                    android:padding="5sp"-->
-<!--                    android:src="@drawable/foodplaceholder"-->
-<!--                    app:shapeAppearanceOverlay="@style/circleImageView"-->
-<!--                    app:strokeColor="@android:color/holo_red_dark"-->
-<!--                    app:strokeWidth="10sp" />-->
+
                 <de.hdodenhof.circleimageview.CircleImageView
                     xmlns:app="http://schemas.android.com/apk/res-auto"
                     android:id="@+id/profileImage"
@@ -71,7 +64,7 @@
                     android:layout_height="95sp"
                     android:padding="0sp"
                     android:layout_margin="0sp"
-                    android:src="@drawable/foodplaceholder"
+                    android:src="@drawable/chef"
                     app:civ_border_width="2dp"
                     app:civ_border_color="@android:color/black"/>
 
@@ -88,7 +81,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:layout_marginTop="5sp"
+                        android:layout_marginRight="5sp">
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -100,7 +95,8 @@
                                 android:textColor="@color/black"
                                 android:layout_gravity="center"
                                 android:textSize="18sp"
-                                android:textStyle="bold"/>
+                                android:textStyle="bold"
+                                android:text="0"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
@@ -120,7 +116,8 @@
                                 android:textColor="@color/black"
                                 android:layout_gravity="center"
                                 android:textSize="18sp"
-                                android:textStyle="bold"/>
+                                android:textStyle="bold"
+                                android:text="0"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
@@ -139,7 +136,8 @@
                                 android:textColor="@color/black"
                                 android:layout_gravity="center"
                                 android:textSize="18sp"
-                                android:textStyle="bold"/>
+                                android:textStyle="bold"
+                                android:text="0"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
@@ -209,17 +207,6 @@
 
         </LinearLayout>
 
-        <!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
-        <!--        android:layout_width="match_parent"-->
-        <!--        android:layout_height="wrap_content"-->
-        <!--        android:id="@+id/bottomNavigationView"-->
-        <!--        android:layout_alignParentBottom="true"-->
-        <!--        android:background="@drawable/bottom_background"-->
-        <!--        android:layout_marginTop="30dp"-->
-        <!--        android:elevation="2dp"-->
-        <!--        app:menu="@menu/bottom_menu"-->
-        <!--        app:itemIconSize="30dp"-->
-        <!--        app:labelVisibilityMode="labeled" />-->
 
 
 
