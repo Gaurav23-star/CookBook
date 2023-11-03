@@ -1,26 +1,174 @@
 package com.cookbook;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.cookbook.model.Recipe;
 import com.cookbook.model.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.gson.Gson;
 
-public class ProfileActivity extends AppCompatActivity {
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Scanner;
+
+public class ProfileActivity extends AppCompatActivity implements RecyclerViewInterface {
 
     private static User currentUser;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    static Recipe recipe;
+
+    private static String RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
+
+    private final Gson gson = new Gson();
+
+    private static final List<Item> items = Collections.synchronizedList(new ArrayList<Item>());
+
+    private TextView server_error_text;
+
+    private TextView postsNumber;
+    private TextView followersNumber;
+    private TextView followingNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
         getSupportActionBar().hide();
         //retrieve user passed in
-        currentUser = (User) getIntent().getSerializableExtra("current_user");
+        //currentUser = (User) getIntent().getSerializableExtra("current_user");
+        if(getIntent().getSerializableExtra("current_user") != null){
+            currentUser = (User) getIntent().getSerializableExtra("current_user");
+        }
+        RECIPE_URL += "?user_id=" + (currentUser.getUser_id());
+        setContentView(R.layout.activity_profile);
 
+        swipeRefreshLayout = findViewById(R.id.profile_refreshLayout);
+        server_error_text = findViewById(R.id.profile_serverErrorTextView);
+
+
+        //user created recipes not loaded from server
+        if(items.size()== 0){
+            System.out.println("--------LIST IS EMPTY--------");
+            get_user_created_recipes_from_server();
+
+        }else{
+            add_recipes_to_ui();
+        }
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                server_error_text.setVisibility(View.GONE);
+                get_user_created_recipes_from_server();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
+        // ------ Navigation Choice ----
         handleNavigationChange();
+    }
+
+    private void add_recipes_to_ui(){
+        RecyclerView recyclerView = findViewById(R.id.profile_recyclerview);
+        ProfileAdapter adapter = new ProfileAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin());// ---
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 3);
+        recyclerView.setLayoutManager(gridLayoutManager);
+        recyclerView.setAdapter(adapter);
+
+    }
+
+    private void get_user_created_recipes_from_server(){
+        final Thread thread = new Thread(() -> {
+            Handler handler = new Handler(Looper.getMainLooper());
+            try {
+                final URL url = new URL(RECIPE_URL);
+                final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                //sets type of request
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Content-length", "0");
+                connection.setDoOutput(false);
+                //since get we just need to do this i think?
+                connection.connect();
+
+                final int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    final InputStream responseBody = connection.getInputStream();
+                    //get response
+                    String jsonString = convertStreamToString(responseBody);
+                    System.out.println("Response body: " + jsonString);
+
+                    JSONArray jsonArray = new JSONArray(jsonString);
+                    System.out.println(jsonArray.length());
+                    items.clear();
+                    //add each item in jsonarray to recyclerview
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        System.out.println(jsonObject.toString());
+                        recipe = gson.fromJson(jsonObject.toString(), Recipe.class);
+                        System.out.println(recipe.getRecipe_name());
+                        addItemThreadSafe(recipe);
+                        System.out.println("item added");
+                    }
+
+                    //load the ui
+                    handler.post(this::add_recipes_to_ui);
+
+                } else {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            display_server_down_error("Something went wrong.");
+                        }
+                    });
+
+                }
+            } catch (Exception e) {
+                System.out.println("EXCEPTION OCcURRED " + e);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        display_server_down_error("Server is down, Please Try again");
+                    }
+                });
+            }
+        });
+        thread.start();
+    }
+
+
+    //method to ensure thread safety
+    public synchronized void addItemThreadSafe(Recipe recipe) {
+        items.add(new Item (recipe));
+    }
+
+    private String convertStreamToString(InputStream is) {
+        final Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
+        return scanner.hasNext() ? scanner.next() : "";
+    }
+
+    private void display_server_down_error(String errorText){
+        server_error_text.setText(errorText);
+        server_error_text.setVisibility(View.VISIBLE);
     }
 
     public void handleNavigationChange(){
@@ -66,4 +214,34 @@ public class ProfileActivity extends AppCompatActivity {
             return false;
         });
     }
+
+    @Override
+    public void onItemClick(int position) {
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        System.out.println("HOME ACTIVITY RESUMED");
+        SharedPreferences sharedPreferences = getSharedPreferences("Updated_recipe", MODE_PRIVATE);
+        if(sharedPreferences.contains("updated_recipe")){
+            System.out.println("GOT UPDATED RECIPE");
+            System.out.println(sharedPreferences.getString("updated_recipe", "null"));
+            String update_recipe = sharedPreferences.getString("updated_recipe", "null");
+
+            //update the recipe list with edited recipe
+            if(!update_recipe.equals("null")){
+                Recipe uRecipe = new Gson().fromJson(update_recipe, Recipe.class);
+                for(Item recipe : items){
+                    if(recipe.getRecipe().getRecipe_id() == uRecipe.getRecipe_id()){
+                        recipe.update_item(uRecipe);
+                        break;
+                    }
+                }
+                add_recipes_to_ui();
+            }
+        }
+    }
+
 }
