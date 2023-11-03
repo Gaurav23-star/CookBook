@@ -20,6 +20,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.cookbook.model.ApiResponse;
 import com.cookbook.model.Recipe;
 import com.cookbook.model.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -41,24 +42,23 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private static User currentUser;
-    private static final String RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
     private final Gson gson = new Gson();
     private static final List<Item> items = Collections.synchronizedList(new ArrayList<Item>());
-    static Recipe recipe;
 
     private TextView server_error_text;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
-        Objects.requireNonNull(getSupportActionBar()).hide();
-        System.out.println("VALUE OF CURRENT USER = " + currentUser);
+        Objects.requireNonNull(getSupportActionBar()).setTitle("HOME");
         //retrieve user passed in by login activity
         if(getIntent().getSerializableExtra("current_user") != null){
             currentUser = (User) getIntent().getSerializableExtra("current_user");
         }
+        System.out.println("VALUE OF CURRENT USER = " + currentUser);
         //user id 2 will be admin account / default page for now
-        System.out.println("Current User " + currentUser.toString());
+        //System.out.println("Current User " + currentUser.toString());
         setContentView(R.layout.activity_home);
         swipeRefreshLayout = findViewById(R.id.refreshLayout);
         server_error_text = findViewById(R.id.serverErrorTextView);
@@ -90,10 +90,15 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
     }
 
-
     private void display_server_down_error(String errorText){
-        server_error_text.setText(errorText);
-        server_error_text.setVisibility(View.VISIBLE);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                server_error_text.setText(errorText);
+                server_error_text.setVisibility(View.VISIBLE);
+            }
+        });
+
     }
 
 
@@ -106,66 +111,43 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
 
     private void get_recipes_from_server(){
-        final Thread thread = new Thread(() -> {
-            Handler handler = new Handler(Looper.getMainLooper());
-            try {
-                final URL url = new URL(RECIPE_URL);
-                final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                //sets type of request
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("Content-length", "0");
-                connection.setDoOutput(false);
-                //since get we just need to do this i think?
-                connection.connect();
+        final Thread thread = new Thread(new Runnable() {
+            final Handler handler = new Handler(Looper.getMainLooper());
+            @Override
+            public void run() {
+                ApiResponse apiResponse = ApiCaller.get_caller_instance().getAllRecipes();
 
-                final int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    final InputStream responseBody = connection.getInputStream();
-                    //get response
-                    String jsonString = convertStreamToString(responseBody);
-                    System.out.println("Response body: " + jsonString);
+                if(apiResponse == null){
+                    display_server_down_error("Server is down, Please Try again");
+                    return;
+                }
 
-                    JSONArray jsonArray = new JSONArray(jsonString);
-                    System.out.println(jsonArray.length());
-                    items.clear();
-                    //add each item in jsonarray to recyclerview
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject jsonObject = jsonArray.getJSONObject(i);
-                        System.out.println(jsonObject.toString());
-                        recipe = gson.fromJson(jsonObject.toString(), Recipe.class);
-                        System.out.println(recipe.getRecipe_name());
+                if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+                    Recipe[] recipes = gson.fromJson(apiResponse.getResponse_body(), Recipe[].class);
+
+                    for(Recipe recipe : recipes){
                         addItemThreadSafe(recipe);
-                        System.out.println("item added");
                     }
 
-                    //load the ui
-                    handler.post(this::add_recipes_to_ui);
-
-                } else {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            display_server_down_error("Something went wrong.");
-                        }
+                    //update recipe list on main thread
+                    handler.post(() ->{
+                        add_recipes_to_ui();
                     });
 
+                }else{
+                    display_server_down_error("Something went wrong.");
                 }
-            } catch (Exception e) {
-                System.out.println("EXCEPTION OCcURRED " + e);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        display_server_down_error("Server is down, Please Try again");
-                    }
-                });
             }
         });
+
         thread.start();
     }
 
     @Override
     public void onItemClick(int position) {
-        System.out.println(items.toString() + " "+recipe.toString());
+        System.out.println(items.toString());
+
+        System.out.println("CURRENT USEr CLICK " + currentUser.getUser_id());
         if (currentUser.getIsAdmin()==0) {
             changeActivityToRecipeActivity(currentUser, items.get(position).getRecipe());
 

@@ -15,10 +15,12 @@ app.use('/', authRouter)
 const USER_DEFINED_RECIPES_ENDPOINT = '/user-defined-recipes';
 const CREATE_ACCOUNT_ENDPOINT = '/create-account';
 const LOGIN_ENDPOINT = '/login';
+const COMMENTS_ENDPOINT = '/user-defined-recipes/comments';
 
 // Define table constants
 const USER_DEFINED_RECIPES_TABLE = 'user_defined_recipes';
 const USERS_TABLE = 'users';
+const COMMENTS_TABLE = 'comments';
  
 // GET method for /user-defined-recipes
 app.get(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
@@ -211,6 +213,52 @@ app.post(LOGIN_ENDPOINT, async (req, res) => {
         res.status(500).send(convertBigIntsToNumbers(err));
     }
 });
+
+//Post method for /comments
+
+app.post(COMMENTS_ENDPOINT, async (req, res) => {
+
+    try {
+        const { user_id, recipe_id, comment } = req.body
+
+        if(user_id && recipe_id && comment){
+
+            sqlQuery = `INSERT INTO ${COMMENTS_TABLE} VALUES (? , ? , ?)`;
+            const result = await db.pool.query(sqlQuery, [recipe_id, comment, user_id]);
+
+            console.log(result);
+            res.status(200).send(convertBigIntsToNumbers(result));
+        }
+        else{
+            res.status(400).json({message: "All fields are required."});
+        }
+
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).send(convertBigIntsToNumbers(error));
+    }
+
+})
+
+//GET method for /comments
+app.get(COMMENTS_ENDPOINT, async (req, res) => {
+    try {
+        const recipe_id = req.query.recipe_id;
+
+        if(recipe_id != undefined){
+            sqlQuery = `SELECT C.recipe_id, C.comment, C.user_id, U.username FROM ${COMMENTS_TABLE} AS C JOIN ${USERS_TABLE} AS U ON C.user_id = U.user_id WHERE C.recipe_id = ?`;
+            const result = await db.pool.query(sqlQuery, recipe_id);
+            console.log(result);
+            res.status(200).send(convertBigIntsToNumbers(result));
+        }
+        else{
+            res.status(400).json({message: "recipe_id is required"});
+        }
+    } catch (error) {
+        res.status(500).send(convertBigIntsToNumbers(error));
+    }
+})
 
 function convertBigIntsToNumbers(obj) {
     for (const key in obj) {

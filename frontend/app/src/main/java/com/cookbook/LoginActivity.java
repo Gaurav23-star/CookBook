@@ -13,6 +13,8 @@ import android.widget.EditText;
 import android.util.Patterns;
 import android.widget.TextView;
 import com.cookbook.model.User;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -25,13 +27,11 @@ import java.util.Scanner;
 import com.google.gson.*;
 
 public class LoginActivity extends AppCompatActivity {
-    private static final String LOGIN_URL = "http://172.16.122.20:8080/login";
     private EditText emailEditText;
     private EditText passwordEditText;
     private TextView errorTextView;
 
     static User user;
-
     private Gson gson = new Gson();
 
     @Override
@@ -52,56 +52,30 @@ public class LoginActivity extends AppCompatActivity {
 
 
         // return if input is not valid
-        if (!isValidEmail(email) || !isValidPassword(password))
-            return;
+        if (!isValidEmail(email) || !isValidPassword(password)) return;
 
         System.out.println("Email: " + email + ", Password: " + password);
 
-        final Thread thread = new Thread(() -> {
-            try {
-                final URL url = new URL(LOGIN_URL);
-                final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        final Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ApiResponse apiResponse = ApiCaller.get_caller_instance().login(email, password);
 
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Content-Type", "application/json");
-                connection.setDoOutput(true);
-
-                final String jsonData = "{\"email_id\":\"" + email + "\", \"password\":\"" + password + "\"}";
-                System.out.println("Json Payload: " + jsonData);
-
-                final OutputStream os = connection.getOutputStream();
-                final OutputStreamWriter osw = new OutputStreamWriter(os, StandardCharsets.UTF_8);
-
-                osw.write(jsonData);
-                osw.flush();
-
-                final int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    final InputStream responseBody = connection.getInputStream();
-
-                    String jsonString = convertStreamToString(responseBody);
-                    System.out.println("Response body: " + jsonString);
-
-                    JSONObject jsonObject = new JSONObject(jsonString);
-                    JSONObject userJson = jsonObject.getJSONObject("user");
-
-                    user = gson.fromJson(userJson.toString(), User.class);
-                    save_user_to_device(user);
-                    System.out.println(user.getUsername());
-                    changeActivityToUserHome(user);
-                    //System.out.println(user);
-
-                } else {
-                    printInvalidCredentialsLoginFailure();
-                    throw new Exception("HTTP Request Failed with response code: " + responseCode);
+                if(apiResponse == null){
+                    printServerDownFailure();
+                    return;
                 }
-            } catch (Exception e) {
-                printServerDownFailure();
-                System.out.println("EXCEPTION OCCURRED " + e);
 
+                if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+                    System.out.println("USER RECEIVED FROM API " + apiResponse.getResponse_body());
+                    user = gson.fromJson(apiResponse.getResponse_body(), User.class);
+                    save_user_to_device(user);
+                    changeActivityToUserHome(user);
+                }else{
+                    printInvalidCredentialsLoginFailure();
+                }
             }
         });
-
         thread.start();
     }
 
