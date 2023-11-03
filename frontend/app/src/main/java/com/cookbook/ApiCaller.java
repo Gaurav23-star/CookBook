@@ -22,8 +22,8 @@ final public class ApiCaller {
     private static final String LOGIN_URL = "http://172.16.122.20:8080/login";
     private static final String SIGNUP_URL = "http://172.16.122.20:8080/create-account";
     private static final String RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
-    //private static final String COMMENTS_URL = RECIPE_URL + "/comments";
-    private static final String COMMENTS_URL = "http://10.66.7.132:8080/user-defined-recipes/comments";
+    private static final String COMMENTS_URL = RECIPE_URL + "/comments";
+    //private static final String COMMENTS_URL = "http://10.66.7.132:8080/user-defined-recipes/comments";
 
     private ApiCaller(){
 
