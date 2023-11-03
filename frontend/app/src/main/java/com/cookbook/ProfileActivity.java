@@ -58,7 +58,7 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         if(getIntent().getSerializableExtra("current_user") != null){
             currentUser = (User) getIntent().getSerializableExtra("current_user");
         }
-        RECIPE_URL += "?user_id=" + (currentUser.getUser_id());
+        RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes" + "?user_id=" + (currentUser.getUser_id());
         setContentView(R.layout.activity_profile);
 
         swipeRefreshLayout = findViewById(R.id.profile_refreshLayout);
