@@ -52,13 +52,13 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
         super.onCreate(savedInstanceState);
         Objects.requireNonNull(getSupportActionBar()).setTitle("HOME");
-        System.out.println("VALUE OF CURRENT USER = " + currentUser);
         //retrieve user passed in by login activity
         if(getIntent().getSerializableExtra("current_user") != null){
             currentUser = (User) getIntent().getSerializableExtra("current_user");
         }
+        System.out.println("VALUE OF CURRENT USER = " + currentUser);
         //user id 2 will be admin account / default page for now
-        System.out.println("Current User " + currentUser.toString());
+        //System.out.println("Current User " + currentUser.toString());
         setContentView(R.layout.activity_home);
         swipeRefreshLayout = findViewById(R.id.refreshLayout);
         server_error_text = findViewById(R.id.serverErrorTextView);
@@ -147,7 +147,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     public void onItemClick(int position) {
         System.out.println(items.toString());
 
-        //System.out.println(items.toString() + " "+recipe.toString());
+        System.out.println("CURRENT USEr CLICK " + currentUser.getUser_id());
         if (currentUser.getIsAdmin()==0) {
             changeActivityToRecipeActivity(currentUser, items.get(position).getRecipe());
 

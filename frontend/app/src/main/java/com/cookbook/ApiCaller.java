@@ -1,6 +1,10 @@
 package com.cookbook;
 
 import com.cookbook.model.ApiResponse;
+import com.cookbook.model.Comment;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +22,8 @@ final public class ApiCaller {
     private static final String LOGIN_URL = "http://172.16.122.20:8080/login";
     private static final String SIGNUP_URL = "http://172.16.122.20:8080/create-account";
     private static final String RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
-
+    //private static final String COMMENTS_URL = RECIPE_URL + "/comments";
+    private static final String COMMENTS_URL = "http://10.66.7.132:8080/user-defined-recipes/comments";
 
     private ApiCaller(){
 
@@ -79,9 +84,20 @@ final public class ApiCaller {
         return null;
     }
 
-    public ApiResponse login(String email, String password){
+    public ApiResponse login(String email, String password) {
         final String jsonData = "{\"email_id\":\"" + email + "\", \"password\":\"" + password + "\"}";
-        return post_request(LOGIN_URL, jsonData);
+        ApiResponse apiResponse =  post_request(LOGIN_URL, jsonData);
+        if(apiResponse != null && apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+            String response = apiResponse.getResponse_body();
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                apiResponse.setResponse_body(jsonObject.getString("user"));
+            }
+            catch (JSONException ignored){
+
+            }
+        }
+        return apiResponse;
     }
 
     public ApiResponse signup(String firstName, String lastName, String email, String password, String username){
@@ -96,6 +112,19 @@ final public class ApiCaller {
 
     public ApiResponse getAllRecipes(){
         return get_request(RECIPE_URL, "");
+    }
+
+
+    public ApiResponse getAllComments(int recipe_id){
+        String queryParams = "?recipe_id=" + recipe_id;
+        return get_request(COMMENTS_URL, queryParams);
+    }
+
+    public ApiResponse postComment(Comment comment){
+        String json = "{\"recipe_id\": \"" + comment.getRecipe_id() + "\"," +
+                      "\"comment\": \"" + comment.getComment() + "\"," +
+                      "\"user_id\": \"" + comment.getUser_id() + "\"}";
+        return post_request(COMMENTS_URL, json);
     }
 
     private String convertStreamToString(InputStream is) {

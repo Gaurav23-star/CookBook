@@ -1,7 +1,10 @@
 package com.cookbook;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -9,20 +12,18 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
+import com.cookbook.model.ApiResponse;
+import com.cookbook.model.Comment;
 import com.cookbook.model.Recipe;
 import com.cookbook.model.User;
 import com.google.gson.Gson;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,15 +31,19 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 
 public class RecipeActivity extends AppCompatActivity {
-    private static User currentUser;
-    private static Recipe currentRecipe;
+    private User currentUser;
+    private Recipe currentRecipe;
     private static final String UPDATE_RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
     private static Recipe updated_recipe;
 
+    private ScrollView scrollView;
     private Button edit_button;
     private Button save_button;
     private ImageView recipePicture;
@@ -47,6 +52,10 @@ public class RecipeActivity extends AppCompatActivity {
     private EditText ingredientsView;
     private EditText instructionsView;
     private EditText descriptionView;
+    private RecyclerView commentsView;
+    private EditText commentTextView;
+    private Button commentButton;
+    private final List<Comment> commentList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,8 +82,15 @@ public class RecipeActivity extends AppCompatActivity {
         ingredientsView.setText(currentRecipe.getIngredients());
         instructionsView.setText(currentRecipe.getInstructions());
         descriptionView.setText(currentRecipe.getDescription());
+        commentsView = findViewById(R.id.commentsView);
+        commentTextView = findViewById(R.id.commentText);
+        commentButton = findViewById(R.id.addCommentButton);
+        scrollView = findViewById(R.id.recipeScrollView);
 
+        System.out.println("CURRENT USER ID IN RECIPE " + currentRecipe.getUser_id());
+        System.out.println("CURRENT USER ID " + currentUser.getUser_id());
         if(currentRecipe.getUser_id() == currentUser.getUser_id()){
+            System.out.println("SET EDIT VISIBLE");
             edit_button.setVisibility(View.VISIBLE);
         }
         edit_button.setOnClickListener(new View.OnClickListener() {
@@ -126,6 +142,29 @@ public class RecipeActivity extends AppCompatActivity {
             }
         });
 
+
+        commentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isValidEntry(commentTextView)){
+                    Comment comment = new Comment(currentUser.getUser_id(), currentRecipe.getRecipe_id(), currentUser.getUsername(),commentTextView.getText().toString());
+                    postCommentToServer(comment);
+
+
+                    InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(commentTextView.getWindowToken(), 0);
+                    commentTextView.clearFocus();
+                    commentTextView.setText("");
+                    scrollView.scrollTo(commentsView.getBottom(), commentsView.getRight());
+                }
+            }
+        });
+
+        if(commentList.size() == 0){
+            getCommentsFromServer(currentRecipe.getRecipe_id());
+        }else{
+            display_comments_on_ui();
+        }
     }
 
     private void update_recipe_on_server(Recipe updatedRecipe) {
@@ -240,5 +279,82 @@ public class RecipeActivity extends AppCompatActivity {
             System.out.println("SENDING RECIPE TO HOME");
             update_home_activity_recipe_list(updated_recipe);
         }
+    }
+
+    private void getCommentsFromServer(int recipe_id){
+        System.out.println("GETTING COMMENTS FROM SERVER");
+        System.out.println("RECIPE ID = " + recipe_id);
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ApiResponse apiResponse = ApiCaller.get_caller_instance().getAllComments(recipe_id);
+                if(apiResponse == null){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "SOMETHING WENT WRONG GETTING COMMENTS", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    return;
+                }
+                if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+                    Comment[] comments = new Gson().fromJson(apiResponse.getResponse_body(), Comment[].class);
+                    System.out.println(Arrays.toString(comments));
+                    commentList.addAll(Arrays.asList(comments));
+
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            display_comments_on_ui();
+                        }
+                    });
+                }
+            }
+        });
+
+        thread.start();
+    }
+
+    private void postCommentToServer(Comment comment){
+        System.out.println("POSTING COMMENT TO SERVER " + comment.getComment());
+        System.out.println("USER ID = " + comment.getUser_id() + " Recipe ID = " + comment.getRecipe_id());
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ApiResponse apiResponse = ApiCaller.get_caller_instance().postComment(comment);
+                //error posting comment to server
+                if(apiResponse == null || apiResponse.getResponse_code() == 400 || apiResponse.getResponse_code() == 500){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "SOMETHING WENT WRONG POSTING COMMENT", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    return;
+                }
+
+                if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+                    commentList.add(comment);
+
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            display_comments_on_ui();
+                        }
+                    });
+                }
+            }
+        });
+
+        thread.start();
+
+    }
+
+
+    private void display_comments_on_ui(){
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        CommentsViewAdapter commentsViewAdapter = new CommentsViewAdapter(getApplicationContext(),commentList);
+        commentsView.setLayoutManager(layoutManager);
+        commentsView.setAdapter(commentsViewAdapter);
     }
 }

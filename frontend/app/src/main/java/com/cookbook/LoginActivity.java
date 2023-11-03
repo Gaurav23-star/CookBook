@@ -13,6 +13,8 @@ import android.widget.EditText;
 import android.util.Patterns;
 import android.widget.TextView;
 import com.cookbook.model.User;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -65,6 +67,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
                 if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+                    System.out.println("USER RECEIVED FROM API " + apiResponse.getResponse_body());
                     user = gson.fromJson(apiResponse.getResponse_body(), User.class);
                     save_user_to_device(user);
                     changeActivityToUserHome(user);

@@ -30,17 +30,16 @@ public class MainActivity extends AppCompatActivity {
                 User current_user = load_user();
                 System.out.println("CURRENT USER IS " + current_user);
                 //no user saved, prompt login
+                final Intent intent;
                 if(current_user == null){
-                    final Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                    startActivity(intent);
-                    finish();
+                    intent = new Intent(MainActivity.this, LoginActivity.class);
                 }
                 else{
-                    final Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                    intent = new Intent(MainActivity.this, HomeActivity.class);
                     intent.putExtra("current_user", current_user);
-                    startActivity(intent);
-                    finish();
                 }
+                startActivity(intent);
+                finish();
                 //Intent intent = new Intent(MainActivity.this, HomeActivity.class);
 
             }
