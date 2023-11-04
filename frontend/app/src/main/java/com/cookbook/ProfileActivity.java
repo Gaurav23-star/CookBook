@@ -20,6 +20,9 @@ import com.cookbook.model.Recipe;
 import com.cookbook.model.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -38,8 +41,6 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
     private SwipeRefreshLayout swipeRefreshLayout;
     static Recipe recipe;
 
-    private static String USER_CREATED_RECIPES_URL = "http://172.16.122.20:8080/user-defined-recipes";
-    private static String Follow_URL = "http://172.16.122.20:8080/user-defined-recipes";
 
     private final Gson gson = new Gson();
 
@@ -59,11 +60,10 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide();
         //retrieve user passed in
-        //currentUser = (User) getIntent().getSerializableExtra("current_user");
         if(getIntent().getSerializableExtra("current_user") != null){
             currentUser = (User) getIntent().getSerializableExtra("current_user");
         }
-        //USER_CREATED_RECIPES_URL = "http://172.16.122.20:8080/user-defined-recipes" + "?user_id=" + (currentUser.getUser_id());
+
         setContentView(R.layout.activity_profile);
 
         swipeRefreshLayout = findViewById(R.id.profile_refreshLayout);
@@ -71,12 +71,15 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         userName = findViewById(R.id.userNameTextView);
         fullName = findViewById(R.id.FullNameTextView);
         biography = findViewById(R.id.bioTextView);
+        followersNumber = findViewById(R.id.followersNumber);
+        followingNumber = findViewById(R.id.followingNumber);
         //biography = setText(currentUser.getBiography()); when user class has bio and bio is in users table in db, uncomment this line
         fullName.setText(currentUser.getFirst_name() + " " + currentUser.getLast_name() );
         userName.setText(currentUser.getUsername());
+        postsNumber = findViewById(R.id.postsNumber);
 
         //get following count
-        //getUsersFollowingCount();
+        get_Users_Following_And_FollowingCount();
 
         //user created recipes not loaded from server
         if(items.size()== 0){
@@ -107,66 +110,42 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         LinearLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 3);
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setAdapter(adapter);
+        postsNumber.setText(String.valueOf(items.size()));
 
     }
 
-    /** This function here doesn't work, need to create an endpoint in backend, how to do so? Since vm is what is running code , i guess doesn't need a seperate branch,
-     * so what i must do is alter the get_user_created_recipes funciton in this activity to use the Apiresponse or apiCaller java file,
-     * then be able to create an endpoint to get the follower and following count for the user same APIcaller or apiResponse
-     */
-    private void getUsersFollowingCount(){
-        final Thread thread = new Thread(() -> {
-            Handler handler = new Handler(Looper.getMainLooper());
-            try {
-                final URL url = new URL(Follow_URL);
-                final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                //sets type of request
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("Content-length", "0");
-                connection.setDoOutput(false);
-                //since get we just need to do this i think?
-                connection.connect();
+    private void get_Users_Following_And_FollowingCount(){
+        final Thread thread = new Thread(new Runnable() {
+            final Handler handler = new Handler(Looper.getMainLooper());
 
-                final int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    final InputStream responseBody = connection.getInputStream();
-                    //get response
-                    String jsonString = convertStreamToString(responseBody);
-                    System.out.println("Response body: " + jsonString);
+            @Override
+            public void run() {
+                ApiResponse apiResponse = ApiCaller.get_caller_instance().getUsersFollowersAndFollowingCount(String.valueOf(currentUser.getUser_id()));
 
-                    JSONArray jsonArray = new JSONArray(jsonString);
-                    System.out.println(jsonArray.length());
-                    items.clear();
-                    //add each item in jsonarray to recyclerview
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject jsonObject = jsonArray.getJSONObject(i);
-                        System.out.println(jsonObject.toString());
-                        recipe = gson.fromJson(jsonObject.toString(), Recipe.class);
-                        System.out.println(recipe.getRecipe_name());
-                        addItemThreadSafe(recipe);
-                        System.out.println("item added");
-                    }
-
-                    //load the ui
-                    handler.post(this::add_recipes_to_ui);
-
-                } else {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            display_server_down_error("Something went wrong.");
-                        }
-                    });
-
+                if(apiResponse == null){
+                    System.out.println("ERROR in USERS_FOLLOWER_FUNCTION ");
+                    return;
                 }
-            } catch (Exception e) {
-                System.out.println("EXCEPTION OCcURRED " + e);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        display_server_down_error("Server is down, Please Try again");
+
+                if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+                    JsonElement root = new JsonParser().parse(apiResponse.getResponse_body());
+                    if (root.isJsonArray()) {
+                        JsonObject firstObject = root.getAsJsonArray().get(0).getAsJsonObject();
+                        int numFollowers = firstObject.get("count").getAsInt();
+
+                        JsonObject secondObject = root.getAsJsonArray().get(1).getAsJsonObject();
+                        int numFollowing = secondObject.get("count").getAsInt();
+
+                        followersNumber.setText(String.valueOf(numFollowers));
+                        followingNumber.setText(String.valueOf(numFollowing));
+                    } else {
+                        System.out.println("The root element is not a JSON array");
                     }
-                });
+
+                }else{
+                    System.out.println("ERR in USERS_FOLLOWER_FUNCTION");
+                }
+
             }
         });
         thread.start();

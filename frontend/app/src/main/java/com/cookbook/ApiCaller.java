@@ -23,6 +23,7 @@ final public class ApiCaller {
     private static final String SIGNUP_URL = "http://172.16.122.20:8080/create-account";
     private static final String RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
     private static final String USER_CREATED_RECIPES_URL = "http://172.16.122.20:8080/user-defined-recipes?user_id=";
+    private static final String USER_FOLLOWER_FOLLOWING_COUNT_URL = "http://172.16.122.20:8080/user-followers-following-count?user_id=";
     private static final String COMMENTS_URL = RECIPE_URL + "/comments";
     //private static final String COMMENTS_URL = "http://10.66.7.132:8080/user-defined-recipes/comments";
 
@@ -117,6 +118,10 @@ final public class ApiCaller {
 
     public ApiResponse getAllUserCreatedRecipes(String user_id){
         return get_request(USER_CREATED_RECIPES_URL,user_id);
+    }
+
+    public ApiResponse getUsersFollowersAndFollowingCount(String user_id){
+        return get_request(USER_FOLLOWER_FOLLOWING_COUNT_URL,user_id);
     }
 
     public ApiResponse getAllComments(int recipe_id){

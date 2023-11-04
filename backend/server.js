@@ -16,11 +16,13 @@ const USER_DEFINED_RECIPES_ENDPOINT = '/user-defined-recipes';
 const CREATE_ACCOUNT_ENDPOINT = '/create-account';
 const LOGIN_ENDPOINT = '/login';
 const COMMENTS_ENDPOINT = '/user-defined-recipes/comments';
+const USER_FOLLOWERS_FOLLOWING_COUNT_ENDPOINT = "/user-followers-following-count";
 
 // Define table constants
 const USER_DEFINED_RECIPES_TABLE = 'user_defined_recipes';
 const USERS_TABLE = 'users';
 const COMMENTS_TABLE = 'comments';
+const FOLLOWS_TABLE = 'follows';
  
 // GET method for /user-defined-recipes
 app.get(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
@@ -259,6 +261,43 @@ app.get(COMMENTS_ENDPOINT, async (req, res) => {
         res.status(500).send(convertBigIntsToNumbers(error));
     }
 })
+
+// GET method for /user-followers-following-count"
+app.get(USER_FOLLOWERS_FOLLOWING_COUNT_ENDPOINT, async (req, res) => {
+    try {
+        const user_id = req.query.user_id;
+        let condition;
+        condition = `user_id = ${user_id}`;
+
+        const sql = `(SELECT 'following_count' AS typeOfFollow, COUNT(*) AS count FROM ${FOLLOWS_TABLE} WHERE ${condition}) UNION ALL (SELECT 'followers_count' AS type, COUNT(*) AS count FROM ${FOLLOWS_TABLE} WHERE follower_id =${user_id});`
+
+        let result = await db.pool.query(sql);
+        result = serializeResult(result);
+        res.status(200).send(result);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err)
+    }
+});
+
+
+function bigIntToString(value) {
+    const MAX_SAFE_INTEGER = 2 ** 53 - 1;
+    return value <= MAX_SAFE_INTEGER ? Number(value) : value.toString();
+}
+
+function serializeResult(result) {
+    return result.map(row => {
+        const newRow = { ...row };
+        for (const key in newRow) {
+            if (typeof newRow[key] === 'bigint') {
+                newRow[key] = bigIntToString(newRow[key]);
+            }
+        }
+        return newRow;
+    });
+}
+
 
 function convertBigIntsToNumbers(obj) {
     for (const key in obj) {
