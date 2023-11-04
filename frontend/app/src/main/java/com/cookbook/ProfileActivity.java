@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.cookbook.model.ApiResponse;
 import com.cookbook.model.Recipe;
 import com.cookbook.model.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -37,7 +38,8 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
     private SwipeRefreshLayout swipeRefreshLayout;
     static Recipe recipe;
 
-    private static String RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
+    private static String USER_CREATED_RECIPES_URL = "http://172.16.122.20:8080/user-defined-recipes";
+    private static String Follow_URL = "http://172.16.122.20:8080/user-defined-recipes";
 
     private final Gson gson = new Gson();
 
@@ -48,6 +50,9 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
     private TextView postsNumber;
     private TextView followersNumber;
     private TextView followingNumber;
+    private TextView userName;
+    private TextView fullName;
+    private TextView biography;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +63,20 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         if(getIntent().getSerializableExtra("current_user") != null){
             currentUser = (User) getIntent().getSerializableExtra("current_user");
         }
-        RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes" + "?user_id=" + (currentUser.getUser_id());
+        //USER_CREATED_RECIPES_URL = "http://172.16.122.20:8080/user-defined-recipes" + "?user_id=" + (currentUser.getUser_id());
         setContentView(R.layout.activity_profile);
 
         swipeRefreshLayout = findViewById(R.id.profile_refreshLayout);
         server_error_text = findViewById(R.id.profile_serverErrorTextView);
+        userName = findViewById(R.id.userNameTextView);
+        fullName = findViewById(R.id.FullNameTextView);
+        biography = findViewById(R.id.bioTextView);
+        //biography = setText(currentUser.getBiography()); when user class has bio and bio is in users table in db, uncomment this line
+        fullName.setText(currentUser.getFirst_name() + " " + currentUser.getLast_name() );
+        userName.setText(currentUser.getUsername());
 
+        //get following count
+        //getUsersFollowingCount();
 
         //user created recipes not loaded from server
         if(items.size()== 0){
@@ -97,11 +110,15 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
 
     }
 
-    private void get_user_created_recipes_from_server(){
+    /** This function here doesn't work, need to create an endpoint in backend, how to do so? Since vm is what is running code , i guess doesn't need a seperate branch,
+     * so what i must do is alter the get_user_created_recipes funciton in this activity to use the Apiresponse or apiCaller java file,
+     * then be able to create an endpoint to get the follower and following count for the user same APIcaller or apiResponse
+     */
+    private void getUsersFollowingCount(){
         final Thread thread = new Thread(() -> {
             Handler handler = new Handler(Looper.getMainLooper());
             try {
-                final URL url = new URL(RECIPE_URL);
+                final URL url = new URL(Follow_URL);
                 final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 //sets type of request
                 connection.setRequestMethod("GET");
@@ -153,7 +170,45 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
             }
         });
         thread.start();
+
     }
+
+private void get_user_created_recipes_from_server(){
+        final Thread thread = new Thread(new Runnable() {
+            final Handler handler = new Handler(Looper.getMainLooper());
+
+            @Override
+            public void run() {
+                ApiResponse apiResponse = ApiCaller.get_caller_instance().getAllUserCreatedRecipes(String.valueOf(currentUser.getUser_id()));
+
+                if(apiResponse == null){
+                    display_server_down_error("Server is down, Please Try again");
+                    return;
+                }
+
+                if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+                    Recipe[] recipes = gson.fromJson(apiResponse.getResponse_body(), Recipe[].class);
+                    items.clear();
+
+                    for(Recipe recipe : recipes){
+                        addItemThreadSafe(recipe);
+                    }
+
+                    //update recipe list on main thread
+                    handler.post(() ->{
+                        add_recipes_to_ui();
+                    });
+
+
+                }else{
+                    display_server_down_error("Something went wrong.");
+                }
+
+            }
+        });
+        thread.start();
+
+}
 
 
     //method to ensure thread safety
@@ -217,7 +272,15 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
 
     @Override
     public void onItemClick(int position) {
-
+        if(currentUser.getIsAdmin()==0){
+            changeActivityToRecipeActivity(currentUser, items.get(position).getRecipe());
+        }
+    }
+    private void changeActivityToRecipeActivity(User user, Recipe recipe){
+        final Intent intent = new Intent(ProfileActivity.this, RecipeActivity.class);
+        intent.putExtra("current_user",user);
+        intent.putExtra("current_recipe", recipe);
+        startActivity(intent);
     }
 
     @Override

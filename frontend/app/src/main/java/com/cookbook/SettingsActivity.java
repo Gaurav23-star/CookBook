@@ -1,6 +1,7 @@
 package com.cookbook;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -9,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.cookbook.model.Settings.SettingsItem;
 import com.cookbook.model.User;
@@ -24,6 +26,9 @@ public class SettingsActivity extends AppCompatActivity implements RecyclerViewI
 
     private static User currentUser;
     private Button logout;
+    private TextView fullName;
+    private TextView userName;
+    private CardView cardView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,6 +37,9 @@ public class SettingsActivity extends AppCompatActivity implements RecyclerViewI
 
 
         logout = findViewById(R.id.logout_button);
+        fullName = findViewById(R.id.settings_FullName_TextView);
+        userName = findViewById(R.id.settings_UserName_TextView);
+        cardView = findViewById(R.id.settings_CardView);
 
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -42,6 +50,9 @@ public class SettingsActivity extends AppCompatActivity implements RecyclerViewI
 
         //retrieve user passed in
         currentUser = (User) getIntent().getSerializableExtra("current_user");
+        fullName.setText(currentUser.getFirst_name() + " " + currentUser.getLast_name());
+        userName.setText("@" + currentUser.getUsername());
+        cardView.setBackgroundResource(R.drawable.foodplaceholder);
 
         RecyclerView recyclerView = findViewById(R.id.settings_recyclerview);
 

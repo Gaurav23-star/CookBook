@@ -50,6 +50,7 @@
         app:backgroundTint="@null" />
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/settings_CardView"
         android:layout_width="match_parent"
         android:layout_height="236dp"
         android:layout_alignParentStart="true"
@@ -62,33 +63,50 @@
         app:backgroundTint="@null"
         app:cardBackgroundColor="@color/grey">
 
-        <ImageView
+<!--        <ImageView-->
+<!--            android:id="@+id/imageView"-->
+<!--            android:layout_width="136dp"-->
+<!--            android:layout_height="107dp"-->
+<!--            android:layout_marginStart="10dp"-->
+<!--            android:layout_marginTop="42dp"-->
+<!--            android:layout_marginEnd="306dp"-->
+<!--            android:radius="120dp"-->
+<!--            app:srcCompat="@drawable/foodplaceholder" />-->
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/imageView"
             android:layout_width="136dp"
             android:layout_height="107dp"
             android:layout_marginStart="10dp"
             android:layout_marginTop="42dp"
             android:layout_marginEnd="306dp"
-            android:radius="120dp"
-            app:srcCompat="@drawable/foodplaceholder" />
+            app:civ_border_width ="2dp"
+            app:civ_border_color="@color/black"
+            android:src="@drawable/chef" />
+
 
         <TextView
+            android:id="@+id/settings_FullName_TextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="42dp"
             android:layout_marginTop="154dp"
             android:text="@string/Fullname"
+            android:textStyle="bold"
             android:textColor="@color/black"
             android:textSize="15sp" />
 
         <TextView
+            android:id="@+id/settings_UserName_TextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="35dp"
+            android:layout_marginStart="42dp"
             android:layout_marginTop="179dp"
             android:text="@string/Username"
             android:textColor="@color/black"
-            android:textSize="15sp" />
+            android:textSize="15sp"
+            android:textStyle="bold" />
     </androidx.cardview.widget.CardView>
 
 </RelativeLayout>
