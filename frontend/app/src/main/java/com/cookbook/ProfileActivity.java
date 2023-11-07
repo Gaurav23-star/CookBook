@@ -98,6 +98,29 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
             add_recipes_to_ui();
         }
 
+        followersNumber.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Intent intent = new Intent(getApplicationContext(), FollowersActivity.class);
+                intent.putExtra("id",String.valueOf(currentUser.getUser_id()) );
+                intent.putExtra("title","followers");
+                intent.putExtra("current_user", currentUser);
+                startActivity(intent);
+            }
+        });
+
+        followingNumber.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Intent intent = new Intent(getApplicationContext(), FollowersActivity.class);
+                intent.putExtra("id",String.valueOf(currentUser.getUser_id()) );
+                intent.putExtra("title","following");
+                intent.putExtra("current_user", currentUser);
+                startActivity(intent);
+            }
+        });
+
+
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
