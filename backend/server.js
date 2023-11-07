@@ -17,6 +17,7 @@ const CREATE_ACCOUNT_ENDPOINT = '/create-account';
 const LOGIN_ENDPOINT = '/login';
 const COMMENTS_ENDPOINT = '/user-defined-recipes/comments';
 const USER_FOLLOWERS_FOLLOWING_COUNT_ENDPOINT = "/user-followers-following-count";
+const USERS_NETWORK_LIST_ENDPOINT = "/users-network-list";
 
 // Define table constants
 const USER_DEFINED_RECIPES_TABLE = 'user_defined_recipes';
@@ -279,6 +280,37 @@ app.get(USER_FOLLOWERS_FOLLOWING_COUNT_ENDPOINT, async (req, res) => {
         res.status(500).send(err)
     }
 });
+
+
+//Get method for /users-network-list
+app.get(USERS_NETWORK_LIST_ENDPOINT, async (req, res) => {
+    try {
+        const user_id = req.query.user_id;
+        const network_type = req.query.network_type;
+
+        let sql;
+        let result;
+        if (network_type === "following") {
+            sql = `SELECT u.* FROM ${USERS_TABLE} AS u JOIN ${FOLLOWS_TABLE} AS f ON u.user_id = f.user_id WHERE f.follower_id = ${user_id};`
+            result = await db.pool.query(sql);
+            result = serializeResult(result);
+            res.status(200).send(convertBigIntsToNumbers(result));
+        }
+        else if (network_type === "followers") {
+            sql = `SELECT users.* FROM ${USERS_TABLE} JOIN ${FOLLOWS_TABLE} ON users.user_id = follows.follower_id WHERE follows.user_id = ${user_id};`
+            result = await db.pool.query(sql);
+            result = serializeResult(result);
+            res.status(200).send(convertBigIntsToNumbers(result));
+
+        } else {
+            throw new Error("Did not specify Type of Network list correctly");
+        }
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(convertBigIntsToNumbers(err));
+    }
+})
 
 
 function bigIntToString(value) {

@@ -81,6 +81,14 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         //get following count
         get_Users_Following_And_FollowingCount();
 
+        //update posts number to the UI
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                postsNumber.setText(String.valueOf(items.size()));
+            }
+        });
+
         //user created recipes not loaded from server
         if(items.size()== 0){
             System.out.println("--------LIST IS EMPTY--------");
@@ -89,6 +97,29 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         }else{
             add_recipes_to_ui();
         }
+
+        followersNumber.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Intent intent = new Intent(getApplicationContext(), FollowersActivity.class);
+                intent.putExtra("id",String.valueOf(currentUser.getUser_id()) );
+                intent.putExtra("title","followers");
+                intent.putExtra("current_user", currentUser);
+                startActivity(intent);
+            }
+        });
+
+        followingNumber.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Intent intent = new Intent(getApplicationContext(), FollowersActivity.class);
+                intent.putExtra("id",String.valueOf(currentUser.getUser_id()) );
+                intent.putExtra("title","following");
+                intent.putExtra("current_user", currentUser);
+                startActivity(intent);
+            }
+        });
+
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -110,7 +141,6 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         LinearLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 3);
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setAdapter(adapter);
-        postsNumber.setText(String.valueOf(items.size()));
 
     }
 
@@ -136,8 +166,10 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
                         JsonObject secondObject = root.getAsJsonArray().get(1).getAsJsonObject();
                         int numFollowing = secondObject.get("count").getAsInt();
 
-                        followersNumber.setText(String.valueOf(numFollowers));
-                        followingNumber.setText(String.valueOf(numFollowing));
+                        handler.post(() ->{
+                            followersNumber.setText(String.valueOf(numFollowers));
+                            followingNumber.setText(String.valueOf(numFollowing));
+                        });
                     } else {
                         System.out.println("The root element is not a JSON array");
                     }
@@ -176,6 +208,7 @@ private void get_user_created_recipes_from_server(){
                     //update recipe list on main thread
                     handler.post(() ->{
                         add_recipes_to_ui();
+                        postsNumber.setText(String.valueOf(items.size()));
                     });
 
 
