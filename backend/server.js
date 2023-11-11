@@ -3,10 +3,15 @@ const db = require('./db')
 const app = express()
 const port = 8080
 const bodyParser = require("body-parser");
+const fs = require('fs');
+const path = require('path');
+const multer = require('multer');
+const upload = multer();
 
- 
+app.use(bodyParser.raw({ limit: '10mb'}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
 
 const authRouter = require('./authenticate')
 app.use('/', authRouter)
@@ -18,6 +23,8 @@ const LOGIN_ENDPOINT = '/login';
 const COMMENTS_ENDPOINT = '/user-defined-recipes/comments';
 const USER_FOLLOWERS_FOLLOWING_COUNT_ENDPOINT = "/user-followers-following-count";
 const USERS_NETWORK_LIST_ENDPOINT = "/users-network-list";
+const UPLOAD_RECIPE_IMAGE_ENDPOINT = USER_DEFINED_RECIPES_ENDPOINT.concat('/upload_image');
+const DOWNLOAD_RECIPE_IMAGE_ENDPOINT = USER_DEFINED_RECIPES_ENDPOINT.concat('/download_image/:recipe_id');
 
 // Define table constants
 const USER_DEFINED_RECIPES_TABLE = 'user_defined_recipes';
@@ -310,6 +317,67 @@ app.get(USERS_NETWORK_LIST_ENDPOINT, async (req, res) => {
         console.log(err);
         res.status(500).send(convertBigIntsToNumbers(err));
     }
+})
+
+//WORK IN PROGRESS, NOT DONE YET, SO MIGHT NOT WORK IF YOU TEST IT.
+//POST to upload image
+console.log('URL ', UPLOAD_RECIPE_IMAGE_ENDPOINT)
+app.post(UPLOAD_RECIPE_IMAGE_ENDPOINT, upload.single('image'), (req, res) => {
+    console.log(req.file)
+    console.log(req.body);
+
+
+    if(req.file !== undefined){
+        const fileName = req.file.originalname;
+        const imagePath = path.join(__dirname, 'recipe_images', fileName);
+        fs.writeFile(imagePath, req.file.buffer, err => {
+            if (err) {
+                console.log(err)
+            }
+
+            res.status(200).json({response_code : 200, response_body : 'Ok'});
+        })
+    }else{
+        res.status(500).json({response_code : 500, response_body : 'Something went wrong'});
+    }
+
+    /*
+    const imagePath = path.join(__dirname, 'recipe_images', image_uri);
+    console.log(`Image path is ${imagePath}`)
+    fs.writeFile(imagePath, req.body, err => {
+        if (err) {
+          console.error(err);
+        }
+    });
+    */
+})
+
+// /user-defined-recipes/download_image/:recipe_id
+//GET to get recipe image
+app.get(DOWNLOAD_RECIPE_IMAGE_ENDPOINT, (req, res) => {
+    const recipe_id = req.params.recipe_id;
+    console.log('Image requested ' , req.params.recipe_id)
+
+
+    const defaultImagePath = path.join(__dirname, 'recipe_images', 'food.jpg');
+    const imagePath = path.join(__dirname, 'recipe_images', recipe_id.concat('.jpg'));
+    
+    fs.stat(imagePath, function(err, stat) {
+        if (err == null) {
+          console.log('File exists');
+          console.log(imagePath);
+          res.status(200).sendFile(imagePath);
+          
+        } else if (err.code === 'ENOENT') {
+          // file does not exist
+          console.log('File does not exist');
+          res.status(200).sendFile(defaultImagePath);
+          
+        } else {
+          console.log('Some other error: ', err.code);
+          res.send(500);
+        }
+      });
 })
 
 

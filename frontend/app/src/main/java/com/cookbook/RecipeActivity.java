@@ -1,5 +1,9 @@
 package com.cookbook;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -7,24 +11,33 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cookbook.model.ApiResponse;
 import com.cookbook.model.Comment;
 import com.cookbook.model.Recipe;
 import com.cookbook.model.User;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -37,16 +50,31 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.Multipart;
+import retrofit2.http.POST;
+import retrofit2.http.Part;
+import retrofit2.http.Path;
+
 public class RecipeActivity extends AppCompatActivity {
     private User currentUser;
     private Recipe currentRecipe;
-    private static final String UPDATE_RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
+    private static final String UPDATE_RECIPE_URL = ApiCaller.host + "/user-defined-recipes";
     private static Recipe updated_recipe;
 
     private ScrollView scrollView;
     private Button edit_button;
     private Button save_button;
     private ImageView recipePicture;
+    private ImageView recipePictureEdit;
     private EditText titleView;
     private EditText nameView;
     private EditText ingredientsView;
@@ -70,12 +98,14 @@ public class RecipeActivity extends AppCompatActivity {
 
 
         recipePicture = findViewById(R.id.recipeView);
+        recipePictureEdit = findViewById(R.id.recipe_image_edit);
         titleView = findViewById(R.id.titleView);
         nameView = findViewById(R.id.nameView);
         ingredientsView = findViewById(R.id.ingredientsView);
         instructionsView = findViewById(R.id.instructionsView);
         descriptionView = findViewById(R.id.descriptionView);
-        recipePicture.setImageResource(R.drawable.foodplaceholder);
+        //recipePicture.setImageResource(R.drawable.foodplaceholder);
+        loadRecipeImage(recipePicture);
 
         titleView.setText(currentRecipe.getRecipe_name());
         nameView.setText(Integer.toString(currentRecipe.getUser_id()));
@@ -98,6 +128,7 @@ public class RecipeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 edit_button.setVisibility(View.GONE);
                 save_button.setVisibility(View.VISIBLE);
+                recipePictureEdit.setVisibility(View.VISIBLE);
 
                 makeFieldsEditable(titleView);
                 makeFieldsEditable(ingredientsView);
@@ -111,6 +142,7 @@ public class RecipeActivity extends AppCompatActivity {
         save_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                recipePictureEdit.setVisibility(View.GONE);
 
                 if(isValidEntry(titleView)
                 && isValidEntry(ingredientsView)
@@ -139,6 +171,33 @@ public class RecipeActivity extends AppCompatActivity {
                     save_button.setVisibility(View.GONE);
                 }
 
+            }
+        });
+
+        ActivityResultLauncher<PickVisualMediaRequest> pickPhoto = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), new ActivityResultCallback<Uri>() {
+            @Override
+            public void onActivityResult(Uri result) {
+                System.out.println("NEW IMAGE IS " + result);
+                if(result != null){
+                    MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+                    String extension = mimeTypeMap.getExtensionFromMimeType(getContentResolver().getType(result));
+                    String imageUrl = currentRecipe.getRecipe_id() + "." + extension;
+
+                    File file = getImageFile(result, imageUrl);
+                    ApiResponse apiResponse = ApiCaller.get_caller_instance().uploadRecipeImage(file);
+                    recipePicture.setImageURI(result);
+                    if(apiResponse != null && apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+                        System.out.println("UPDATING RECIPE IMAGE");
+                        recipePicture.setImageURI(result);
+                    }
+                }
+            }
+        });
+        recipePictureEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("WANT TO EDIT RECIPE IMAGE");
+                pickPhoto.launch(new PickVisualMediaRequest.Builder().setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE).build());
             }
         });
 
@@ -357,4 +416,43 @@ public class RecipeActivity extends AppCompatActivity {
         commentsView.setLayoutManager(layoutManager);
         commentsView.setAdapter(commentsViewAdapter);
     }
+
+
+    private void loadRecipeImage(ImageView imageView){
+        String url = ApiCaller.GET_RECIPE_IMAGE_URL + currentRecipe.getRecipe_id();
+        Glide.with(this).load(url).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).dontAnimate().into(imageView);
+    }
+
+
+    interface uploadImageService {
+        @Multipart
+        @POST("upload_image")
+        Call<ApiResponse> uploadRecipeImage(@Part MultipartBody.Part image, @Part("recipe_id") RequestBody recipeId);
+    }
+
+    private File getImageFile(Uri result, String imageUrl){
+        File dir = getApplicationContext().getFilesDir();
+        File file = new File(dir, imageUrl);
+
+        try {
+            System.out.println("COPYING FILE DATA");
+            InputStream inputStream = getContentResolver().openInputStream(result);
+            OutputStream outputStream = new FileOutputStream(file);
+            byte[] buffer = new byte[1024];
+            int len = inputStream.read(buffer);
+            while (len != -1) {
+                outputStream.write(buffer, 0, len);
+                len = inputStream.read(buffer);
+            }
+            inputStream.close();
+            outputStream.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return file;
+    }
+
+
+
 }

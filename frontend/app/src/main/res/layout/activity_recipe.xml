@@ -48,7 +48,25 @@
                 android:layout_height="200dp"
                 android:layout_marginRight="10dp"
                 android:adjustViewBounds="false"
-                android:scaleType="centerCrop" />
+                android:scaleType="centerCrop"
+                android:src="@drawable/foodplaceholder" />
+
+            <ImageView
+                android:id="@+id/recipe_image_edit"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_alignEnd="@+id/recipeView"
+                android:layout_alignBottom="@+id/recipeView"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="25dp"
+                android:layout_marginEnd="25dp"
+                android:layout_marginBottom="25dp"
+                android:adjustViewBounds="true"
+                android:scaleType="center"
+                android:src="@drawable/image_edit_pen"
+                android:visibility="gone" />
 
             <EditText
                 android:id="@+id/titleView"
