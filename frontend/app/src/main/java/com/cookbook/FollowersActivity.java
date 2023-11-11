@@ -116,5 +116,13 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
     public void onItemClick(int position) {
         System.out.println(position );
         System.out.println("OIFOISDJFNIODSNFDIONF");
+
+        Intent intent_Person = new Intent(getApplicationContext(), ProfileActivity.class);
+        intent_Person.putExtra("visiting_user",userList.get(position));
+        intent_Person.putExtra("current_user",current_user);
+        startActivity(intent_Person);
+
+        //finish();
+
     }
 }

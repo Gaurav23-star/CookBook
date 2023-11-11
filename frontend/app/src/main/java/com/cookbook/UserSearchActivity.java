@@ -5,6 +5,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -68,6 +69,11 @@ public class UserSearchActivity extends AppCompatActivity implements RecyclerVie
 
     @Override
     public void onItemClick(int position) {
+
+        Intent intent_Person = new Intent(getApplicationContext(), ProfileActivity.class);
+        intent_Person.putExtra("visiting_user",userList.get(position));
+        intent_Person.putExtra("current_user",current_user);
+        startActivity(intent_Person);
 
     }
 

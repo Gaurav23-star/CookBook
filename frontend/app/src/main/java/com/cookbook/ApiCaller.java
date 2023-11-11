@@ -27,6 +27,14 @@ final public class ApiCaller {
     private static final String USERS_NETWORK_LIST_URL = "http://172.16.122.20:8080/users-network-list?user_id=";
     private static final String USER_SEARCH_URL = "http://172.16.122.20:8080/user-search?text=";
 
+    private static final String USER_IS_FOLLOWING_URL = "http://172.16.122.20:8080/user-is-following?user_id=";
+
+    private static final String USER_FOLLOW_URL = "http://172.16.122.20:8080/user-follow?user_id=";
+
+    private static final String USER_UNFOLLOW_URL = "http://172.16.122.20:8080/user-unfollow?user_id=";
+
+
+
     private static final String COMMENTS_URL = RECIPE_URL + "/comments";
     //private static final String COMMENTS_URL = "http://10.66.7.132:8080/user-defined-recipes/comments";
 
@@ -134,6 +142,15 @@ final public class ApiCaller {
     public ApiResponse getUserSearch(String text){
         return get_request(USER_SEARCH_URL, text);
     }
+
+    public ApiResponse getUserIsFollowingVisitingUser(String userId, String visitorId){
+        return get_request(USER_IS_FOLLOWING_URL, userId + "&"+"visitor_id="+visitorId);
+    }
+
+    public ApiResponse UserFollowVisitingUser(String userId, String visitorId){
+        return post_request(USER_FOLLOW_URL, userId + "&"+"visitor_id="+visitorId);
+    }
+
 
     public ApiResponse getAllComments(int recipe_id){
         String queryParams = "?recipe_id=" + recipe_id;
