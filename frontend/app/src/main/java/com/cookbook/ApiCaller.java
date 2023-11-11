@@ -97,6 +97,38 @@ final public class ApiCaller {
         return null;
     }
 
+
+    private ApiResponse delete_request(String sUrl, String RequestBody){
+        try {
+            final URL url = new URL(sUrl);
+            final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("DELETE");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+
+            final OutputStream os = connection.getOutputStream();
+            final OutputStreamWriter osw = new OutputStreamWriter(os, StandardCharsets.UTF_8);
+
+            osw.write(RequestBody);
+            osw.flush();
+
+            int responseCode = connection.getResponseCode();
+            String response = "";
+
+            if(responseCode == HttpURLConnection.HTTP_OK){
+                response = convertStreamToString(connection.getInputStream());
+            }
+            System.out.println("DELETE: API RESPONSE " + response);
+            connection.disconnect();
+            System.out.println("DELETE: API RESPONSE CODE " + connection.getResponseCode());
+            return new ApiResponse(responseCode, response);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public ApiResponse login(String email, String password) {
         final String jsonData = "{\"email_id\":\"" + email + "\", \"password\":\"" + password + "\"}";
         ApiResponse apiResponse =  post_request(LOGIN_URL, jsonData);
@@ -152,6 +184,11 @@ final public class ApiCaller {
             "\"visitor_id\":\"" + visitorId + "\"}";
 
         return post_request(USER_FOLLOW_URL, jsonData );
+    }
+
+    public ApiResponse UserUnfollowVisitingUser(String loggedInUserId, String currentUserId) {
+        final String jsonData = "{\"user_id\":\"" + loggedInUserId + "\", \"visitor_id\":\"" + currentUserId + "\"}";
+        return delete_request(USER_UNFOLLOW_URL, jsonData);
     }
 
 

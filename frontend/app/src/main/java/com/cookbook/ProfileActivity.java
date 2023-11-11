@@ -273,6 +273,10 @@ private void get_user_created_recipes_from_server(){
         bottomNavigationView.setOnItemSelectedListener(item ->{
             switch (item.getItemId()){
                 case R.id.bottom_person:
+                    Intent intent_self = new Intent(getApplicationContext(), ProfileActivity.class);
+                    intent_self.putExtra("current_user",loggedInUser);
+                    startActivity(intent_self);
+                    finish();
                     return true;
                 case R.id.bottom_settings:
                     Intent intent_Settings = new Intent(getApplicationContext(), SettingsActivity.class);
@@ -325,41 +329,7 @@ private void get_user_created_recipes_from_server(){
         startActivity(intent);
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        System.out.println("HOME ACTIVITY RESUMED");
-//        SharedPreferences sharedPreferences = getSharedPreferences("Updated_recipe", MODE_PRIVATE);
-//        if(sharedPreferences.contains("updated_recipe")){
-//            System.out.println("GOT UPDATED RECIPE");
-//            System.out.println(sharedPreferences.getString("updated_recipe", "null"));
-//            String update_recipe = sharedPreferences.getString("updated_recipe", "null");
-//
-//            //update the recipe list with edited recipe
-//            if(!update_recipe.equals("null")){
-//                Recipe uRecipe = new Gson().fromJson(update_recipe, Recipe.class);
-//                for(Item recipe : items){
-//                    if(recipe.getRecipe().getRecipe_id() == uRecipe.getRecipe_id()){
-//                        recipe.update_item(uRecipe);
-//                        break;
-//                    }
-//                }
-//                add_recipes_to_ui();
-//            }
-//        }
-//    }
 
-//    @Override
-//    protected void onStop() {
-//        super.onStop();
-//        items.clear();
-//    }
-//
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        items.clear();
-//    }
 
 private void is_user_following_visitor(String loggedInUserId, String currentUserId){
 
@@ -433,7 +403,7 @@ private void is_user_following_visitor(String loggedInUserId, String currentUser
                     System.out.println("1111111111111111111--------");
                 }else{
                     System.out.println("222221212122222323232323232--------");
-                    apiResponse = ApiCaller.get_caller_instance().UserFollowVisitingUser( String.valueOf(loggedInUser.getUser_id()), String.valueOf(currentUser.getUser_id()) );
+                    apiResponse = ApiCaller.get_caller_instance().UserUnfollowVisitingUser( String.valueOf(loggedInUser.getUser_id()), String.valueOf(currentUser.getUser_id()) );
                 }
 
                 if(apiResponse != null && apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
