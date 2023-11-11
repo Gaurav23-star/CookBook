@@ -1,11 +1,15 @@
 package com.cookbook;
 
+import android.net.Uri;
+import android.widget.ImageView;
+
 import com.cookbook.model.ApiResponse;
 import com.cookbook.model.Comment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,19 +19,35 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.Multipart;
+import retrofit2.http.POST;
+import retrofit2.http.Part;
+
 final public class ApiCaller {
     private static ApiCaller apiCaller;
 
     //API URLS
-    private static final String LOGIN_URL = "http://172.16.122.20:8080/login";
-    private static final String SIGNUP_URL = "http://172.16.122.20:8080/create-account";
-    private static final String RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
-    private static final String USER_CREATED_RECIPES_URL = "http://172.16.122.20:8080/user-defined-recipes?user_id=";
-    private static final String USER_FOLLOWER_FOLLOWING_COUNT_URL = "http://172.16.122.20:8080/user-followers-following-count?user_id=";
-    private static final String USERS_NETWORK_LIST_URL = "http://172.16.122.20:8080/users-network-list?user_id=";
-
+    private static final String production_host = "http://172.16.122.20:8080";
+    private static final String development_host = "http://10.0.2.2:8080";
+    public static final String host = development_host;
+    private static final String LOGIN_URL = host + "/login";
+    private static final String SIGNUP_URL = host + "/create-account";
+    private static final String RECIPE_URL = host + "/user-defined-recipes";
+    private static final String USER_CREATED_RECIPES_URL = host + "/user-defined-recipes?user_id=";
+    private static final String USER_FOLLOWER_FOLLOWING_COUNT_URL = host + "/user-followers-following-count?user_id=";
+    private static final String USERS_NETWORK_LIST_URL = host + "/users-network-list?user_id=";
+    public static final String GET_RECIPE_IMAGE_URL = host + "/user-defined-recipes/download_image/";
     private static final String COMMENTS_URL = RECIPE_URL + "/comments";
     //private static final String COMMENTS_URL = "http://10.66.7.132:8080/user-defined-recipes/comments";
+    private static final String POST_NEW_RECIPE_URL = host + "/user-defined-recipes";
 
     private ApiCaller(){
 
@@ -118,7 +138,12 @@ final public class ApiCaller {
         return get_request(RECIPE_URL, "");
     }
 
+    public void getRecipeImage(){
+
+    }
+
     public ApiResponse getAllUserCreatedRecipes(String user_id){
+        System.out.println("GET ALL USERS " + user_id);
         return get_request(USER_CREATED_RECIPES_URL,user_id);
     }
 
@@ -145,5 +170,62 @@ final public class ApiCaller {
     private String convertStreamToString(InputStream is) {
         final Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
         return scanner.hasNext() ? scanner.next() : "";
+    }
+
+    public ApiResponse uploadRecipeImage(File file) {
+        final ApiResponse[] apiResponse = {null};
+        String baseUrl = host + "/user-defined-recipes/";
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create()).build();
+
+        RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+        MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestBody);
+
+        RequestBody recipeId = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
+
+        uploadImageService upload = retrofit.create(uploadImageService.class);
+        Call<ApiResponse> responseCall = upload.uploadRecipeImage(body, recipeId);
+
+
+        responseCall.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                System.out.println("SUCCESS");
+                System.out.println("response code " + response.body().getResponse_code());
+                System.out.println("response body " + response.body().getResponse_body());
+                apiResponse[0] = new ApiResponse(response.body().getResponse_code(), response.body().getResponse_body());
+            }
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                System.out.println("FAILURE");
+            }
+
+        });
+
+        System.out.println("RESPONSE SENT");
+        return apiResponse[0];
+
+    }
+
+    public ApiResponse postNewRecipe(String recipeName, String desc, String servings, String prepareTime, String ingredients, String instructions, int userId){
+
+        String json = "{\"recipe_name\": \"" + recipeName + "\"," +
+                "\"servings\" : \"" + servings + "\"," +
+                "\"preparation_time_minutes\" : \"" + prepareTime + "\"," +
+                "\"ingredients\" : \"" + ingredients + "\"," +
+                "\"description\" : \"" + desc + "\"," +
+                "\"instructions\" : \"" + instructions + "\"," +
+                "\"user_id\" : \"" + userId + "\"}";
+
+
+        System.out.println("JSON POST IS " + json);
+        return post_request(POST_NEW_RECIPE_URL, json);
+    }
+
+
+    interface uploadImageService {
+        @Multipart
+        @POST("upload_image")
+        Call<ApiResponse> uploadRecipeImage(@Part MultipartBody.Part image, @Part("image_path") RequestBody recipeId);
     }
 }
