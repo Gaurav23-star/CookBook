@@ -26,6 +26,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -77,12 +78,12 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
             followButton = findViewById(R.id.follow_button);
             followButton.setVisibility(View.VISIBLE);
             is_user_following_visitor(String.valueOf(loggedInUser.getUser_id()), String.valueOf(currentUser.getUser_id()));
-//            followButton.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    updateFollowStatus();
-//                }
-//            });
+            followButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    updateFollowStatus();
+                }
+            });
 
 
 
@@ -436,8 +437,8 @@ private void is_user_following_visitor(String loggedInUserId, String currentUser
                 }
 
                 if(apiResponse != null && apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
-                    JsonElement root = new JsonParser().parse(apiResponse.getResponse_body());
-                    if (root.isJsonArray()) {
+                    //JsonElement root = new JsonParser().parse(apiResponse.getResponse_body());
+                    try {
 
                         // Post a Runnable to the main thread to update the UI
                         handler.post(new Runnable() {
@@ -447,8 +448,8 @@ private void is_user_following_visitor(String loggedInUserId, String currentUser
                             }
                         });
 
-                    } else {
-                        System.out.println("The root element is not a JSON array");
+                    } catch(Exception e) {
+                        e.printStackTrace();
                     }
 
                 }else{
@@ -474,6 +475,12 @@ private void is_user_following_visitor(String loggedInUserId, String currentUser
             followButton.setVisibility(View.VISIBLE);
             loggedInUser = (User) getIntent().getSerializableExtra("current_user");
             is_user_following_visitor(String.valueOf(loggedInUser.getUser_id()), String.valueOf(currentUser.getUser_id()));
+            followButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    updateFollowStatus();
+                }
+            });
 
         }else if(getIntent().getSerializableExtra("current_user") != null){
             currentUser = (User) getIntent().getSerializableExtra("current_user");

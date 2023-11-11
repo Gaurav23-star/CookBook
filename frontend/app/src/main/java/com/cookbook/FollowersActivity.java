@@ -83,7 +83,7 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
                 if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
 
                     User[] users = gson.fromJson(apiResponse.getResponse_body(), User[].class);
-
+                    userList.clear();
                     for(User user : users){
 
                         addUserThreadSafe(new User(user));

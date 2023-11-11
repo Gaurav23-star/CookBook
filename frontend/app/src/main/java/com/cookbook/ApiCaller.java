@@ -29,9 +29,9 @@ final public class ApiCaller {
 
     private static final String USER_IS_FOLLOWING_URL = "http://172.16.122.20:8080/user-is-following?user_id=";
 
-    private static final String USER_FOLLOW_URL = "http://172.16.122.20:8080/user-follow?user_id=";
+    private static final String USER_FOLLOW_URL = "http://172.16.122.20:8080/user-follow";
 
-    private static final String USER_UNFOLLOW_URL = "http://172.16.122.20:8080/user-unfollow?user_id=";
+    private static final String USER_UNFOLLOW_URL = "http://172.16.122.20:8080/user-unfollow";
 
 
 
@@ -148,7 +148,10 @@ final public class ApiCaller {
     }
 
     public ApiResponse UserFollowVisitingUser(String userId, String visitorId){
-        return post_request(USER_FOLLOW_URL, userId + "&"+"visitor_id="+visitorId);
+    final String jsonData = "{\"user_id\": \"" + userId + "\"," +
+            "\"visitor_id\":\"" + visitorId + "\"}";
+
+        return post_request(USER_FOLLOW_URL, jsonData );
     }
 
 
