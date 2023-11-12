@@ -23,6 +23,9 @@ const LOGIN_ENDPOINT = '/login';
 const COMMENTS_ENDPOINT = '/user-defined-recipes/comments';
 const USER_FOLLOWERS_FOLLOWING_COUNT_ENDPOINT = "/user-followers-following-count";
 const USERS_NETWORK_LIST_ENDPOINT = "/users-network-list";
+const USER_IS_FOLLOWING_ENDPOINT = "/user-is-following";
+const USER_FOLLOW_ENDPOINT = "/user-follow";
+const USER_UNFOLLOW_ENDPOINT = "/user-unfollow";
 const UPLOAD_RECIPE_IMAGE_ENDPOINT = USER_DEFINED_RECIPES_ENDPOINT.concat('/upload_image');
 const DOWNLOAD_RECIPE_IMAGE_ENDPOINT = USER_DEFINED_RECIPES_ENDPOINT.concat('/download_image/:recipe_id');
 
@@ -379,6 +382,99 @@ app.get(DOWNLOAD_RECIPE_IMAGE_ENDPOINT, (req, res) => {
         }
       });
 })
+
+
+
+// GET method for /user-search to search the user, given a username"
+app.get(USER_SEARCH_ENDPOINT, async (req, res) => {
+    try {
+
+    const searchText = req.query.text;
+    console.log("user searched " + searchText);
+    
+    console.log(" ---- within user_search endpoint");
+    
+    if(searchText.trim() === '') {
+        res.status(400).send({message: 'Search text cannot be empty'});
+        return;
+     }
+    
+    const sql = `SELECT * FROM ${USERS_TABLE} WHERE username LIKE ? AND username != '';`
+    const values = [`%${searchText}%`];
+    
+    // parameterized query prevents sql injection attacks -> ? gets replaced with values
+    let result = await db.pool.query(sql, values);
+    result = serializeResult(result);
+
+    res.status(200).send(convertBigIntsToNumbers(result));
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err)
+    }
+});
+
+//Get method to check if a user if following the visitin user
+app.get(USER_IS_FOLLOWING_ENDPOINT, async (req, res) => {
+    try {
+        const user_id = req.query.user_id;
+        const visitor_id = req.query.visitor_id;
+
+        let condition;
+        condition = `user_id = ${user_id}`;
+
+        const sql = `SELECT COUNT(*) FROM ${FOLLOWS_TABLE} WHERE user_id = ${visitor_id} AND follower_id = ${user_id};`
+
+        let result = await db.pool.query(sql);
+        result = serializeResult(result);
+        res.status(200).send(result);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err)
+    }
+});
+
+//Post method that makes a user follow the visiting user
+app.post(USER_FOLLOW_ENDPOINT, async (req, res) => {
+
+    try{
+
+
+    let user_id = req.body.user_id;
+    let visitor_id = req.body.visitor_id;
+
+    
+    let sqlQuery = 'INSERT INTO follows (user_id, follower_id) VALUES (?, ?)';
+    
+    const result = await db.pool.query(sqlQuery, [visitor_id, user_id]);
+
+    console.log(result);
+    res.status(200).send(convertBigIntsToNumbers(result));
+
+    }catch(error){
+        console.log(error);
+        res.status(500).send(convertBigIntsToNumbers(error));
+    }
+});
+
+//Delete method that makes a user unfollow the visiting user
+app.delete(USER_UNFOLLOW_ENDPOINT, async (req, res) => {
+
+    try{
+    
+    let user_id = req.body.user_id;
+    let visitor_id = req.body.visitor_id;
+
+    let query = 'DELETE FROM follows WHERE user_id = ? AND follower_id = ?';
+
+    const result = await db.pool.query(query, [visitor_id, user_id]);
+    res.status(200).send(convertBigIntsToNumbers(result));
+
+    }catch(error){
+        console.log(err);
+        res.status(500).send(convertBigIntsToNumbers(err));
+    }
+});
+
 
 
 function bigIntToString(value) {

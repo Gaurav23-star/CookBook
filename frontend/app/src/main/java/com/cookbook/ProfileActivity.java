@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -25,6 +26,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -38,13 +40,18 @@ import java.util.Scanner;
 public class ProfileActivity extends AppCompatActivity implements RecyclerViewInterface {
 
     private static User currentUser;
+    private static User loggedInUser;
     private SwipeRefreshLayout swipeRefreshLayout;
     static Recipe recipe;
+    boolean isFollowing;
 
 
     private final Gson gson = new Gson();
 
-    private static final List<Item> items = Collections.synchronizedList(new ArrayList<Item>());
+    private static  List<Item> items = Collections.synchronizedList(new ArrayList<Item>());
+    private static  List<Item> currentUserItems = Collections.synchronizedList(new ArrayList<Item>());
+    private static  List<Item> visitingUserItems = Collections.synchronizedList(new ArrayList<Item>());
+
 
     private TextView server_error_text;
 
@@ -54,17 +61,37 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
     private TextView userName;
     private TextView fullName;
     private TextView biography;
+    private Button followButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide();
-        //retrieve user passed in
-        if(getIntent().getSerializableExtra("current_user") != null){
-            currentUser = (User) getIntent().getSerializableExtra("current_user");
-        }
 
         setContentView(R.layout.activity_profile);
+        //retrieve user passed in
+        if(getIntent().getSerializableExtra("visiting_user") != null) {
+            currentUser = (User) getIntent().getSerializableExtra("visiting_user");
+            loggedInUser = (User) getIntent().getSerializableExtra("current_user");
+            //set follow/following button here
+            items = visitingUserItems;
+            followButton = findViewById(R.id.follow_button);
+            followButton.setVisibility(View.VISIBLE);
+            is_user_following_visitor(String.valueOf(loggedInUser.getUser_id()), String.valueOf(currentUser.getUser_id()));
+            followButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    updateFollowStatus();
+                }
+            });
+
+
+
+        }else if(getIntent().getSerializableExtra("current_user") != null){
+            currentUser = (User) getIntent().getSerializableExtra("current_user");
+            loggedInUser = (User) getIntent().getSerializableExtra("current_user");
+            items = currentUserItems;
+        }
 
         swipeRefreshLayout = findViewById(R.id.profile_refreshLayout);
         server_error_text = findViewById(R.id.profile_serverErrorTextView);
@@ -90,13 +117,14 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         });
 
         //user created recipes not loaded from server
-        if(items.size()== 0){
-            System.out.println("--------LIST IS EMPTY--------");
-            get_user_created_recipes_from_server();
-
-        }else{
-            add_recipes_to_ui();
-        }
+//        if(items.size()== 0){
+//            System.out.println("--------LIST IS EMPTY--------");
+//            get_user_created_recipes_from_server();
+//
+//        }else{
+//            add_recipes_to_ui();
+//        }
+        add_recipes_to_ui();
 
         followersNumber.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -119,7 +147,7 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
                 startActivity(intent);
             }
         });
-
+        get_user_created_recipes_from_server();//added
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -175,7 +203,7 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
                     }
 
                 }else{
-                    System.out.println("ERR in USERS_FOLLOWER_FUNCTION");
+                    System.out.println("ERR in USERS_FOLLOWER_FUNCTION ----1 ");
                 }
 
             }
@@ -245,10 +273,16 @@ private void get_user_created_recipes_from_server(){
         bottomNavigationView.setOnItemSelectedListener(item ->{
             switch (item.getItemId()){
                 case R.id.bottom_person:
+                    Intent intent_self = new Intent(getApplicationContext(), ProfileActivity.class);
+                    intent_self.putExtra("current_user",loggedInUser);
+                    startActivity(intent_self);
+                    finish();
                     return true;
                 case R.id.bottom_settings:
                     Intent intent_Settings = new Intent(getApplicationContext(), SettingsActivity.class);
-                    intent_Settings.putExtra("current_user",currentUser);
+                    //intent_Settings.putExtra("current_user",currentUser);
+                    //.putExtra("current_user",loggedInUser);
+                    intent_Settings.putExtra("current_user",loggedInUser);
                     startActivity(intent_Settings);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
@@ -257,21 +291,21 @@ private void get_user_created_recipes_from_server(){
                     return true;
                 case R.id.bottom_notifications:
                     Intent intent_Notifications = new Intent(getApplicationContext(), NotificationsActivity.class);
-                    intent_Notifications.putExtra("current_user",currentUser);
+                    intent_Notifications.putExtra("current_user",loggedInUser);
                     startActivity(intent_Notifications);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
                     return true;
                 case R.id.bottom_favorites:
                     Intent intent_Favorites = new Intent(getApplicationContext(), FavoriteActivity.class);
-                    intent_Favorites.putExtra("current_user",currentUser);
+                    intent_Favorites.putExtra("current_user",loggedInUser);
                     startActivity(intent_Favorites);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
                     return true;
                 case R.id.bottom_home:
                       Intent intent_Home = new Intent(getApplicationContext(), HomeActivity.class);
-                      intent_Home.putExtra("current_user",currentUser);
+                      intent_Home.putExtra("current_user",loggedInUser);
                       startActivity(intent_Home);
                       overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                       finish();
@@ -295,28 +329,135 @@ private void get_user_created_recipes_from_server(){
         startActivity(intent);
     }
 
+
+
+private void is_user_following_visitor(String loggedInUserId, String currentUserId){
+
+    final Thread thread = new Thread(new Runnable() {
+        final Handler handler = new Handler(Looper.getMainLooper());
+
+
+        @Override
+        public void run() {
+            ApiResponse apiResponse = ApiCaller.get_caller_instance().getUserIsFollowingVisitingUser(loggedInUserId, currentUserId);
+
+            System.out.println("logged in user : " + loggedInUserId);
+            System.out.println("currentUserId in user : " + currentUserId);
+
+            if(apiResponse == null){
+                System.out.println("ERROR in USERS_FOLLOWER_FUNCTION ");
+                return;
+            }
+
+            if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+                JsonElement root = new JsonParser().parse(apiResponse.getResponse_body());
+                if (root.isJsonArray()) {
+                    JsonObject firstObject = root.getAsJsonArray().get(0).getAsJsonObject();
+                    int isLoggedInUserFollowingCurrentUser = firstObject.get("COUNT(*)").getAsInt();
+                    if(isLoggedInUserFollowingCurrentUser > 0){
+                        isFollowing = true;
+                        System.out.println("---------------- LOGGED IN USER IS FOLLOWING VISITING USER ------");
+                    }else{
+                        isFollowing = false;
+                        System.out.println("---------------- LOGGED IN USER IS NOOOOOOOTTTT FOLLOWING VISITING USER ------");
+                    }
+
+                    // Post a Runnable to the main thread to update the UI
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (isFollowing) {
+                                followButton.setText("Following");
+                            } else {
+                                followButton.setText("Follow");
+                            }
+                        }
+                    });
+
+                } else {
+                    System.out.println("The root element is not a JSON array");
+                }
+
+            }else{
+                System.out.println("ERR in USERS_FOLLOWER_FUNCTION ----- 2");
+            }
+
+        }
+    });
+        thread.start();
+}
+
+
+    private void updateFollowStatus(){
+
+        final Thread thread = new Thread(new Runnable() {
+            final Handler handler = new Handler(Looper.getMainLooper());
+
+            @Override
+            public void run() {
+                ApiResponse apiResponse;
+                isFollowing = !isFollowing;
+
+                if (isFollowing){
+                    apiResponse = ApiCaller.get_caller_instance().UserFollowVisitingUser( String.valueOf(loggedInUser.getUser_id()), String.valueOf(currentUser.getUser_id()) );
+                    System.out.println("1111111111111111111--------");
+                }else{
+                    System.out.println("222221212122222323232323232--------");
+                    apiResponse = ApiCaller.get_caller_instance().UserUnfollowVisitingUser( String.valueOf(loggedInUser.getUser_id()), String.valueOf(currentUser.getUser_id()) );
+                }
+
+                if(apiResponse != null && apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+                    //JsonElement root = new JsonParser().parse(apiResponse.getResponse_body());
+                    try {
+
+                        // Post a Runnable to the main thread to update the UI
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                followButton.setText(isFollowing ? "Following" : "Follow");
+                            }
+                        });
+
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }else{
+                    System.out.println("ERR in USERS_FOLLOWER_FUNCTION");
+                }
+
+            }
+        });
+        thread.start();
+    }
+
+
     @Override
     protected void onResume() {
         super.onResume();
-        System.out.println("HOME ACTIVITY RESUMED");
-        SharedPreferences sharedPreferences = getSharedPreferences("Updated_recipe", MODE_PRIVATE);
-        if(sharedPreferences.contains("updated_recipe")){
-            System.out.println("GOT UPDATED RECIPE");
-            System.out.println(sharedPreferences.getString("updated_recipe", "null"));
-            String update_recipe = sharedPreferences.getString("updated_recipe", "null");
-
-            //update the recipe list with edited recipe
-            if(!update_recipe.equals("null")){
-                Recipe uRecipe = new Gson().fromJson(update_recipe, Recipe.class);
-                for(Item recipe : items){
-                    if(recipe.getRecipe().getRecipe_id() == uRecipe.getRecipe_id()){
-                        recipe.update_item(uRecipe);
-                        break;
-                    }
+        // Clear the items list to ensure it's empty before repopulating it
+        items.clear();
+        if(getIntent().getSerializableExtra("visiting_user") != null){
+            currentUser = (User) getIntent().getSerializableExtra("visiting_user");
+            //set follow/following button here
+            items = visitingUserItems;
+            followButton = findViewById(R.id.follow_button);
+            followButton.setVisibility(View.VISIBLE);
+            loggedInUser = (User) getIntent().getSerializableExtra("current_user");
+            is_user_following_visitor(String.valueOf(loggedInUser.getUser_id()), String.valueOf(currentUser.getUser_id()));
+            followButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    updateFollowStatus();
                 }
-                add_recipes_to_ui();
-            }
-        }
-    }
+            });
 
+        }else if(getIntent().getSerializableExtra("current_user") != null){
+            currentUser = (User) getIntent().getSerializableExtra("current_user");
+            loggedInUser = (User) getIntent().getSerializableExtra("current_user");
+            items = currentUserItems;
+        }
+
+        get_user_created_recipes_from_server();
+    }
 }

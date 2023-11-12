@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.Window;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -56,6 +57,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     private static final List<Item> items = Collections.synchronizedList(new ArrayList<Item>());
 
     private TextView server_error_text;
+    ImageButton user_search_button;
     private FloatingActionButton addNewRecipeButton;
     private BottomSheetDialog bottomSheetDialog;
     private ActivityResultLauncher<PickVisualMediaRequest> pickRecipeImageLauncher;
@@ -117,6 +119,18 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
         // ------ Navigation Choice ----
         handleNavigationChange();
+
+        user_search_button = (ImageButton) findViewById(R.id.search_user_button);
+
+        user_search_button.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                final Intent intent_UserSearch = new Intent(getApplicationContext(), UserSearchActivity.class);
+                intent_UserSearch.putExtra("current_user",currentUser);
+                startActivity(intent_UserSearch);
+            }
+        });
 
 
 
