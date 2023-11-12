@@ -38,6 +38,24 @@ const COMMENTS_TABLE = 'comments';
 const FOLLOWS_TABLE = 'follows';
 const FAVORITES_TABLE = 'favorites'
 
+// GET method for /favorites
+app.get(FAVORITES_ENDPOINT, async (req, res) => {
+    try {
+        const user_id = req.query.user_id;
+        if (user_id == undefined) {
+            res.status(400).send('You must provide the user_id.\n');
+            return;
+        }
+
+        const sql = `SELECT * FROM ${FAVORITES_TABLE} WHERE user_id = ?`
+        const result = await db.pool.query(sql, [user_id]);
+        res.status(200).send(convertBigIntsToNumbers(result));
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(convertBigIntsToNumbers(err))
+    }
+});
+
 // DELETE method for /favorites
 app.delete(FAVORITES_ENDPOINT, async (req, res) => {
     try {
