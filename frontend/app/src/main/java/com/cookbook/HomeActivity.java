@@ -1,6 +1,5 @@
 package com.cookbook;
 
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -32,7 +31,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,7 +56,10 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
     private TextView server_error_text;
     ImageButton user_search_button;
+    private FloatingActionButton addMenuButton;
+    private FloatingActionButton addNewFriendButton;
     private FloatingActionButton addNewRecipeButton;
+    boolean isMenuShowing = false;
     private BottomSheetDialog bottomSheetDialog;
     private ActivityResultLauncher<PickVisualMediaRequest> pickRecipeImageLauncher;
     private ImageView newRecipeImageView;
@@ -79,7 +80,9 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         setContentView(R.layout.activity_home);
         swipeRefreshLayout = findViewById(R.id.refreshLayout);
         server_error_text = findViewById(R.id.serverErrorTextView);
+        addMenuButton = findViewById(R.id.addMenuButton);
         addNewRecipeButton = findViewById(R.id.addNewRecipeButton);
+        addNewFriendButton = findViewById(R.id.addNewFriendButton);
         bottomSheetDialog = new BottomSheetDialog(this);
 
         //if recipes not loaded from server, then load
@@ -109,6 +112,24 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 newRecipeImageView.setImageURI(result);
             }
         });
+
+        addMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isMenuShowing){
+                    addNewFriendButton.hide();
+                    addNewRecipeButton.hide();
+                    addMenuButton.setImageResource(R.drawable.baseline_add_24);
+                    isMenuShowing = false;
+                }else{
+                    addNewRecipeButton.show();
+                    addNewFriendButton.show();
+                    addMenuButton.setImageResource(R.drawable.baseline_close_24);
+                    isMenuShowing = true;
+                }
+            }
+        });
+
         addNewRecipeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,12 +141,25 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         // ------ Navigation Choice ----
         handleNavigationChange();
 
+        //LEGACY CODE
+        /*
         user_search_button = (ImageButton) findViewById(R.id.search_user_button);
 
         user_search_button.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View view) {
+                final Intent intent_UserSearch = new Intent(getApplicationContext(), UserSearchActivity.class);
+                intent_UserSearch.putExtra("current_user",currentUser);
+                startActivity(intent_UserSearch);
+            }
+        });
+
+         */
+
+        addNewFriendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 final Intent intent_UserSearch = new Intent(getApplicationContext(), UserSearchActivity.class);
                 intent_UserSearch.putExtra("current_user",currentUser);
                 startActivity(intent_UserSearch);

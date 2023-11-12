@@ -34,15 +34,16 @@ import retrofit2.http.Part;
 final public class ApiCaller {
     private static ApiCaller apiCaller;
 
-    //API URLS
-    private static final String USER_SEARCH_URL = "http://172.16.122.20:8080/user-search?text=";
-    private static final String USER_IS_FOLLOWING_URL = "http://172.16.122.20:8080/user-is-following?user_id=";
-    private static final String USER_FOLLOW_URL = "http://172.16.122.20:8080/user-follow";
-    private static final String USER_UNFOLLOW_URL = "http://172.16.122.20:8080/user-unfollow";
 
+    //API URLS
     private static final String production_host = "http://172.16.122.20:8080";
     private static final String development_host = "http://10.0.2.2:8080";
     public static final String host = production_host;
+    private static final String USER_SEARCH_URL = host + "/user-search?text=";
+    private static final String USER_IS_FOLLOWING_URL = host + "/user-is-following?user_id=";
+    private static final String USER_FOLLOW_URL = host + "/user-follow";
+    private static final String USER_UNFOLLOW_URL = host + "/user-unfollow";
+
     private static final String LOGIN_URL = host + "/login";
     private static final String SIGNUP_URL = host + "/create-account";
     private static final String RECIPE_URL = host + "/user-defined-recipes";
