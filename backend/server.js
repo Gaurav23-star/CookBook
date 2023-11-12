@@ -28,7 +28,7 @@ const USER_FOLLOW_ENDPOINT = "/user-follow";
 const USER_UNFOLLOW_ENDPOINT = "/user-unfollow";
 const UPLOAD_RECIPE_IMAGE_ENDPOINT = USER_DEFINED_RECIPES_ENDPOINT.concat('/upload_image');
 const DOWNLOAD_RECIPE_IMAGE_ENDPOINT = USER_DEFINED_RECIPES_ENDPOINT.concat('/download_image/:recipe_id');
-
+const USER_SEARCH_ENDPOINT = "/user-search";
 // Define table constants
 const USER_DEFINED_RECIPES_TABLE = 'user_defined_recipes';
 const USERS_TABLE = 'users';
