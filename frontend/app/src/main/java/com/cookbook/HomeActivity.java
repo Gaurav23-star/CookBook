@@ -1,9 +1,9 @@
 package com.cookbook;
 
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,27 +12,37 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.view.Window;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cookbook.model.ApiResponse;
 import com.cookbook.model.Recipe;
 import com.cookbook.model.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
-import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -48,6 +58,11 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
     private TextView server_error_text;
     ImageButton user_search_button;
+    private FloatingActionButton addNewRecipeButton;
+    private BottomSheetDialog bottomSheetDialog;
+    private ActivityResultLauncher<PickVisualMediaRequest> pickRecipeImageLauncher;
+    private ImageView newRecipeImageView;
+    private Uri newRecipeImageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +79,8 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         setContentView(R.layout.activity_home);
         swipeRefreshLayout = findViewById(R.id.refreshLayout);
         server_error_text = findViewById(R.id.serverErrorTextView);
+        addNewRecipeButton = findViewById(R.id.addNewRecipeButton);
+        bottomSheetDialog = new BottomSheetDialog(this);
 
         //if recipes not loaded from server, then load
         if(items.size() == 0){
@@ -85,6 +102,20 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
+        pickRecipeImageLauncher = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), result -> {
+            System.out.println("NEW IMAGE IS " + result);
+            if(result != null){
+                newRecipeImageUri = result;
+                newRecipeImageView.setImageURI(result);
+            }
+        });
+        addNewRecipeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                displayCreateNewRecipeDialog();
+                bottomSheetDialog.show();
+            }
+        });
 
         // ------ Navigation Choice ----
         handleNavigationChange();
@@ -102,6 +133,117 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         });
 
 
+
+    }
+
+    private void displayCreateNewRecipeDialog() {
+        View view = getLayoutInflater().inflate(R.layout.create_recipe_activity, null, false);
+
+        ImageView recipeImage = view.findViewById(R.id.recipeImageView);
+        newRecipeImageView = recipeImage;
+        ImageView recipeImageEditor = view.findViewById(R.id.add_recipe_image);
+        EditText recipeTitle = view.findViewById(R.id.add_recipe_title);
+        EditText recipeDescription = view.findViewById(R.id.add_recipe_description);
+        EditText recipeIngredients = view.findViewById(R.id.add_recipe_ingredients);
+        EditText recipeInstructions = view.findViewById(R.id.add_recipe_instructions);
+        Button addRecipeButton = view.findViewById(R.id.add_recipe_button);
+        EditText recipeServings = view.findViewById(R.id.add_servings);
+        EditText recipePrepareTime = view.findViewById(R.id.add_preparation_time);
+        recipeImageEditor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("WANT TO EDIT RECIPE IMAGE");
+                pickRecipeImageLauncher.launch(new PickVisualMediaRequest.Builder().setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE).build());
+                System.out.println("GOT IMAGE URI");
+
+            }
+        });
+
+        addRecipeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(isValidEntry(recipeTitle) && isValidEntry(recipeIngredients)
+                && isValidEntry(recipeInstructions)){
+                    System.out.println("ALL ENTRIES ARE VALID");
+                    String recipeName = recipeTitle.getText().toString();
+                    String servings = recipeServings.getText().toString();
+                    String prepareTime = recipePrepareTime.getText().toString();
+                    String desc = recipeDescription.getText().toString();
+                    String ingredients = recipeIngredients.getText().toString();
+                    String instructions = recipeInstructions.getText().toString();
+
+                    post_recipe_to_server(recipeName, desc, servings, prepareTime, ingredients, instructions);
+                    bottomSheetDialog.dismiss();
+                }
+            }
+        });
+
+       bottomSheetDialog.setContentView(view);
+    }
+
+    private void post_recipe_to_server(String recipeName, String desc, String servings, String prepareTime, String ingredients, String instructions){
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ApiResponse response = ApiCaller.get_caller_instance().postNewRecipe(
+                        recipeName,
+                        desc,
+                        servings,
+                        prepareTime,
+                        ingredients,
+                        instructions,
+                        currentUser.getUser_id()
+                );
+
+
+                if(response != null && response.getResponse_code() == HttpURLConnection.HTTP_OK){
+                    try {
+                        int recipeId = new JSONObject(response.getResponse_body()).getInt("insertId");
+
+                        //add newly created recipe to home feed
+                        Recipe recipe = new Recipe(
+                                recipeId,
+                                recipeName,
+                                Integer.parseInt(servings),
+                                Integer.parseInt(prepareTime),
+                                ingredients,
+                                desc,
+                                instructions,
+                                currentUser.getUser_id()
+                        );
+                        items.add(0, new Item(recipe));
+
+                        if(newRecipeImageUri != null){
+                            MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+                            String extension = mimeTypeMap.getExtensionFromMimeType(getContentResolver().getType(newRecipeImageUri));
+                            String imageUrl = recipeId + "." + extension;
+
+                            File file = getImageFile(newRecipeImageUri, imageUrl);
+                            ApiCaller.get_caller_instance().uploadRecipeImage(file);
+                        }
+
+                        runOnUiThread(() -> add_recipes_to_ui());
+
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+
+
+                }
+
+            }
+        });
+
+        thread.start();
+    }
+
+    private boolean isValidEntry(EditText view){
+        if(view.getText().toString().trim().equals("")){
+            view.setError("cannot be empty");
+            return false;
+        }
+        return true;
     }
 
     private void display_server_down_error(String errorText){
@@ -255,8 +397,33 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                     }
                 }
                 add_recipes_to_ui();
+                sharedPreferences.edit().putString("update_recipe", "null").apply();
             }
         }
+    }
+
+
+    private File getImageFile(Uri result, String imageUrl){
+        File dir = getApplicationContext().getFilesDir();
+        File file = new File(dir, imageUrl);
+
+        try {
+            System.out.println("COPYING FILE DATA");
+            InputStream inputStream = getContentResolver().openInputStream(result);
+            OutputStream outputStream = new FileOutputStream(file);
+            byte[] buffer = new byte[1024];
+            int len = inputStream.read(buffer);
+            while (len != -1) {
+                outputStream.write(buffer, 0, len);
+                len = inputStream.read(buffer);
+            }
+            inputStream.close();
+            outputStream.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return file;
     }
 
 }

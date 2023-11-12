@@ -50,8 +50,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="55dp" />
+
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addNewRecipeButton"
+        android:layout_width="223dp"
+        android:layout_height="132dp"
+        android:layout_above="@+id/bottomNavigationView"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="30dp"
+        android:clickable="true"
+        android:src="@android:drawable/ic_input_add" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:layout_width="match_parent"

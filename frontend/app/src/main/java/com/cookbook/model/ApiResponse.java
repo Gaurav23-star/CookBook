@@ -24,4 +24,12 @@ public class ApiResponse {
     public void setResponse_body(String response_body) {
         this.response_body = response_body;
     }
+
+    @Override
+    public String toString() {
+        return "ApiResponse{" +
+                "response_code=" + response_code +
+                ", response_body='" + response_body + '\'' +
+                '}';
+    }
 }
