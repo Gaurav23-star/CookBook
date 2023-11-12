@@ -20,7 +20,7 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" >
+            app:layout_constraintTop_toTopOf="parent">
 
             <TextView
                 android:id="@+id/textView"
@@ -184,7 +184,10 @@
                 android:layout_marginTop="75dp"
                 android:layout_marginEnd="75dp"
                 android:layout_marginBottom="75dp"
+                android:backgroundTint="@color/button_background_color"
                 android:text="Add"
+                android:textColor="#000000"
+                android:textSize="24sp"
                 app:cornerRadius="50dp" />
 
 

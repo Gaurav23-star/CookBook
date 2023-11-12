@@ -18,6 +18,7 @@
             android:layout_height="59dp"
             android:layout_marginTop="8dp"
             android:text="Edit"
+            android:backgroundTint="@color/button_background_color"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -29,6 +30,7 @@
             android:layout_height="59dp"
             android:layout_marginTop="8dp"
             android:text="Save"
+            android:backgroundTint="@color/button_background_color"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -175,6 +177,7 @@
             <Button
                 android:id="@+id/addCommentButton"
                 android:layout_width="wrap_content"
+                android:backgroundTint="@color/button_background_color"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Comment" />
