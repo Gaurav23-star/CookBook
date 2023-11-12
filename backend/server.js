@@ -38,6 +38,37 @@ const COMMENTS_TABLE = 'comments';
 const FOLLOWS_TABLE = 'follows';
 const FAVORITES_TABLE = 'favorites'
 
+// DELETE method for /favorites
+app.delete(FAVORITES_ENDPOINT, async (req, res) => {
+    try {
+        const user_id = req.query.user_id;
+        if (user_id == undefined) {
+            res.status(400).send('You must provide the user_id.\n');
+            return;
+        }
+
+        const recipe_id = req.query.recipe_id;
+        if (recipe_id == undefined) {
+            res.status(400).send('You must provide a recipe_id to unfavorite.\n');
+            return;
+        }
+
+        const sqlFavoriteRelationExistsQuery = `SELECT COUNT(*) FROM ${FAVORITES_TABLE} WHERE user_id = ? AND recipe_id = ?`;
+        const favoriteRelationExists = await db.pool.query(sqlFavoriteRelationExistsQuery, [user_id, recipe_id]);
+        if (favoriteRelationExists[0]['COUNT(*)'] == 0) {
+            res.status(200).send('No update made. The user provided already does not favorite the provided recipe.\n');
+            return;
+        }
+
+        const deleteQuery = `DELETE FROM ${FAVORITES_TABLE} WHERE user_id = ? AND recipe_id = ?`;
+        const result = await db.pool.query(deleteQuery, [user_id, recipe_id]);
+        res.status(200).send(convertBigIntsToNumbers(result));
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(convertBigIntsToNumbers(err));
+    }
+});
+
 // POST method for /favorites
 app.post(FAVORITES_ENDPOINT, async (req, res) => {
     try {
