@@ -11,4 +11,6 @@
     <color name="red">#FFF00000</color>
     <color name="blue">#FF0017FF</color>
     <color name="grey">#545454</color>
+    <color name="button_background_color">#FF3700B3</color>
+    <color name="background_add_recipe">#F5F7F8</color>
 </resources>

@@ -12,21 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:id="@+id/linearLayoutId">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="40sp"
-            android:orientation="horizontal">
-
-            <ImageButton
-                android:id="@+id/search_user_button"
-                android:layout_width="35sp"
-                android:layout_height="match_parent"
-                android:background="#ECE3E3"
-                app:srcCompat="@drawable/baseline_person_add_24" />
-        </LinearLayout>
-    </LinearLayout>
+        android:id="@+id/linearLayoutId"/>
 
 
     <TextView
@@ -53,17 +39,41 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addNewFriendButton"
+        android:layout_width="223dp"
+        android:layout_height="132dp"
+        android:layout_above="@+id/addNewRecipeButton"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="30dp"
+        android:visibility="invisible"
+        android:layout_marginBottom="30dp"
+        android:clickable="true"
+        android:src="@drawable/baseline_person_add_24" />
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addNewRecipeButton"
         android:layout_width="223dp"
+        android:layout_height="132dp"
+        android:layout_above="@+id/addMenuButton"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="30dp"
+        android:visibility="invisible"
+        android:layout_marginBottom="30dp"
+        android:clickable="true"
+        android:src="@drawable/baseline_fastfood_24" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addMenuButton"
+        android:layout_width="220dp"
         android:layout_height="132dp"
         android:layout_above="@+id/bottomNavigationView"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="30dp"
         android:layout_marginBottom="30dp"
         android:clickable="true"
-        android:src="@android:drawable/ic_input_add" />
+        android:src="@drawable/baseline_add_24" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:layout_width="match_parent"
