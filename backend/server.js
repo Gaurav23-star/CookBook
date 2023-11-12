@@ -29,12 +29,70 @@ const USER_UNFOLLOW_ENDPOINT = "/user-unfollow";
 const UPLOAD_RECIPE_IMAGE_ENDPOINT = USER_DEFINED_RECIPES_ENDPOINT.concat('/upload_image');
 const DOWNLOAD_RECIPE_IMAGE_ENDPOINT = USER_DEFINED_RECIPES_ENDPOINT.concat('/download_image/:recipe_id');
 const USER_SEARCH_ENDPOINT = "/user-search";
+const FAVORITES_ENDPOINT = '/favorites';
+
 // Define table constants
 const USER_DEFINED_RECIPES_TABLE = 'user_defined_recipes';
 const USERS_TABLE = 'users';
 const COMMENTS_TABLE = 'comments';
 const FOLLOWS_TABLE = 'follows';
- 
+const FAVORITES_TABLE = 'favorites'
+
+// DELETE method for /favorites
+app.delete(FAVORITES_ENDPOINT, async (req, res) => {
+    try {
+        const user_id = req.query.user_id;
+        if (user_id == undefined) {
+            res.status(400).send('You must provide the user_id.\n');
+            return;
+        }
+
+        const recipe_id = req.query.recipe_id;
+        if (recipe_id == undefined) {
+            res.status(400).send('You must provide a recipe_id to unfavorite.\n');
+            return;
+        }
+
+        const sqlFavoriteRelationExistsQuery = `SELECT COUNT(*) FROM ${FAVORITES_TABLE} WHERE user_id = ? AND recipe_id = ?`;
+        const favoriteRelationExists = await db.pool.query(sqlFavoriteRelationExistsQuery, [user_id, recipe_id]);
+        if (favoriteRelationExists[0]['COUNT(*)'] == 0) {
+            res.status(200).send('No update made. The user provided already does not favorite the provided recipe.\n');
+            return;
+        }
+
+        const deleteQuery = `DELETE FROM ${FAVORITES_TABLE} WHERE user_id = ? AND recipe_id = ?`;
+        const result = await db.pool.query(deleteQuery, [user_id, recipe_id]);
+        res.status(200).send(convertBigIntsToNumbers(result));
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(convertBigIntsToNumbers(err));
+    }
+});
+
+// POST method for /favorites
+app.post(FAVORITES_ENDPOINT, async (req, res) => {
+    try {
+        const { user_id, recipe_id } = req.body;
+
+        if (user_id && recipe_id) {
+            const sql = `INSERT INTO ${FAVORITES_TABLE} VALUES (?, ?)`;
+
+            try {
+                const result = await db.pool.query(sql, [user_id, recipe_id]);
+                res.status(200).send(convertBigIntsToNumbers(result));
+            } catch (err) {
+                // Error in SQL query is fault of client (send 200 OK)
+                res.status(200).send(convertBigIntsToNumbers(err));
+            }
+        } else {
+            res.status(400).json({ message: 'user_id and recipe_id are required' });
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(convertBigIntsToNumbers(err));
+    }
+});
+
 // GET method for /user-defined-recipes
 app.get(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
     try {
@@ -389,24 +447,24 @@ app.get(DOWNLOAD_RECIPE_IMAGE_ENDPOINT, (req, res) => {
 app.get(USER_SEARCH_ENDPOINT, async (req, res) => {
     try {
 
-    const searchText = req.query.text;
-    console.log("user searched " + searchText);
-    
-    console.log(" ---- within user_search endpoint");
-    
-    if(searchText.trim() === '') {
-        res.status(400).send({message: 'Search text cannot be empty'});
-        return;
-     }
-    
-    const sql = `SELECT * FROM ${USERS_TABLE} WHERE username LIKE ? AND username != '';`
-    const values = [`%${searchText}%`];
-    
-    // parameterized query prevents sql injection attacks -> ? gets replaced with values
-    let result = await db.pool.query(sql, values);
-    result = serializeResult(result);
+        const searchText = req.query.text;
+        console.log("user searched " + searchText);
+        
+        console.log(" ---- within user_search endpoint");
+        
+        if(searchText.trim() === '') {
+            res.status(400).send({message: 'Search text cannot be empty'});
+            return;
+        }
+        
+        const sql = `SELECT * FROM ${USERS_TABLE} WHERE username LIKE ? AND username != '';`
+        const values = [`%${searchText}%`];
+        
+        // parameterized query prevents sql injection attacks -> ? gets replaced with values
+        let result = await db.pool.query(sql, values);
+        result = serializeResult(result);
 
-    res.status(200).send(convertBigIntsToNumbers(result));
+        res.status(200).send(convertBigIntsToNumbers(result));
     } catch (err) {
         console.log(err);
         res.status(500).send(err)
