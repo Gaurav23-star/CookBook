@@ -3,10 +3,15 @@ const db = require('./db')
 const app = express()
 const port = 8080
 const bodyParser = require("body-parser");
+const fs = require('fs');
+const path = require('path');
+const multer = require('multer');
+const upload = multer();
 
- 
+app.use(bodyParser.raw({ limit: '10mb'}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
 
 const authRouter = require('./authenticate')
 app.use('/', authRouter)
@@ -15,10 +20,17 @@ app.use('/', authRouter)
 const USER_DEFINED_RECIPES_ENDPOINT = '/user-defined-recipes';
 const CREATE_ACCOUNT_ENDPOINT = '/create-account';
 const LOGIN_ENDPOINT = '/login';
+const COMMENTS_ENDPOINT = '/user-defined-recipes/comments';
+const USER_FOLLOWERS_FOLLOWING_COUNT_ENDPOINT = "/user-followers-following-count";
+const USERS_NETWORK_LIST_ENDPOINT = "/users-network-list";
+const UPLOAD_RECIPE_IMAGE_ENDPOINT = USER_DEFINED_RECIPES_ENDPOINT.concat('/upload_image');
+const DOWNLOAD_RECIPE_IMAGE_ENDPOINT = USER_DEFINED_RECIPES_ENDPOINT.concat('/download_image/:recipe_id');
 
 // Define table constants
 const USER_DEFINED_RECIPES_TABLE = 'user_defined_recipes';
 const USERS_TABLE = 'users';
+const COMMENTS_TABLE = 'comments';
+const FOLLOWS_TABLE = 'follows';
  
 // GET method for /user-defined-recipes
 app.get(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
@@ -211,6 +223,181 @@ app.post(LOGIN_ENDPOINT, async (req, res) => {
         res.status(500).send(convertBigIntsToNumbers(err));
     }
 });
+
+//Post method for /comments
+
+app.post(COMMENTS_ENDPOINT, async (req, res) => {
+
+    try {
+        const { user_id, recipe_id, comment } = req.body
+
+        if(user_id && recipe_id && comment){
+
+            sqlQuery = `INSERT INTO ${COMMENTS_TABLE} VALUES (? , ? , ?)`;
+            const result = await db.pool.query(sqlQuery, [recipe_id, comment, user_id]);
+
+            console.log(result);
+            res.status(200).send(convertBigIntsToNumbers(result));
+        }
+        else{
+            res.status(400).json({message: "All fields are required."});
+        }
+
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).send(convertBigIntsToNumbers(error));
+    }
+
+})
+
+//GET method for /comments
+app.get(COMMENTS_ENDPOINT, async (req, res) => {
+    try {
+        const recipe_id = req.query.recipe_id;
+
+        if(recipe_id != undefined){
+            sqlQuery = `SELECT C.recipe_id, C.comment, C.user_id, U.username FROM ${COMMENTS_TABLE} AS C JOIN ${USERS_TABLE} AS U ON C.user_id = U.user_id WHERE C.recipe_id = ?`;
+            const result = await db.pool.query(sqlQuery, recipe_id);
+            console.log(result);
+            res.status(200).send(convertBigIntsToNumbers(result));
+        }
+        else{
+            res.status(400).json({message: "recipe_id is required"});
+        }
+    } catch (error) {
+        res.status(500).send(convertBigIntsToNumbers(error));
+    }
+})
+
+// GET method for /user-followers-following-count"
+app.get(USER_FOLLOWERS_FOLLOWING_COUNT_ENDPOINT, async (req, res) => {
+    try {
+        const user_id = req.query.user_id;
+        let condition;
+        condition = `user_id = ${user_id}`;
+
+        const sql = `(SELECT 'following_count' AS typeOfFollow, COUNT(*) AS count FROM ${FOLLOWS_TABLE} WHERE ${condition}) UNION ALL (SELECT 'followers_count' AS type, COUNT(*) AS count FROM ${FOLLOWS_TABLE} WHERE follower_id =${user_id});`
+
+        let result = await db.pool.query(sql);
+        result = serializeResult(result);
+        res.status(200).send(result);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err)
+    }
+});
+
+
+//Get method for /users-network-list
+app.get(USERS_NETWORK_LIST_ENDPOINT, async (req, res) => {
+    try {
+        const user_id = req.query.user_id;
+        const network_type = req.query.network_type;
+
+        let sql;
+        let result;
+        if (network_type === "following") {
+            sql = `SELECT u.* FROM ${USERS_TABLE} AS u JOIN ${FOLLOWS_TABLE} AS f ON u.user_id = f.user_id WHERE f.follower_id = ${user_id};`
+            result = await db.pool.query(sql);
+            result = serializeResult(result);
+            res.status(200).send(convertBigIntsToNumbers(result));
+        }
+        else if (network_type === "followers") {
+            sql = `SELECT users.* FROM ${USERS_TABLE} JOIN ${FOLLOWS_TABLE} ON users.user_id = follows.follower_id WHERE follows.user_id = ${user_id};`
+            result = await db.pool.query(sql);
+            result = serializeResult(result);
+            res.status(200).send(convertBigIntsToNumbers(result));
+
+        } else {
+            throw new Error("Did not specify Type of Network list correctly");
+        }
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(convertBigIntsToNumbers(err));
+    }
+})
+
+//WORK IN PROGRESS, NOT DONE YET, SO MIGHT NOT WORK IF YOU TEST IT.
+//POST to upload image
+console.log('URL ', UPLOAD_RECIPE_IMAGE_ENDPOINT)
+app.post(UPLOAD_RECIPE_IMAGE_ENDPOINT, upload.single('image'), (req, res) => {
+    console.log(req.file)
+    console.log(req.body);
+
+
+    if(req.file !== undefined){
+        const fileName = req.file.originalname;
+        const imagePath = path.join(__dirname, 'recipe_images', fileName);
+        fs.writeFile(imagePath, req.file.buffer, err => {
+            if (err) {
+                console.log(err)
+            }
+
+            res.status(200).json({response_code : 200, response_body : 'Ok'});
+        })
+    }else{
+        res.status(500).json({response_code : 500, response_body : 'Something went wrong'});
+    }
+
+    /*
+    const imagePath = path.join(__dirname, 'recipe_images', image_uri);
+    console.log(`Image path is ${imagePath}`)
+    fs.writeFile(imagePath, req.body, err => {
+        if (err) {
+          console.error(err);
+        }
+    });
+    */
+})
+
+// /user-defined-recipes/download_image/:recipe_id
+//GET to get recipe image
+app.get(DOWNLOAD_RECIPE_IMAGE_ENDPOINT, (req, res) => {
+    const recipe_id = req.params.recipe_id;
+    console.log('Image requested ' , req.params.recipe_id)
+
+
+    const defaultImagePath = path.join(__dirname, 'recipe_images', 'food.jpg');
+    const imagePath = path.join(__dirname, 'recipe_images', recipe_id.concat('.jpg'));
+    
+    fs.stat(imagePath, function(err, stat) {
+        if (err == null) {
+          console.log('File exists');
+          console.log(imagePath);
+          res.status(200).sendFile(imagePath);
+          
+        } else if (err.code === 'ENOENT') {
+          // file does not exist
+          console.log('File does not exist');
+          res.status(200).sendFile(defaultImagePath);
+          
+        } else {
+          console.log('Some other error: ', err.code);
+          res.send(500);
+        }
+      });
+})
+
+
+function bigIntToString(value) {
+    const MAX_SAFE_INTEGER = 2 ** 53 - 1;
+    return value <= MAX_SAFE_INTEGER ? Number(value) : value.toString();
+}
+
+function serializeResult(result) {
+    return result.map(row => {
+        const newRow = { ...row };
+        for (const key in newRow) {
+            if (typeof newRow[key] === 'bigint') {
+                newRow[key] = bigIntToString(newRow[key]);
+            }
+        }
+        return newRow;
+    });
+}
+
 
 function convertBigIntsToNumbers(obj) {
     for (const key in obj) {

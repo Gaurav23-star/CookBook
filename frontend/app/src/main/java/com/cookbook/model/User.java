@@ -32,6 +32,18 @@ public class User implements Serializable {
         this.username = username;
     }
 
+    // Copy Constructor
+    public User(User user) {
+        this.user_id = user.getUser_id();
+        this.first_name = user.getFirst_name();
+        this.last_name = user.getLast_name();
+        this.email_id = user.getEmail_id();
+        this.password = user.getPassword();
+        this.isAdmin = user.getIsAdmin();
+        this.isBanned = user.getIsBanned();
+        this.username = user.getUsername();
+    }
+
     public User() {
 
     }

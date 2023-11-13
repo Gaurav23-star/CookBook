@@ -9,7 +9,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.cookbook.model.ApiResponse;
 import com.cookbook.model.User;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 
 
@@ -69,58 +73,34 @@ public class SignUpActivity extends AppCompatActivity {
         String password = passwordEditText.getText().toString();
         String username = usernameEditText.getText().toString();
 
-        if(!isValidName(firstName, lastName) || !isValidEmail(email) || !isValidPassword(password)) return;
+        if(!isValidName(firstName, lastName) || !isValidEmail(email) || !isValidPassword(password) || !isValidUserName(username)) return;
 
 
-        final Thread thread = new Thread(() -> {
-
-            try {
-                final URL url = new URL(SIGNUP_URL);
-                final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Content-Type", "application/json");
-                connection.setDoOutput(true);
-
-                final String jsonData = "{\"first_name\": \"" + firstName + "\"," +
-                                        "\"last_name\": \"" + lastName + "\", " +
-                                        "\"email_id\":\"" + email + "\", " +
-                                        "\"password\":\"" + password + "\", " +
-                                        "\"username\":\"" + username + "\"}";
-
-                System.out.println("Json Payload: " + jsonData);
-
-                final OutputStream os = connection.getOutputStream();
-                final OutputStreamWriter osw = new OutputStreamWriter(os, StandardCharsets.UTF_8);
-
-                osw.write(jsonData);
-                osw.flush();
-
-                final int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    final InputStream responseBody = connection.getInputStream();
-
-                    String jsonString = convertStreamToString(responseBody);
-                    System.out.println("Response body: " + jsonString);
-
-                    JSONObject jsonObject = new JSONObject(jsonString);
-                    int userId = jsonObject.getInt("insertId");
-
-                    user = new User(userId, firstName, lastName, email, password, 0, 0, username);
-                    changeActivityToUserHome(user);
-                } else {
-                    System.out.println("Response code is " + responseCode);
-                    printUserAlreadyExistsFailure();
-                }
-            } catch (Exception e) {
-                printServerDownFailure();
-                System.out.println("EXCEPTION OCCURRED " + e);
+        final Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+               ApiResponse apiResponse = ApiCaller.get_caller_instance().signup(firstName, lastName, email, password, username);
+               if(apiResponse == null) {
+                   printServerDownFailure();
+                   return;
+               }
+               //User successfully created
+               if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+                   //redirect user to home activity
+                   try {
+                       int user_id = new JSONObject(apiResponse.getResponse_body()).getInt("insertId");
+                       user = new User(user_id, firstName, lastName, email, password, 0, 0, username);
+                       changeActivityToUserHome(user);
+                   } catch (JSONException e) {
+                       e.printStackTrace();
+                   }
+               }
+               else {
+                   printUserAlreadyExistsFailure();
+               }
             }
         });
         thread.start();
-
-
-
 
 
     }
@@ -175,6 +155,15 @@ public class SignUpActivity extends AppCompatActivity {
         if(password.isEmpty()){
             this.passwordEditText.requestFocus();
             this.passwordEditText.setError("You must enter a password");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isValidUserName(String username){
+        if(username.isEmpty()){
+            this.usernameEditText.requestFocus();
+            this.usernameEditText.setError("You must enter a username");
             return false;
         }
         return true;
