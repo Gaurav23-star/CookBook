@@ -47,7 +47,7 @@ app.get(FAVORITES_ENDPOINT, async (req, res) => {
             return;
         }
 
-        const sql = `SELECT * FROM ${FAVORITES_TABLE} WHERE user_id = ?`
+        const sql = `SELECT ${USER_DEFINED_RECIPES_TABLE}.* FROM ${FAVORITES_TABLE} JOIN ${USER_DEFINED_RECIPES_TABLE} ON ${FAVORITES_TABLE}.recipe_id = ${USER_DEFINED_RECIPES_TABLE}.recipe_id WHERE ${FAVORITES_TABLE}.user_id = ?`;
         const result = await db.pool.query(sql, [user_id]);
         res.status(200).send(convertBigIntsToNumbers(result));
     } catch (err) {
