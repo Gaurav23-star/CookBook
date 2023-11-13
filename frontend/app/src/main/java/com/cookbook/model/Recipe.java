@@ -1,6 +1,10 @@
 package com.cookbook.model;
 
+import com.cookbook.ApiCaller;
+
 import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class Recipe implements Serializable {
 
@@ -12,6 +16,7 @@ public class Recipe implements Serializable {
     protected String description;
     protected String instructions;
     protected int user_id;
+    private static final String RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
 
     public Recipe(int recipe_id, String recipe_name, int servings, int preparation_time_minutes, String ingredients, String description, String instructions, int user_id) {
         this.recipe_id = recipe_id;
@@ -89,5 +94,33 @@ public class Recipe implements Serializable {
 
     public void setUser_id(int user_id) {
         this.user_id = user_id;
+    }
+
+    public static void deleteRecipe (Recipe recipe) {
+
+        final Thread thread = new Thread (() -> {
+            try {
+                String deleteURL = RECIPE_URL + "?recipe_id=" + recipe.getRecipe_id() + "&user_id=" + recipe.getUser_id();
+                URL url = new URL(deleteURL);
+                final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                //sets type of request
+                connection.setRequestMethod("DELETE");
+                connection.setRequestProperty("Content-length", "0");
+                connection.setDoOutput(false);
+                //since get we just need to do this i think as well?
+                connection.connect();
+
+                final int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    System.out.println("DELETED SUCCESSFULLY");
+                } else {
+                    System.out.println("Could not delete for some reason.");
+                }
+
+            } catch (Exception e) {
+                System.out.println("EXCEPTION OCCURRED " + e);
+            }
+        });
+        thread.start();
     }
 }

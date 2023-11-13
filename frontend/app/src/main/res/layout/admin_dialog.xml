@@ -9,7 +9,7 @@
         android:id="@+id/deleteRecipe"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hide Post"
+        android:text="Delete Recipe"
          />
 
     <Button

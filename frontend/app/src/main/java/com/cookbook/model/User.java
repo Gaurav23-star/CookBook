@@ -2,7 +2,16 @@ package com.cookbook.model;
 
 import androidx.annotation.NonNull;
 
+import com.google.gson.Gson;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 
 /*
 Abstract super class for users and admins.
@@ -20,6 +29,8 @@ public class User implements Serializable {
     protected int isAdmin;
     protected int isBanned;
     protected String username;
+
+    private static final String USERS_URL = "http://172.16.122.20:8080/update-user";
 
     public User(int user_id, String first_name, String last_name, String email_id, String password, int isAdmin, int isBanned, String username) {
         this.user_id = user_id;
@@ -76,12 +87,52 @@ public class User implements Serializable {
         return email_id;
     }
 
-/*
-    not sure whats redundant here
-    implement this later, add the getters as well
+    public static void banUser (int user_id) {
 
-    private ArrayList<Recipe> recipes;
-    private ArrayList<User> followedUsers;
-*/
+        final Thread thread = new Thread (() -> {
+            try {
+
+               String updateURL = USERS_URL + "?user_id=" + user_id;
+               URL url = new URL(updateURL);
+               final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+               connection.setRequestMethod("PATCH");
+               connection.setRequestProperty("Content-Length", "0");
+               connection.setDoOutput(false);
+
+               //final String jsonData = new Gson().toJson(user);
+
+               //System.out.println("Ban Status of " + user.getUser_id() + ":" + user.getIsBanned());
+
+               //final OutputStream os = connection.getOutputStream();
+               //final OutputStreamWriter osw = new OutputStreamWriter(os, StandardCharsets.UTF_8);
+
+               //osw.write(jsonData);
+               //osw.flush();
+
+               final int responseCode = connection.getResponseCode();
+               if (responseCode == HttpURLConnection.HTTP_OK) {
+
+                   System.out.println("Banned Successfully");
+                   //final InputStream responseBody = connection.getInputStream();
+
+                   //String jsonString = User.convertStreamToString(responseBody);
+                   //System.out.println("Response body: " + jsonString);
+
+               } else {
+                   System.out.println("Could not ban");
+               }
+
+            } catch (Exception e) {
+                System.out.println("EXCEPTION OCCURRED" + e);
+            }
+        });
+        thread.start();
+    }
+
+    private static String convertStreamToString(InputStream is) {
+        final Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
+        return scanner.hasNext() ? scanner.next() : "";
+    }
 
 }

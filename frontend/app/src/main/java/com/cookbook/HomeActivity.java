@@ -44,6 +44,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
@@ -287,9 +288,9 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
     @Override
     public void onItemClick(int position) {
-        System.out.println(items.toString());
+        //System.out.println(items.toString());
 
-        System.out.println("CURRENT USEr CLICK " + currentUser.getUser_id());
+        //System.out.println("CURRENT USER CLICK " + currentUser.getUser_id());
         if (currentUser.getIsAdmin()==0) {
             changeActivityToRecipeActivity(currentUser, items.get(position).getRecipe());
 
@@ -299,9 +300,42 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.admin_dialog);
             final Button banUser = dialog.findViewById(R.id.banUser);
-            final Button banButton = dialog.findViewById(R.id.banButton);
+            final Button deleteRecipe = dialog.findViewById(R.id.deleteRecipe);
 
             dialog.show();
+
+            deleteRecipe.setOnClickListener(view -> {
+                System.out.println("deleteRecipe selected");
+                Recipe dRecipe = (items.get(position).getRecipe());
+                Recipe.deleteRecipe(dRecipe);
+
+                //remove deleted recipe from UI
+                for(Item recipe : items){
+                    if(recipe.getRecipe().getRecipe_id() == dRecipe.getRecipe_id()){
+                        items.remove(recipe);
+                        break;
+                    }
+                }
+                add_recipes_to_ui();
+                dialog.dismiss();
+            });
+
+            banUser.setOnClickListener(view -> {
+                System.out.println("banUser selected");
+                int ban_id = items.get(position).getRecipe().getUser_id();
+                User.banUser(ban_id);
+
+                //remove banned user's recipes from UI. Can be added back later by querying.
+                for (Item recipe: items) {
+                    if (recipe.getRecipe().getUser_id() == ban_id) {
+                        items.remove(recipe);
+                    }
+                }
+
+                add_recipes_to_ui();
+                dialog.dismiss();
+            });
+
         }
     }
     private String convertStreamToString(InputStream is) {
