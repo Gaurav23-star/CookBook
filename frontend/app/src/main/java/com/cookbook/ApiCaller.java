@@ -47,6 +47,7 @@ final public class ApiCaller {
     private static final String LOGIN_URL = host + "/login";
     private static final String SIGNUP_URL = host + "/create-account";
     private static final String RECIPE_URL = host + "/user-defined-recipes";
+    private static final String FAVORITES_URL = host + "/favorites";
     private static final String USER_CREATED_RECIPES_URL = host + "/user-defined-recipes?user_id=";
     private static final String USER_FOLLOWER_FOLLOWING_COUNT_URL = host + "/user-followers-following-count?user_id=";
     private static final String USERS_NETWORK_LIST_URL = host + "/users-network-list?user_id=";
@@ -174,6 +175,10 @@ final public class ApiCaller {
 
     public ApiResponse getAllRecipes(){
         return get_request(RECIPE_URL, "");
+    }
+
+    public ApiResponse getFavoriteRecipes(final String user_id) {
+        return get_request(FAVORITES_URL, user_id);
     }
 
     public void getRecipeImage(){
