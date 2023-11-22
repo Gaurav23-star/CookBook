@@ -3,11 +3,14 @@ package com.cookbook;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,13 +18,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
 import android.webkit.MimeTypeMap;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.cookbook.model.ApiResponse;
@@ -59,11 +65,18 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     private FloatingActionButton addMenuButton;
     private FloatingActionButton addNewFriendButton;
     private FloatingActionButton addNewRecipeButton;
+    private ProgressBar progressBar;
     boolean isMenuShowing = false;
     private BottomSheetDialog bottomSheetDialog;
     private ActivityResultLauncher<PickVisualMediaRequest> pickRecipeImageLauncher;
     private ImageView newRecipeImageView;
     private Uri newRecipeImageUri;
+    private MyAdapter recyclerViewAdapter;
+    private LinearLayoutManager recyclerViewManager;
+    private RecyclerView recipesRecyclerView;
+    private boolean isScrolling;
+    private int currentItem, totalItems, scrollOutItems;
+    private int recipePageNumber = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,22 +91,23 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         //user id 2 will be admin account / default page for now
         //System.out.println("Current User " + currentUser.toString());
         setContentView(R.layout.activity_home);
+        progressBar = findViewById(R.id.progressBar);
         swipeRefreshLayout = findViewById(R.id.refreshLayout);
         server_error_text = findViewById(R.id.serverErrorTextView);
         addMenuButton = findViewById(R.id.addMenuButton);
         addNewRecipeButton = findViewById(R.id.addNewRecipeButton);
         addNewFriendButton = findViewById(R.id.addNewFriendButton);
         bottomSheetDialog = new BottomSheetDialog(this);
+        recipesRecyclerView = findViewById(R.id.recyclerview);
+        recyclerViewManager = new LinearLayoutManager(this);
 
+        recipesRecyclerView.setLayoutManager(recyclerViewManager);
+        recyclerViewAdapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin());
+        recipesRecyclerView.setAdapter(recyclerViewAdapter);
         //if recipes not loaded from server, then load
         if(items.size() == 0){
             System.out.println("LIST IS EMPTY");
             get_recipes_from_server();
-        }
-        //if we already have recipes loaded, then
-        // just update the UI, no need to reload from server again
-        else{
-            add_recipes_to_ui();
         }
 
         //Let recipes list refreshable, reload data from server if user refreshes
@@ -101,6 +115,11 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             @Override
             public void onRefresh() {
                 server_error_text.setVisibility(View.GONE);
+                int totalCount = items.size();
+                for(int i = items.size()- 1; i >= 0; i--) items.remove(i);
+                recyclerViewAdapter.notifyItemRangeRemoved(0, totalCount);
+                System.out.println("ITEM SIZE BEFORE REFRESH " + items.size());
+                recipePageNumber = 1;
                 get_recipes_from_server();
                 swipeRefreshLayout.setRefreshing(false);
             }
@@ -165,6 +184,36 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 startActivity(intent_UserSearch);
             }
         });
+
+
+        recipesRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if(newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL){
+                    isScrolling = true;
+                    System.out.println("SCROLL CHANGED" + newState);
+                }
+
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                currentItem = recyclerViewManager.getChildCount();
+                totalItems = recyclerViewManager.getItemCount();
+                scrollOutItems = recyclerViewManager.findFirstCompletelyVisibleItemPosition();
+                System.out.println("CURRENTLY " + currentItem + " DISPLAYED");
+                System.out.println("VIEWED " + scrollOutItems + " OUT OF " + totalItems);
+
+                if(isScrolling && (currentItem + scrollOutItems > totalItems)){
+                    System.out.println("ORDERING MORE RECIPES");
+                    isScrolling = false;
+                    get_recipes_from_server();
+                }
+            }
+        });
+
 
 
 
@@ -246,7 +295,6 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                                 instructions,
                                 currentUser.getUser_id()
                         );
-                        items.add(0, new Item(recipe));
 
                         if(newRecipeImageUri != null){
                             MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
@@ -256,8 +304,12 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                             File file = getImageFile(newRecipeImageUri, imageUrl);
                             ApiCaller.get_caller_instance().uploadRecipeImage(file);
                         }
-
-                        runOnUiThread(() -> add_recipes_to_ui());
+                        items.add(0, new Item(recipe));
+                        runOnUiThread(() -> {
+                            recyclerViewAdapter.notifyItemInserted(0);
+                            recipesRecyclerView.scrollToPosition(0);
+                        }
+                        );
 
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
@@ -292,20 +344,17 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     }
 
 
-    private void add_recipes_to_ui(){
-        RecyclerView recyclerView = findViewById(R.id.recyclerview);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        MyAdapter adapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin());
-        recyclerView.setAdapter(adapter);
-    }
+
 
 
     private void get_recipes_from_server(){
+        progressBar.setVisibility(View.VISIBLE);
         final Thread thread = new Thread(new Runnable() {
             final Handler handler = new Handler(Looper.getMainLooper());
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void run() {
-                ApiResponse apiResponse = ApiCaller.get_caller_instance().getAllRecipes();
+                ApiResponse apiResponse = ApiCaller.get_caller_instance().getRecipePages(recipePageNumber++);
 
                 if(apiResponse == null){
                     display_server_down_error("Server is down, Please Try again");
@@ -314,14 +363,15 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
                 if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
                     Recipe[] recipes = gson.fromJson(apiResponse.getResponse_body(), Recipe[].class);
-
+                    int startPosition = items.size();
                     for(Recipe recipe : recipes){
                         addItemThreadSafe(recipe);
                     }
 
                     //update recipe list on main thread
                     handler.post(() ->{
-                        add_recipes_to_ui();
+                        recyclerViewAdapter.notifyItemInserted(startPosition);
+                        progressBar.setVisibility(View.GONE);
                     });
 
                 }else{
@@ -424,6 +474,15 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             //update the recipe list with edited recipe
             if(!update_recipe.equals("null")){
                 Recipe uRecipe = new Gson().fromJson(update_recipe, Recipe.class);
+
+                for(int i = 0; i < items.size(); i++){
+                    if(items.get(i).getRecipe().getRecipe_id() == uRecipe.getRecipe_id()){
+                        items.get(i).update_item(uRecipe);
+                        recyclerViewAdapter.notifyItemChanged(i);
+                        break;
+                    }
+                }
+                /*
                 for(Item recipe : items){
                     if(recipe.getRecipe().getRecipe_id() == uRecipe.getRecipe_id()){
                         recipe.update_item(uRecipe);
@@ -431,6 +490,8 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                     }
                 }
                 add_recipes_to_ui();
+                 */
+
                 sharedPreferences.edit().putString("update_recipe", "null").apply();
             }
         }
