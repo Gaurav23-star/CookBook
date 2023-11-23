@@ -82,6 +82,7 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
                 @Override
                 public void onClick(View view) {
                     updateFollowStatus();
+                    //get_Users_Following_And_FollowingCount();
                 }
             });
 
@@ -415,6 +416,7 @@ private void is_user_following_visitor(String loggedInUserId, String currentUser
                             @Override
                             public void run() {
                                 followButton.setText(isFollowing ? "Following" : "Follow");
+                                get_Users_Following_And_FollowingCount();
                             }
                         });
 
@@ -449,6 +451,7 @@ private void is_user_following_visitor(String loggedInUserId, String currentUser
                 @Override
                 public void onClick(View view) {
                     updateFollowStatus();
+                    //get_Users_Following_And_FollowingCount();
                 }
             });
 
