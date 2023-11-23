@@ -7,7 +7,7 @@
     "start": "node server.js",
     "build": "npm install",
     "clean": "rm -r node_modules",
-    "start_nodemon": "node modemon server.js",
+    "start_nodemon": "node nodemon server.js",
     "start_prod": "npm run clean && npm run build && npm run start",
     "start_dev": "npm run clean && npm run build && npm run start_nodemon"
   },
