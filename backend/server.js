@@ -551,6 +551,24 @@ app.delete(USER_UNFOLLOW_ENDPOINT, async (req, res) => {
     }
 });
 
+//GET method for /user-dfined-recipes/ pagination
+app.get(USER_DEFINED_RECIPES_ENDPOINT.concat('/:pageNumber'), async (req, res) => {
+    try {
+        const pageNumber = req.params.pageNumber;
+        const recipesPerPage = 10;
+        const offset = (pageNumber - 1) * recipesPerPage;
+        //await new Promise(resolve => setTimeout(resolve, 1000));
+          console.log("Delay ended");
+
+        const sql = `SELECT * FROM ${USER_DEFINED_RECIPES_TABLE} ORDER BY recipe_id LIMIT ${recipesPerPage} OFFSET ${offset}`
+        const result = await db.pool.query(sql);
+        res.status(200).send(convertBigIntsToNumbers(result));
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(convertBigIntsToNumbers(err))
+    }
+})
+
 
 
 function bigIntToString(value) {
