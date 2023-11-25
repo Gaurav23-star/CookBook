@@ -51,6 +51,8 @@ final public class ApiCaller {
     private static final String USER_CREATED_RECIPES_URL = host + "/user-defined-recipes?user_id=";
     private static final String USER_FOLLOWER_FOLLOWING_COUNT_URL = host + "/user-followers-following-count?user_id=";
     private static final String USERS_NETWORK_LIST_URL = host + "/users-network-list?user_id=";
+    private static final String NOTIFICATION_URL = host + "/users-notifications";
+    private static final String USERS_NOTIFICATIONS_URL = host +"/users-notifications?to_user_id=";
     public static final String GET_RECIPE_IMAGE_URL = host + "/user-defined-recipes/download_image/";
     private static final String COMMENTS_URL = RECIPE_URL + "/comments";
     //private static final String COMMENTS_URL = "http://10.66.7.132:8080/user-defined-recipes/comments";
@@ -216,6 +218,29 @@ final public class ApiCaller {
     public ApiResponse UserUnfollowVisitingUser(String loggedInUserId, String currentUserId) {
         final String jsonData = "{\"user_id\":\"" + loggedInUserId + "\", \"visitor_id\":\"" + currentUserId + "\"}";
         return delete_request(USER_UNFOLLOW_URL, jsonData);
+    }
+
+    public ApiResponse getUsersNotifications(String to_user_id){
+        return get_request(USERS_NOTIFICATIONS_URL, to_user_id );
+    }
+
+    public ApiResponse postUserNotification(String type, String to_user_id, String from_user_id, String post_id){
+        final String jsonData = "{\"type\": \"" + type + "\"," +
+                "\"post_id\": \"" + post_id + "\"," +
+                "\"to_user_id\": \"" + to_user_id + "\"," +
+                "\"from_user_id\": \"" + from_user_id + "\"}";
+
+        return post_request(NOTIFICATION_URL, jsonData);
+    }
+
+    public ApiResponse removeUserNotification(String type, String to_user_id, String from_user_id, String post_id){
+
+        final String jsonData = "{\"type\": \"" + type + "\"," +
+                "\"post_id\": \"" + post_id + "\"," +
+                "\"to_user_id\": \"" + to_user_id + "\"," +
+                "\"from_user_id\": \"" + from_user_id + "\"}";
+
+        return delete_request(NOTIFICATION_URL, jsonData );
     }
 
 

@@ -82,7 +82,6 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
                 @Override
                 public void onClick(View view) {
                     updateFollowStatus();
-                    //get_Users_Following_And_FollowingCount();
                 }
             });
 
@@ -281,14 +280,10 @@ private void get_user_created_recipes_from_server(){
                     return true;
                 case R.id.bottom_settings:
                     Intent intent_Settings = new Intent(getApplicationContext(), SettingsActivity.class);
-                    //intent_Settings.putExtra("current_user",currentUser);
-                    //.putExtra("current_user",loggedInUser);
                     intent_Settings.putExtra("current_user",loggedInUser);
                     startActivity(intent_Settings);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
-
-
                     return true;
                 case R.id.bottom_notifications:
                     Intent intent_Notifications = new Intent(getApplicationContext(), NotificationsActivity.class);
@@ -310,7 +305,6 @@ private void get_user_created_recipes_from_server(){
                       startActivity(intent_Home);
                       overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                       finish();
-
                     return true;
             }
             return false;
@@ -397,17 +391,21 @@ private void is_user_following_visitor(String loggedInUserId, String currentUser
             @Override
             public void run() {
                 ApiResponse apiResponse;
+                ApiResponse apiResponseTwo;
+
                 isFollowing = !isFollowing;
 
                 if (isFollowing){
                     apiResponse = ApiCaller.get_caller_instance().UserFollowVisitingUser( String.valueOf(loggedInUser.getUser_id()), String.valueOf(currentUser.getUser_id()) );
+                    apiResponseTwo = ApiCaller.get_caller_instance().postUserNotification("follow", String.valueOf(currentUser.getUser_id()), String.valueOf(loggedInUser.getUser_id()), null);
                     System.out.println("1111111111111111111--------");
                 }else{
                     System.out.println("222221212122222323232323232--------");
                     apiResponse = ApiCaller.get_caller_instance().UserUnfollowVisitingUser( String.valueOf(loggedInUser.getUser_id()), String.valueOf(currentUser.getUser_id()) );
+                    apiResponseTwo = ApiCaller.get_caller_instance().removeUserNotification("follow", String.valueOf(currentUser.getUser_id()), String.valueOf(loggedInUser.getUser_id()), null );
                 }
 
-                if(apiResponse != null && apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+                if( (apiResponse != null && apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK) && (apiResponseTwo != null && apiResponseTwo.getResponse_code() == HttpURLConnection.HTTP_OK) ){
                     //JsonElement root = new JsonParser().parse(apiResponse.getResponse_body());
                     try {
 
@@ -451,7 +449,6 @@ private void is_user_following_visitor(String loggedInUserId, String currentUser
                 @Override
                 public void onClick(View view) {
                     updateFollowStatus();
-                    //get_Users_Following_And_FollowingCount();
                 }
             });
 
