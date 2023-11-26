@@ -30,6 +30,7 @@ const UPLOAD_RECIPE_IMAGE_ENDPOINT = USER_DEFINED_RECIPES_ENDPOINT.concat('/uplo
 const DOWNLOAD_RECIPE_IMAGE_ENDPOINT = USER_DEFINED_RECIPES_ENDPOINT.concat('/download_image/:recipe_id');
 const USER_SEARCH_ENDPOINT = "/user-search";
 const FAVORITES_ENDPOINT = '/favorites';
+const USER_NOTIFICATION_ENDPOINT = "/users-notifications";
 const UPDATE_USER_ENDPOINT = '/update-user'
 
 // Define table constants
@@ -38,6 +39,7 @@ const USERS_TABLE = 'users';
 const COMMENTS_TABLE = 'comments';
 const FOLLOWS_TABLE = 'follows';
 const FAVORITES_TABLE = 'favorites'
+const NOTIFICATIONS_TABLE = 'notifications';
 
 // GET method for /favorites
 app.get(FAVORITES_ENDPOINT, async (req, res) => {
@@ -600,6 +602,93 @@ app.delete(USER_UNFOLLOW_ENDPOINT, async (req, res) => {
     }catch(error){
         console.log(err);
         res.status(500).send(convertBigIntsToNumbers(err));
+    }
+});
+
+// get method that gets a users notifications
+app.get(USER_NOTIFICATION_ENDPOINT, async (req, res) => {
+    try {
+        const to_user_id = req.query.to_user_id;
+
+        let sql;
+        let result;
+        
+        sql = `SELECT ${NOTIFICATIONS_TABLE}.id, ${NOTIFICATIONS_TABLE}.type, ${USERS_TABLE}.username, ${NOTIFICATIONS_TABLE}.from_user_id, ${NOTIFICATIONS_TABLE}.to_user_id, ${NOTIFICATIONS_TABLE}.post_id, ${NOTIFICATIONS_TABLE}.created_at FROM ${NOTIFICATIONS_TABLE}, ${USERS_TABLE} Where ${NOTIFICATIONS_TABLE}.to_user_id=${to_user_id} and ${NOTIFICATIONS_TABLE}.from_user_id=${USERS_TABLE}.user_id;`
+        result = await db.pool.query(sql);
+        result = serializeResult(result);
+        res.status(200).send(convertBigIntsToNumbers(result));
+        
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(convertBigIntsToNumbers(err));
+    }
+})
+
+//delete an entry from notification that was for to_user_id
+app.delete(USER_NOTIFICATION_ENDPOINT, async (req, res) => {
+
+    try{
+    
+    const type = req.body.type;
+    const to_user_id = req.body.to_user_id;
+    const from_user_id = req.body.from_user_id;
+    const post_id = req.body.post_id;
+
+    let sql;
+    let result;
+
+    if(type === "follow"){
+        sql = `DELETE FROM ${NOTIFICATIONS_TABLE} WHERE type = 'follow' AND from_user_id = ? AND to_user_id = ? ;`
+        result = await db.pool.query(sql, [from_user_id, to_user_id]);
+        res.status(200).send(convertBigIntsToNumbers(result));
+    }
+    else if(type === "like"){
+        sql = `DELETE FROM ${NOTIFICATIONS_TABLE} WHERE type = 'like' AND from_user_id = ? AND to_user_id = ? AND post_id = ? ;`
+        result = await db.pool.query(sql, [from_user_id, to_user_id, post_id]);
+        res.status(200).send(convertBigIntsToNumbers(result));
+    }
+    else {
+        throw new Error("Error on USER_NOTIFICATION_ENDPOINT");
+    }
+
+    }catch(error){
+        console.log(error);
+        res.status(500).send(convertBigIntsToNumbers(error));
+    }
+});
+
+//Post method that gives a notification to to_user_id
+app.post(USER_NOTIFICATION_ENDPOINT, async (req, res) => {
+
+    try{
+
+    const type = req.body.type;
+    const to_user_id = req.body.to_user_id;
+    const from_user_id = req.body.from_user_id;
+    const post_id = req.body.post_id;
+    console.log("type is : " + type);
+    let sql;
+    let result;
+
+    if(type === "follow"){
+        sql = `INSERT INTO ${NOTIFICATIONS_TABLE} (type, from_user_id, to_user_id, post_id) VALUES (?, ?, ?, ?);`
+        result = await db.pool.query(sql, [type, from_user_id, to_user_id, post_id === 'null' ? null : post_id]);
+        res.status(200).send(convertBigIntsToNumbers(result));
+    } 
+    else if(type === "like"){
+        sql = `INSERT INTO ${NOTIFICATIONS_TABLE} (type, from_user_id, to_user_id, post_id) VALUES (?, ?, ?, ?);`
+        result = await db.pool.query(sql, [type, from_user_id, to_user_id, post_id === 'null' ? null : post_id]);
+        res.status(200).send(convertBigIntsToNumbers(result));
+    }
+    else {
+        throw new Error("Error on USER_NOTIFICATION_ENDPOINT");
+    }
+
+
+    }catch(error){
+        console.log(error);
+        res.status(500).send(convertBigIntsToNumbers(error));
     }
 });
 
