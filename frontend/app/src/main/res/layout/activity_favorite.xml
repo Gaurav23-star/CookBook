@@ -7,12 +7,43 @@
     tools:context=".FavoriteActivity">
 
     <TextView
+        android:id="@+id/favoritesPageTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Favorites Page"
         android:textSize="40sp"
         android:textColor="@color/black"
         android:layout_centerInParent="true"/>
+
+    <TextView
+        android:id="@+id/serverErrorTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/server_is_down"
+        android:textColor="@color/black"
+        android:textSize="40sp"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/linearLayoutId"/>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/refreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/linearLayoutId">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="55dp" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:layout_width="match_parent"
