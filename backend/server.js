@@ -117,9 +117,9 @@ app.get(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
         const user_id = req.query.user_id;
         let condition;
         if (user_id == undefined) condition = "TRUE";
-        else condition = `user_id = ${user_id}`;
+        else condition = `${USERS_TABLE}.user_id = ${user_id}`;
 
-        const sql = `SELECT * FROM ${USER_DEFINED_RECIPES_TABLE} WHERE ${condition}`
+        const sql = `SELECT ${USER_DEFINED_RECIPES_TABLE}.* FROM ${USERS_TABLE} JOIN ${USER_DEFINED_RECIPES_TABLE} ON ${USERS_TABLE}.user_id = ${USER_DEFINED_RECIPES_TABLE}.user_id WHERE ${condition} AND ${USERS_TABLE}.isBanned = 0`;
         const result = await db.pool.query(sql);
         res.status(200).send(convertBigIntsToNumbers(result));
     } catch (err) {
