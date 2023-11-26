@@ -366,6 +366,24 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 add_recipes_to_ui();
                 dialog.dismiss();
             });
+
+            banUser.setOnClickListener(view -> {
+
+                int ban_id = items.get(position).getRecipe().getUser_id();
+
+                System.out.println("banUser selected, banning user with id: " + ban_id);
+                User.banUser(ban_id);
+//
+//                for (Item recipe : items) {
+//                    if (recipe.getRecipe().getUser_id() == ban_id) {
+//                        items.remove(recipe);
+//                    }
+//
+//                }
+
+                add_recipes_to_ui();
+                dialog.dismiss();
+            });
         }
     }
     private String convertStreamToString(InputStream is) {
