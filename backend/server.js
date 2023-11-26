@@ -30,6 +30,7 @@ const UPLOAD_RECIPE_IMAGE_ENDPOINT = USER_DEFINED_RECIPES_ENDPOINT.concat('/uplo
 const DOWNLOAD_RECIPE_IMAGE_ENDPOINT = USER_DEFINED_RECIPES_ENDPOINT.concat('/download_image/:recipe_id');
 const USER_SEARCH_ENDPOINT = "/user-search";
 const FAVORITES_ENDPOINT = '/favorites';
+const UPDATE_USER_ENDPOINT = '/update-user'
 
 // Define table constants
 const USER_DEFINED_RECIPES_TABLE = 'user_defined_recipes';
@@ -245,6 +246,57 @@ app.delete(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
         console.log(err);
         res.status(500).send(convertBigIntsToNumbers(err));
     }
+});
+
+// PATCH method for /update-user
+app.patch(UPDATE_USER_ENDPOINT, async (req, res) => {
+	try {
+		const user_id = req.query.user_id;
+		if (user_id == undefined) {
+			res.status(400).send('You must provide the user_id to update as a URL parameter.\n');
+			return;
+		}
+		
+		const sqlUserExistsQuery = `SELECT COUNT(*) FROM ${USERS_TABLE} WHERE user_id = ?`;
+		const userExists = (await db.pool.query(sqlUserExistsQuery, [user_id]))[0]['COUNT(*)'];
+		if (userExists == 0) {
+			res.status(200).send('No user exists with the provided id.\n');
+			return;
+		}
+		
+		const updates = req.body;
+		
+		const keys = [];
+		const values = [];
+		for (const [key, value] of Object.entries(updates)) {
+			if (value !== null && value !== undefined) {
+				keys.push(key);
+				values.push(value);
+			}
+		}
+		
+		let sqlUpdateQuery = `UPDATE ${USERS_TABLE} SET `;
+		for (let i = 0; i < keys.length; i++) {
+			sqlUpdateQuery = sqlUpdateQuery.concat(`${keys[i]} = ?`);
+			if (i !== keys.length - 1) sqlUpdateQuery = sqlUpdateQuery.concat(', ');
+		}
+		sqlUpdateQuery = sqlUpdateQuery.concat(' WHERE user_id = ?');
+		
+		values.push(Number(user_id));
+		
+		try {
+            const result = await db.pool.query(sqlUpdateQuery, values);
+
+            res.status(200).send(convertBigIntsToNumbers(result));
+        } catch (err) {
+            // Error in SQL query is fault of client (send 200 OK)
+            res.status(200).send(convertBigIntsToNumbers(err));
+        } 
+	} catch (err) {
+        console.log(err);
+        res.status(500).send(convertBigIntsToNumbers(err));
+    }
+
 });
 
 // POST method for /create-account
