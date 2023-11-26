@@ -197,7 +197,7 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.admin_dialog);
             final Button banUser = dialog.findViewById(R.id.banUser);
-            final Button banButton = dialog.findViewById(R.id.banButton);
+            final Button deleteRecipe = dialog.findViewById(R.id.deleteRecipe);
 
             dialog.show();
         }

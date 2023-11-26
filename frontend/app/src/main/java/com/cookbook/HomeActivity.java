@@ -347,9 +347,25 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.admin_dialog);
             final Button banUser = dialog.findViewById(R.id.banUser);
-            final Button banButton = dialog.findViewById(R.id.banButton);
+            final Button deleteRecipe = dialog.findViewById(R.id.deleteRecipe);
 
             dialog.show();
+
+            deleteRecipe.setOnClickListener(view -> {
+                System.out.println("deleteRecipe selected");
+                Recipe dRecipe = (items.get(position).getRecipe());
+                Recipe.deleteRecipe(dRecipe);
+
+                //remove deleted recipe from UI
+                for(Item recipe : items){
+                    if(recipe.getRecipe().getRecipe_id() == dRecipe.getRecipe_id()){
+                        items.remove(recipe);
+                        break;
+                    }
+                }
+                add_recipes_to_ui();
+                dialog.dismiss();
+            });
         }
     }
     private String convertStreamToString(InputStream is) {
