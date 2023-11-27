@@ -5,23 +5,25 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.InputType;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
@@ -32,10 +34,8 @@ import com.cookbook.model.Comment;
 import com.cookbook.model.Recipe;
 import com.cookbook.model.User;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,22 +49,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import okhttp3.Request;
 import okhttp3.RequestBody;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
-import retrofit2.http.Path;
 
-public class RecipeActivity extends AppCompatActivity {
+public class RecipeActivity extends AppCompatActivity implements RecyclerViewInterface {
     private User currentUser;
     private Recipe currentRecipe;
     private static final String UPDATE_RECIPE_URL = ApiCaller.host + "/user-defined-recipes";
@@ -80,9 +75,13 @@ public class RecipeActivity extends AppCompatActivity {
     private EditText ingredientsView;
     private EditText instructionsView;
     private EditText descriptionView;
+    private EditText prepTimeView;
+    private EditText servingsView;
     private RecyclerView commentsView;
     private EditText commentTextView;
     private Button commentButton;
+    private ConstraintLayout recipeOwnerView;
+    private User recipeOwner;
     private final List<Comment> commentList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +90,7 @@ public class RecipeActivity extends AppCompatActivity {
         currentUser = (User) getIntent().getSerializableExtra("current_user");
         setContentView(R.layout.activity_recipe);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Home");
+        getSupportActionBar().setTitle("Recipe");
 
         edit_button = findViewById(R.id.editButton);
         save_button = findViewById(R.id.saveButton);
@@ -104,6 +103,9 @@ public class RecipeActivity extends AppCompatActivity {
         ingredientsView = findViewById(R.id.ingredientsView);
         instructionsView = findViewById(R.id.instructionsView);
         descriptionView = findViewById(R.id.descriptionView);
+        prepTimeView = findViewById(R.id.prepTimeEditText);
+        servingsView = findViewById(R.id.servingsEditText);
+        recipeOwnerView = findViewById(R.id.recipeOwnerView);
         //recipePicture.setImageResource(R.drawable.foodplaceholder);
         loadRecipeImage(recipePicture);
 
@@ -116,6 +118,11 @@ public class RecipeActivity extends AppCompatActivity {
         commentTextView = findViewById(R.id.commentText);
         commentButton = findViewById(R.id.addCommentButton);
         scrollView = findViewById(R.id.recipeScrollView);
+        System.out.println(currentRecipe.toString());
+        prepTimeView.setText(Integer.toString(currentRecipe.getPreparation_time_minutes()));
+        servingsView.setText(Integer.toString(currentRecipe.getServings()));
+
+
 
         System.out.println("CURRENT USER ID IN RECIPE " + currentRecipe.getUser_id());
         System.out.println("CURRENT USER ID " + currentUser.getUser_id());
@@ -129,12 +136,31 @@ public class RecipeActivity extends AppCompatActivity {
                 edit_button.setVisibility(View.GONE);
                 save_button.setVisibility(View.VISIBLE);
                 recipePictureEdit.setVisibility(View.VISIBLE);
-
+                makeFieldsEditable(prepTimeView);
+                makeFieldsEditable(servingsView);
                 makeFieldsEditable(titleView);
                 makeFieldsEditable(ingredientsView);
                 makeFieldsEditable(instructionsView);
                 makeFieldsEditable(descriptionView);
 
+            }
+        });
+
+        if(currentRecipe.getUser_id() != currentUser.getUser_id()){
+            loadRecipeOwnerProfile(Integer.toString(currentRecipe.getUser_id()));
+        }else{
+            //String displayName = currentUser.getFirst_name() + " " + currentUser.getLast_name();
+            String displayName = currentUser.getUsername();
+            nameView.setText(displayName);
+        }
+
+        recipeOwnerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("RECIPE OWNER CLICKED");
+                if(recipeOwner != null){
+                    loadUserProfile(recipeOwner);
+                }
             }
         });
 
@@ -152,8 +178,8 @@ public class RecipeActivity extends AppCompatActivity {
                     Recipe updatedRecipe = new Recipe(
                             currentRecipe.getRecipe_id(),
                             titleView.getText().toString(),
-                            currentRecipe.getServings(),
-                            currentRecipe.getPreparation_time_minutes(),
+                            Integer.parseInt(servingsView.getText().toString()),
+                            Integer.parseInt(prepTimeView.getText().toString()),
                             ingredientsView.getText().toString(),
                             descriptionView.getText().toString(),
                             instructionsView.getText().toString(),
@@ -162,6 +188,8 @@ public class RecipeActivity extends AppCompatActivity {
                     updated_recipe = updatedRecipe;
                     update_recipe_on_server(updatedRecipe);
 
+                    makeFieldsNonEditable(prepTimeView);
+                    makeFieldsNonEditable(servingsView);
                     makeFieldsNonEditable(titleView);
                     makeFieldsNonEditable(ingredientsView);
                     makeFieldsNonEditable(instructionsView);
@@ -226,6 +254,72 @@ public class RecipeActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    private void loadRecipeOwnerProfile(String userId){
+        final Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    ApiResponse response = ApiCaller.get_caller_instance().getUserFromUserId(userId);
+                    if (response != null && response.getResponse_code() == HttpURLConnection.HTTP_OK){
+                        User user = new Gson().fromJson(response.getResponse_body(), User.class);
+                        recipeOwner = user;
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            //String displayName = recipeOwner.getFirst_name() + " " + recipeOwner.getLast_name();
+                            String displayName = recipeOwner.getUsername();
+                            nameView.setText(displayName);
+                        });
+                    }
+                }
+                catch (Exception e){
+                    System.out.println(e);
+                    System.out.println("SOMETHING WENT WRONG");
+                }
+            }
+        });
+
+        thread.start();
+    }
+
+    private void loadCommentOwnerProfile(String userId){
+        final Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    ApiResponse response = ApiCaller.get_caller_instance().getUserFromUserId(userId);
+                    if (response != null && response.getResponse_code() == HttpURLConnection.HTTP_OK){
+                        User user = new Gson().fromJson(response.getResponse_body(), User.class);
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            loadUserProfile(user);
+                        });
+                    }
+                }
+                catch (Exception e){
+                    System.out.println(e);
+                    System.out.println("SOMETHING WENT WRONG");
+                }
+            }
+        });
+
+        thread.start();
+    }
+    private void loadUserProfile(User user){
+        Intent intent_Person = new Intent(getApplicationContext(), ProfileActivity.class);
+        intent_Person.putExtra("visiting_user",user);
+        intent_Person.putExtra("current_user",currentUser);
+        startActivity(intent_Person);
+    }
     private void update_recipe_on_server(Recipe updatedRecipe) {
         final Thread thread = new Thread(() -> {
 
@@ -287,20 +381,29 @@ public class RecipeActivity extends AppCompatActivity {
     }
 
     private void makeFieldsEditable(EditText view){
-        view.setBackground(getResources().getDrawable(R.drawable.edittext_border));
+        //view.setBackground(getResources().getDrawable(R.drawable.edittext_border));
+        int originalLines = view.getLineCount();
+
         view.setClickable(true);
-        view.setInputType(InputType.TYPE_CLASS_TEXT);
         view.setCursorVisible(true);
         view.requestFocus();
         view.setEnabled(true);
+        view.setLines(originalLines);
+        view.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
+        view.setVerticalScrollBarEnabled(true);
+
+        view.requestLayout();
     }
 
     private void makeFieldsNonEditable(EditText view){
-        view.setBackground(null);
+        //view.setBackground(null);
+        int originalLines = view.getLineCount();
         view.setClickable(false);
-        view.setInputType(InputType.TYPE_NULL);
         view.setCursorVisible(false);
         view.setEnabled(false);
+        view.setLines(originalLines);
+        view.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
+        view.setVerticalScrollBarEnabled(true);
     }
 
     private boolean isValidEntry(EditText view){
@@ -325,8 +428,9 @@ public class RecipeActivity extends AppCompatActivity {
 
 
     private void update_home_activity_recipe_list(Recipe recipe){
-        SharedPreferences sharedPreferences = getSharedPreferences("Updated_recipe", MODE_PRIVATE);
-        sharedPreferences.edit().putString("updated_recipe", new Gson().toJson(recipe)).apply();
+        HomeActivity.updateItem(recipe);
+        //SharedPreferences sharedPreferences = getSharedPreferences("Updated_recipe", MODE_PRIVATE);
+        //sharedPreferences.edit().putString("updated_recipe", new Gson().toJson(recipe)).apply();
     }
 
 
@@ -412,15 +516,20 @@ public class RecipeActivity extends AppCompatActivity {
 
     private void display_comments_on_ui(){
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        CommentsViewAdapter commentsViewAdapter = new CommentsViewAdapter(getApplicationContext(),commentList);
+        CommentsViewAdapter commentsViewAdapter = new CommentsViewAdapter(getApplicationContext(),commentList, this);
         commentsView.setLayoutManager(layoutManager);
         commentsView.setAdapter(commentsViewAdapter);
-    }
 
+    }
 
     private void loadRecipeImage(ImageView imageView){
         String url = ApiCaller.GET_RECIPE_IMAGE_URL + currentRecipe.getRecipe_id();
         Glide.with(this).load(url).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).dontAnimate().into(imageView);
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        loadCommentOwnerProfile(Integer.toString(commentList.get(position).getUser_id()));
     }
 
 

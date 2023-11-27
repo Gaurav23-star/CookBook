@@ -38,7 +38,7 @@ final public class ApiCaller {
     //API URLS
     private static final String production_host = "http://172.16.122.20:8080";
     private static final String development_host = "http://10.0.2.2:8080";
-    public static final String host = production_host;
+    public static final String host = development_host;
     private static final String USER_SEARCH_URL = host + "/user-search?text=";
     private static final String USER_IS_FOLLOWING_URL = host + "/user-is-following?user_id=";
     private static final String USER_FOLLOW_URL = host + "/user-follow";
@@ -57,6 +57,8 @@ final public class ApiCaller {
     private static final String COMMENTS_URL = RECIPE_URL + "/comments";
     //private static final String COMMENTS_URL = "http://10.66.7.132:8080/user-defined-recipes/comments";
     private static final String POST_NEW_RECIPE_URL = host + "/user-defined-recipes";
+    private static final String USERS_ENDPOINT = host + "/users";
+    private static final String RECIPE_SEARCH_ENDPOINT = host + "/search-recipe";
     private static final String USER_HAS_FAVORITED = host + "/user-has-favorited?user_id=";
 
     private ApiCaller(){
@@ -178,6 +180,10 @@ final public class ApiCaller {
 
     public ApiResponse getAllRecipes(){
         return get_request(RECIPE_URL, "");
+    }
+
+    public ApiResponse getRecipePages(int pageNumber){
+        return get_request(RECIPE_URL + "/"+pageNumber, "");
     }
 
     public ApiResponse getFavoriteRecipes(final String user_id) {
@@ -327,6 +333,15 @@ final public class ApiCaller {
 
         System.out.println("JSON POST IS " + json);
         return post_request(POST_NEW_RECIPE_URL, json);
+    }
+
+    public ApiResponse getUserFromUserId(String userId){
+        return get_request(USERS_ENDPOINT, "/".concat(userId));
+    }
+
+    public ApiResponse getRecipeSearch(String text){
+        String query = "?search="+text;
+        return get_request(RECIPE_SEARCH_ENDPOINT, query);
     }
 
 

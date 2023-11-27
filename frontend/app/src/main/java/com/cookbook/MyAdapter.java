@@ -73,7 +73,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
     private void load_recipe_image(int position, MyViewHolder holder){
         String url = ApiCaller.GET_RECIPE_IMAGE_URL + items.get(position).getRecipe().getRecipe_id();
         System.out.println("REQUEST IMAGE " + url);
-        Glide.with(this.context).load(url).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).dontAnimate().into(holder.imageView);
+        Glide.with(this.context).load(url).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).into(holder.imageView);
 
     }
 }

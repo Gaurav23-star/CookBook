@@ -8,6 +8,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
 import java.util.List;
 
 public class ProfileAdapter extends RecyclerView.Adapter<MyViewHolder> {
@@ -39,11 +42,19 @@ public class ProfileAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        holder.imageView.setImageResource(items.get(position).getImage());
+        load_recipe_image(position, holder);
+        //holder.imageView.setImageResource(items.get(position).getImage());
         holder.adminView.setImageResource(items.get(position).getAdmin());
         if(admin==0){
             holder.adminView.setVisibility(View.GONE);
         }
+    }
+
+    private void load_recipe_image(int position, MyViewHolder holder){
+        String url = ApiCaller.GET_RECIPE_IMAGE_URL + items.get(position).getRecipe().getRecipe_id();
+        System.out.println("REQUEST IMAGE " + url);
+        Glide.with(this.context).load(url).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).fitCenter().into(holder.imageView);
+
     }
 
     @Override
