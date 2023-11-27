@@ -32,6 +32,7 @@ const USER_SEARCH_ENDPOINT = "/user-search";
 const FAVORITES_ENDPOINT = '/favorites';
 const USER_NOTIFICATION_ENDPOINT = "/users-notifications";
 const UPDATE_USER_ENDPOINT = '/update-user'
+const USER_HAS_FAVORITED_ENDPOINT = "/user-has-favorited";
 
 // Define table constants
 const USER_DEFINED_RECIPES_TABLE = 'user_defined_recipes';
@@ -59,16 +60,38 @@ app.get(FAVORITES_ENDPOINT, async (req, res) => {
     }
 });
 
+
+// GET method for /favorites  -> checks if a user liked a given recipe or not
+//This could've been done in above endpoint, but i think app.use(bodyParser.urlencoded({ extended: false })); provides 
+//an issue and i didn't want to change it to true
+app.get(USER_HAS_FAVORITED_ENDPOINT, async (req, res) => {
+    try {
+        const user_id = req.query.user_id;
+        const recipe_id = req.query.recipe_id;
+
+        const sql = `SELECT COUNT(*) FROM ${FAVORITES_TABLE} WHERE user_id =${user_id} AND recipe_id =${recipe_id};`
+
+        let result = await db.pool.query(sql);
+        result = serializeResult(result);
+
+        res.status(200).send(result);
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send((err))
+    }
+});
+
 // DELETE method for /favorites
 app.delete(FAVORITES_ENDPOINT, async (req, res) => {
     try {
-        const user_id = req.query.user_id;
+        const user_id = req.body.user_id;
         if (user_id == undefined) {
             res.status(400).send('You must provide the user_id.\n');
             return;
         }
 
-        const recipe_id = req.query.recipe_id;
+        const recipe_id = req.body.recipe_id;
         if (recipe_id == undefined) {
             res.status(400).send('You must provide a recipe_id to unfavorite.\n');
             return;
