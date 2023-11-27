@@ -57,6 +57,7 @@ final public class ApiCaller {
     private static final String COMMENTS_URL = RECIPE_URL + "/comments";
     //private static final String COMMENTS_URL = "http://10.66.7.132:8080/user-defined-recipes/comments";
     private static final String POST_NEW_RECIPE_URL = host + "/user-defined-recipes";
+    private static final String USER_HAS_FAVORITED = host + "/user-has-favorited?user_id=";
 
     private ApiCaller(){
 
@@ -253,6 +254,10 @@ final public class ApiCaller {
         final String jsonData = "{\"user_id\": \"" + user_id + "\"," + "\"recipe_id\": \"" + recipe_id + "\"}";
 
         return delete_request(FAVORITES_URL, jsonData );
+    }
+
+    public ApiResponse UserHasFavoritedRecipe(String user_id, String recipe_id){
+        return get_request(USER_HAS_FAVORITED, user_id + "&"+"recipe_id="+recipe_id);
     }
 
 
