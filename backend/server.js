@@ -30,6 +30,7 @@ const UPLOAD_RECIPE_IMAGE_ENDPOINT = USER_DEFINED_RECIPES_ENDPOINT.concat('/uplo
 const DOWNLOAD_RECIPE_IMAGE_ENDPOINT = USER_DEFINED_RECIPES_ENDPOINT.concat('/download_image/:recipe_id');
 const USER_SEARCH_ENDPOINT = "/user-search";
 const FAVORITES_ENDPOINT = '/favorites';
+const USERS_ENDPOINT = '/users';
 
 // Define table constants
 const USER_DEFINED_RECIPES_TABLE = 'user_defined_recipes';
@@ -560,12 +561,30 @@ app.get(USER_DEFINED_RECIPES_ENDPOINT.concat('/:pageNumber'), async (req, res) =
         //await new Promise(resolve => setTimeout(resolve, 1000));
           console.log("Delay ended");
 
-        const sql = `SELECT * FROM ${USER_DEFINED_RECIPES_TABLE} ORDER BY recipe_id LIMIT ${recipesPerPage} OFFSET ${offset}`
+        const sql = `SELECT * FROM ${USER_DEFINED_RECIPES_TABLE} ORDER BY recipe_id LIMIT ${recipesPerPage} OFFSET ${offset}`;
         const result = await db.pool.query(sql);
         res.status(200).send(convertBigIntsToNumbers(result));
     } catch (err) {
         console.log(err);
         res.status(500).send(convertBigIntsToNumbers(err))
+    }
+})
+
+
+
+//GET method to get user given their userid /user/:userId
+app.get(USERS_ENDPOINT.concat('/:userId'), async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        console.log("USER ID IS " + userId);
+        const sql = `SELECT * FROM ${USERS_TABLE} WHERE user_id = ${userId}`;
+        const result = await db.pool.query(sql);
+        res.status(200).send(convertBigIntsToNumbers(result[0]));
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(convertBigIntsToNumbers(error));
+        
     }
 })
 
