@@ -19,6 +19,7 @@ app.use('/', authRouter)
 // Define endpoint constants
 const USER_DEFINED_RECIPES_ENDPOINT = '/user-defined-recipes';
 const CREATE_ACCOUNT_ENDPOINT = '/create-account';
+const DELETE_ACCOUNT_ENDPOINT = '/delete-account';
 const LOGIN_ENDPOINT = '/login';
 const COMMENTS_ENDPOINT = '/user-defined-recipes/comments';
 const USER_FOLLOWERS_FOLLOWING_COUNT_ENDPOINT = "/user-followers-following-count";
@@ -353,6 +354,22 @@ app.post(CREATE_ACCOUNT_ENDPOINT, async (req, res) => {
         res.status(500).send(convertBigIntsToNumbers(err));
     }
 });
+
+//DELETE method for /delete-account
+app.delete(DELETE_ACCOUNT_ENDPOINT, async (req, res) => {
+    try {
+        const userId = req.query.userId;
+        if (userId == undefined) {
+            res.status(400).send('You must provide the userId.\n');
+            return;
+        }
+        const sql= `DELETE FROM ${USERS_TABLE} WHERE user_id = ${userId}`;
+        const result = await db.pool.query(sql);
+        res.status(200).send(convertBigIntsToNumbers(result));
+    } catch (error) {
+        res.status(500).send(convertBigIntsToNumbers(error));
+    }
+})
 
 // POST method for /login
 app.post(LOGIN_ENDPOINT, async (req, res) => {
