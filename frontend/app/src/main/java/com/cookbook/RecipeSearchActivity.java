@@ -51,7 +51,7 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
         recipesRecyclerView = findViewById(R.id.recipeRecyclerView);
         recyclerViewManager = new LinearLayoutManager(this);
         recipesRecyclerView.setLayoutManager(recyclerViewManager);
-        recyclerViewAdapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin());
+        recyclerViewAdapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin(), currentUser);
         recipesRecyclerView.setAdapter(recyclerViewAdapter);
 
 
@@ -111,8 +111,45 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.admin_dialog);
             final Button banUser = dialog.findViewById(R.id.banUser);
-            final Button banButton = dialog.findViewById(R.id.banButton);
+            final Button deleteRecipe = dialog.findViewById(R.id.deleteRecipe);
+
             dialog.show();
+
+            deleteRecipe.setOnClickListener(view -> {
+                System.out.println("deleteRecipe selected");
+                Recipe dRecipe = (items.get(position).getRecipe());
+                Recipe.deleteRecipe(dRecipe);
+
+                //remove deleted recipe from UI
+                for(Item recipe : items){
+                    if(recipe.getRecipe().getRecipe_id() == dRecipe.getRecipe_id()){
+                        items.remove(recipe);
+                        break;
+                    }
+                }
+                recyclerViewAdapter.notifyDataSetChanged();
+                //add_recipes_to_ui();
+                dialog.dismiss();
+            });
+
+            banUser.setOnClickListener(view -> {
+
+                int ban_id = items.get(position).getRecipe().getUser_id();
+
+                System.out.println("banUser selected, banning user with id: " + ban_id);
+                User.banUser(ban_id);
+//
+//                for (Item recipe : items) {
+//                    if (recipe.getRecipe().getUser_id() == ban_id) {
+//                        items.remove(recipe);
+//                    }
+//
+//                }
+
+                recyclerViewAdapter.notifyDataSetChanged();
+                //add_recipes_to_ui();
+                dialog.dismiss();
+            });
         }
     }
 

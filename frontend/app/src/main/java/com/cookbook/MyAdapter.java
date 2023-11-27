@@ -29,12 +29,14 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
     Context context;
     List<Item> items;
     int admin;
+    static User currentUser;
 
-    public MyAdapter(@NonNull Context context, List<Item> items, RecyclerViewInterface recyclerViewInterface, int admin) {
+    public MyAdapter(@NonNull Context context, List<Item> items, RecyclerViewInterface recyclerViewInterface, int admin, User currentUser) {
         this.context = context;
         this.items = items;
         this.recyclerViewInterface = recyclerViewInterface;
         this.admin=admin;
+        this.currentUser = currentUser;
     }
 
     @NonNull
@@ -45,6 +47,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        Item item = items.get(position);
+        holder.bind(item,currentUser);
+        holder.has_user_favorited_this_recipe(String.valueOf(currentUser.getUser_id()), String.valueOf(item.getRecipe().getRecipe_id()) );
+
         holder.nameView.setText(items.get(position).getName());
         holder.accountView.setText(items.get(position).getAuthor());
         load_recipe_image(position, holder);

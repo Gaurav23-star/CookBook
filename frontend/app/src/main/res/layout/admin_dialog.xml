@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <Button
-        android:id="@+id/banButton"
+        android:id="@+id/deleteRecipe"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Hide Post"
@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Ban User"
-        android:layout_below="@id/banButton"
+        android:layout_below="@id/deleteRecipe"
 
          />
 

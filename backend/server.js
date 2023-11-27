@@ -32,6 +32,10 @@ const USER_SEARCH_ENDPOINT = "/user-search";
 const FAVORITES_ENDPOINT = '/favorites';
 const USERS_ENDPOINT = '/users';
 const RECIPE_SEARCH = '/search-recipe';
+const USER_NOTIFICATION_ENDPOINT = "/users-notifications";
+const UPDATE_USER_ENDPOINT = '/update-user'
+const USER_HAS_FAVORITED_ENDPOINT = "/user-has-favorited";
+
 
 // Define table constants
 const USER_DEFINED_RECIPES_TABLE = 'user_defined_recipes';
@@ -39,6 +43,7 @@ const USERS_TABLE = 'users';
 const COMMENTS_TABLE = 'comments';
 const FOLLOWS_TABLE = 'follows';
 const FAVORITES_TABLE = 'favorites'
+const NOTIFICATIONS_TABLE = 'notifications';
 
 // GET method for /favorites
 app.get(FAVORITES_ENDPOINT, async (req, res) => {
@@ -58,16 +63,38 @@ app.get(FAVORITES_ENDPOINT, async (req, res) => {
     }
 });
 
+
+// GET method for /favorites  -> checks if a user liked a given recipe or not
+//This could've been done in above endpoint, but i think app.use(bodyParser.urlencoded({ extended: false })); provides 
+//an issue and i didn't want to change it to true
+app.get(USER_HAS_FAVORITED_ENDPOINT, async (req, res) => {
+    try {
+        const user_id = req.query.user_id;
+        const recipe_id = req.query.recipe_id;
+
+        const sql = `SELECT COUNT(*) FROM ${FAVORITES_TABLE} WHERE user_id =${user_id} AND recipe_id =${recipe_id};`
+
+        let result = await db.pool.query(sql);
+        result = serializeResult(result);
+
+        res.status(200).send(result);
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send((err))
+    }
+});
+
 // DELETE method for /favorites
 app.delete(FAVORITES_ENDPOINT, async (req, res) => {
     try {
-        const user_id = req.query.user_id;
+        const user_id = req.body.user_id;
         if (user_id == undefined) {
             res.status(400).send('You must provide the user_id.\n');
             return;
         }
 
-        const recipe_id = req.query.recipe_id;
+        const recipe_id = req.body.recipe_id;
         if (recipe_id == undefined) {
             res.status(400).send('You must provide a recipe_id to unfavorite.\n');
             return;
@@ -119,9 +146,9 @@ app.get(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
         const user_id = req.query.user_id;
         let condition;
         if (user_id == undefined) condition = "TRUE";
-        else condition = `user_id = ${user_id}`;
+        else condition = `${USERS_TABLE}.user_id = ${user_id}`;
 
-        const sql = `SELECT * FROM ${USER_DEFINED_RECIPES_TABLE} WHERE ${condition}`
+        const sql = `SELECT ${USER_DEFINED_RECIPES_TABLE}.* FROM ${USERS_TABLE} JOIN ${USER_DEFINED_RECIPES_TABLE} ON ${USERS_TABLE}.user_id = ${USER_DEFINED_RECIPES_TABLE}.user_id WHERE ${condition} AND ${USERS_TABLE}.isBanned = 0`;
         const result = await db.pool.query(sql);
         res.status(200).send(convertBigIntsToNumbers(result));
     } catch (err) {
@@ -247,6 +274,57 @@ app.delete(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
         console.log(err);
         res.status(500).send(convertBigIntsToNumbers(err));
     }
+});
+
+// PATCH method for /update-user
+app.patch(UPDATE_USER_ENDPOINT, async (req, res) => {
+	try {
+		const user_id = req.query.user_id;
+		if (user_id == undefined) {
+			res.status(400).send('You must provide the user_id to update as a URL parameter.\n');
+			return;
+		}
+		
+		const sqlUserExistsQuery = `SELECT COUNT(*) FROM ${USERS_TABLE} WHERE user_id = ?`;
+		const userExists = (await db.pool.query(sqlUserExistsQuery, [user_id]))[0]['COUNT(*)'];
+		if (userExists == 0) {
+			res.status(200).send('No user exists with the provided id.\n');
+			return;
+		}
+		
+		const updates = req.body;
+		
+		const keys = [];
+		const values = [];
+		for (const [key, value] of Object.entries(updates)) {
+			if (value !== null && value !== undefined) {
+				keys.push(key);
+				values.push(value);
+			}
+		}
+		
+		let sqlUpdateQuery = `UPDATE ${USERS_TABLE} SET `;
+		for (let i = 0; i < keys.length; i++) {
+			sqlUpdateQuery = sqlUpdateQuery.concat(`${keys[i]} = ?`);
+			if (i !== keys.length - 1) sqlUpdateQuery = sqlUpdateQuery.concat(', ');
+		}
+		sqlUpdateQuery = sqlUpdateQuery.concat(' WHERE user_id = ?');
+		
+		values.push(Number(user_id));
+		
+		try {
+            const result = await db.pool.query(sqlUpdateQuery, values);
+
+            res.status(200).send(convertBigIntsToNumbers(result));
+        } catch (err) {
+            // Error in SQL query is fault of client (send 200 OK)
+            res.status(200).send(convertBigIntsToNumbers(err));
+        } 
+	} catch (err) {
+        console.log(err);
+        res.status(500).send(convertBigIntsToNumbers(err));
+    }
+
 });
 
 // POST method for /create-account
@@ -553,6 +631,7 @@ app.delete(USER_UNFOLLOW_ENDPOINT, async (req, res) => {
     }
 });
 
+
 //GET method for /user-dfined-recipes/ pagination
 app.get(USER_DEFINED_RECIPES_ENDPOINT.concat('/:pageNumber'), async (req, res) => {
     try {
@@ -604,6 +683,93 @@ app.get(RECIPE_SEARCH, async (req, res) => {
         res.status(500).send(convertBigIntsToNumbers(error));
     }
 })
+
+// get method that gets a users notifications
+app.get(USER_NOTIFICATION_ENDPOINT, async (req, res) => {
+    try {
+        const to_user_id = req.query.to_user_id;
+
+        let sql;
+        let result;
+        
+        sql = `SELECT ${NOTIFICATIONS_TABLE}.id, ${NOTIFICATIONS_TABLE}.type, ${USERS_TABLE}.username, ${NOTIFICATIONS_TABLE}.from_user_id, ${NOTIFICATIONS_TABLE}.to_user_id, ${NOTIFICATIONS_TABLE}.post_id, ${NOTIFICATIONS_TABLE}.created_at FROM ${NOTIFICATIONS_TABLE}, ${USERS_TABLE} Where ${NOTIFICATIONS_TABLE}.to_user_id=${to_user_id} and ${NOTIFICATIONS_TABLE}.from_user_id=${USERS_TABLE}.user_id;`
+        result = await db.pool.query(sql);
+        result = serializeResult(result);
+        res.status(200).send(convertBigIntsToNumbers(result));
+        
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(convertBigIntsToNumbers(err));
+    }
+})
+
+//delete an entry from notification that was for to_user_id
+app.delete(USER_NOTIFICATION_ENDPOINT, async (req, res) => {
+
+    try{
+    
+    const type = req.body.type;
+    const to_user_id = req.body.to_user_id;
+    const from_user_id = req.body.from_user_id;
+    const post_id = req.body.post_id;
+
+    let sql;
+    let result;
+
+    if(type === "follow"){
+        sql = `DELETE FROM ${NOTIFICATIONS_TABLE} WHERE type = 'follow' AND from_user_id = ? AND to_user_id = ? ;`
+        result = await db.pool.query(sql, [from_user_id, to_user_id]);
+        res.status(200).send(convertBigIntsToNumbers(result));
+    }
+    else if(type === "like"){
+        sql = `DELETE FROM ${NOTIFICATIONS_TABLE} WHERE type = 'like' AND from_user_id = ? AND to_user_id = ? AND post_id = ? ;`
+        result = await db.pool.query(sql, [from_user_id, to_user_id, post_id]);
+        res.status(200).send(convertBigIntsToNumbers(result));
+    }
+    else {
+        throw new Error("Error on USER_NOTIFICATION_ENDPOINT");
+    }
+
+    }catch(error){
+        console.log(error);
+        res.status(500).send(convertBigIntsToNumbers(error));
+    }
+});
+
+//Post method that gives a notification to to_user_id
+app.post(USER_NOTIFICATION_ENDPOINT, async (req, res) => {
+
+    try{
+
+    const type = req.body.type;
+    const to_user_id = req.body.to_user_id;
+    const from_user_id = req.body.from_user_id;
+    const post_id = req.body.post_id;
+    console.log("type is : " + type);
+    let sql;
+    let result;
+
+    if(type === "follow"){
+        sql = `INSERT INTO ${NOTIFICATIONS_TABLE} (type, from_user_id, to_user_id, post_id) VALUES (?, ?, ?, ?);`
+        result = await db.pool.query(sql, [type, from_user_id, to_user_id, post_id === 'null' ? null : post_id]);
+        res.status(200).send(convertBigIntsToNumbers(result));
+    } 
+    else if(type === "like"){
+        sql = `INSERT INTO ${NOTIFICATIONS_TABLE} (type, from_user_id, to_user_id, post_id) VALUES (?, ?, ?, ?);`
+        result = await db.pool.query(sql, [type, from_user_id, to_user_id, post_id === 'null' ? null : post_id]);
+        res.status(200).send(convertBigIntsToNumbers(result));
+    }
+    else {
+        throw new Error("Error on USER_NOTIFICATION_ENDPOINT");
+    }
+
+
+    }catch(error){
+        console.log(error);
+        res.status(500).send(convertBigIntsToNumbers(error));
+    }
+});
 
 
 

@@ -106,7 +106,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         recyclerViewManager = new LinearLayoutManager(this);
 
         recipesRecyclerView.setLayoutManager(recyclerViewManager);
-        recyclerViewAdapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin());
+        recyclerViewAdapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin(), currentUser);
         recipesRecyclerView.setAdapter(recyclerViewAdapter);
         //if recipes not loaded from server, then load
         if(items.size() == 0){
@@ -358,7 +358,12 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     }
 
 
-
+    private void add_recipes_to_ui(){
+        RecyclerView recyclerView = findViewById(R.id.recyclerview);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        MyAdapter adapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin(), currentUser);
+        recyclerView.setAdapter(adapter);
+    }
 
 
     private void get_recipes_from_server(){
@@ -414,9 +419,45 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.admin_dialog);
             final Button banUser = dialog.findViewById(R.id.banUser);
-            final Button banButton = dialog.findViewById(R.id.banButton);
+            final Button deleteRecipe = dialog.findViewById(R.id.deleteRecipe);
 
             dialog.show();
+
+            deleteRecipe.setOnClickListener(view -> {
+                System.out.println("deleteRecipe selected");
+                Recipe dRecipe = (items.get(position).getRecipe());
+                Recipe.deleteRecipe(dRecipe);
+
+                //remove deleted recipe from UI
+                for(Item recipe : items){
+                    if(recipe.getRecipe().getRecipe_id() == dRecipe.getRecipe_id()){
+                        items.remove(recipe);
+                        break;
+                    }
+                }
+                recyclerViewAdapter.notifyDataSetChanged();
+                //add_recipes_to_ui();
+                dialog.dismiss();
+            });
+
+            banUser.setOnClickListener(view -> {
+
+                int ban_id = items.get(position).getRecipe().getUser_id();
+
+                System.out.println("banUser selected, banning user with id: " + ban_id);
+                User.banUser(ban_id);
+//
+//                for (Item recipe : items) {
+//                    if (recipe.getRecipe().getUser_id() == ban_id) {
+//                        items.remove(recipe);
+//                    }
+//
+//                }
+
+                recyclerViewAdapter.notifyDataSetChanged();
+                //add_recipes_to_ui();
+                dialog.dismiss();
+            });
         }
     }
     private String convertStreamToString(InputStream is) {
