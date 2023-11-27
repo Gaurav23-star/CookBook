@@ -55,6 +55,7 @@ final public class ApiCaller {
     private static final String COMMENTS_URL = RECIPE_URL + "/comments";
     //private static final String COMMENTS_URL = "http://10.66.7.132:8080/user-defined-recipes/comments";
     private static final String POST_NEW_RECIPE_URL = host + "/user-defined-recipes";
+    private static final String USERS_ENDPOINT = host + "/users";
 
     private ApiCaller(){
 
@@ -288,6 +289,10 @@ final public class ApiCaller {
 
         System.out.println("JSON POST IS " + json);
         return post_request(POST_NEW_RECIPE_URL, json);
+    }
+
+    public ApiResponse getUserFromUserId(String userId){
+        return get_request(USERS_ENDPOINT, "/".concat(userId));
     }
 
 

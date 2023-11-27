@@ -18,10 +18,12 @@ public class CommentsViewAdapter extends RecyclerView.Adapter<CommentsViewAdapte
 
     Context context;
     List<Comment> comments;
+    RecyclerViewInterface recyclerViewInterface;
 
-    public CommentsViewAdapter(Context context, List<Comment> comments) {
+    public CommentsViewAdapter(Context context, List<Comment> comments, RecyclerViewInterface listener) {
         this.context = context;
         this.comments = comments;
+        this.recyclerViewInterface = listener;
     }
 
 
@@ -30,11 +32,18 @@ public class CommentsViewAdapter extends RecyclerView.Adapter<CommentsViewAdapte
         private final TextView username;
         private final TextView commentContent;
         private final ImageView avatar;
-        public CommentsViewHolder(@NonNull View itemView) {
+        public CommentsViewHolder(@NonNull View itemView, RecyclerViewInterface listener) {
             super(itemView);
             username = itemView.findViewById(R.id.userName);
             commentContent = itemView.findViewById(R.id.comment);
             avatar = itemView.findViewById(R.id.commentsAvatar);
+
+            username.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onItemClick(getBindingAdapterPosition());
+                }
+            });
         }
 
         public TextView getUsername() {
@@ -53,7 +62,7 @@ public class CommentsViewAdapter extends RecyclerView.Adapter<CommentsViewAdapte
     @NonNull
     @Override
     public CommentsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new CommentsViewHolder(LayoutInflater.from(context).inflate(R.layout.comments_view, parent, false));
+        return new CommentsViewHolder(LayoutInflater.from(context).inflate(R.layout.comments_view, parent, false),this.recyclerViewInterface);
     }
 
     @Override
@@ -61,8 +70,6 @@ public class CommentsViewAdapter extends RecyclerView.Adapter<CommentsViewAdapte
         holder.getUsername().setText(comments.get(position).getUsername());
         holder.getCommentContent().setText(comments.get(position).getComment());
         holder.getAvatar().setImageResource(R.drawable.baseline_person_24);
-
-
     }
 
     @Override

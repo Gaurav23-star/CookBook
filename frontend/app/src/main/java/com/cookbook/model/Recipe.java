@@ -90,4 +90,18 @@ public class Recipe implements Serializable {
     public void setUser_id(int user_id) {
         this.user_id = user_id;
     }
+
+    @Override
+    public String toString() {
+        return "Recipe{" +
+                "recipe_id=" + recipe_id +
+                ", recipe_name='" + recipe_name + '\'' +
+                ", servings=" + servings +
+                ", preparation_time_minutes=" + preparation_time_minutes +
+                ", ingredients='" + ingredients + '\'' +
+                ", description='" + description + '\'' +
+                ", instructions='" + instructions + '\'' +
+                ", user_id=" + user_id +
+                '}';
+    }
 }

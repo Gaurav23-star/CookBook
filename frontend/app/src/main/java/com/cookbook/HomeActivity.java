@@ -76,7 +76,8 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     private RecyclerView recipesRecyclerView;
     private boolean isScrolling;
     private int currentItem, totalItems, scrollOutItems;
-    private int recipePageNumber = 1;
+    private static int recipePageNumber = 1;
+    private static int currentItemBeingViewed = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +121,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 recyclerViewAdapter.notifyItemRangeRemoved(0, totalCount);
                 System.out.println("ITEM SIZE BEFORE REFRESH " + items.size());
                 recipePageNumber = 1;
+                currentItemBeingViewed = 0;
                 get_recipes_from_server();
                 swipeRefreshLayout.setRefreshing(false);
             }
@@ -160,21 +162,6 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         // ------ Navigation Choice ----
         handleNavigationChange();
 
-        //LEGACY CODE
-        /*
-        user_search_button = (ImageButton) findViewById(R.id.search_user_button);
-
-        user_search_button.setOnClickListener(new View.OnClickListener(){
-
-            @Override
-            public void onClick(View view) {
-                final Intent intent_UserSearch = new Intent(getApplicationContext(), UserSearchActivity.class);
-                intent_UserSearch.putExtra("current_user",currentUser);
-                startActivity(intent_UserSearch);
-            }
-        });
-
-         */
 
         addNewFriendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -192,7 +179,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 super.onScrollStateChanged(recyclerView, newState);
                 if(newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL){
                     isScrolling = true;
-                    System.out.println("SCROLL CHANGED" + newState);
+                    //System.out.println("SCROLL CHANGED" + newState);
                 }
 
             }
@@ -203,11 +190,12 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 currentItem = recyclerViewManager.getChildCount();
                 totalItems = recyclerViewManager.getItemCount();
                 scrollOutItems = recyclerViewManager.findFirstCompletelyVisibleItemPosition();
-                System.out.println("CURRENTLY " + currentItem + " DISPLAYED");
-                System.out.println("VIEWED " + scrollOutItems + " OUT OF " + totalItems);
+                //System.out.println("CURRENTLY " + currentItem + " DISPLAYED");
+                //System.out.println("VIEWED " + scrollOutItems + " OUT OF " + totalItems);
+                currentItemBeingViewed = recyclerViewManager.findFirstVisibleItemPosition();
 
                 if(isScrolling && (currentItem + scrollOutItems > totalItems)){
-                    System.out.println("ORDERING MORE RECIPES");
+                    //System.out.println("ORDERING MORE RECIPES");
                     isScrolling = false;
                     get_recipes_from_server();
                 }
@@ -364,6 +352,8 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
                     Recipe[] recipes = gson.fromJson(apiResponse.getResponse_body(), Recipe[].class);
                     int startPosition = items.size();
+                    System.out.println("RECIPE PAGE NUMBER " + recipePageNumber);
+                    System.out.println("CURRENTLY HAVE " + startPosition + " GOT " + recipes.length);
                     for(Recipe recipe : recipes){
                         addItemThreadSafe(recipe);
                     }
@@ -389,6 +379,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
         System.out.println("CURRENT USEr CLICK " + currentUser.getUser_id());
         if (currentUser.getIsAdmin()==0) {
+            currentItemBeingViewed = recyclerViewManager.findFirstVisibleItemPosition();
             changeActivityToRecipeActivity(currentUser, items.get(position).getRecipe());
 
         } else {
@@ -407,6 +398,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         return scanner.hasNext() ? scanner.next() : "";
     }
     private void changeActivityToRecipeActivity(User user, Recipe recipe){
+
         final Intent intent = new Intent(HomeActivity.this, RecipeActivity.class);
         intent.putExtra("current_user",user);
         intent.putExtra("current_recipe", recipe);
@@ -464,10 +456,24 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     @Override
     protected void onResume() {
         super.onResume();
+        System.out.println("CURRENT ITEM BEING VIEWED = " + currentItemBeingViewed);
+        System.out.println("SIZE OF ITEMS IS " + items.size());
+        if(items.size() >= currentItemBeingViewed){
+            recyclerViewAdapter.notifyItemChanged(currentItemBeingViewed);
+            recyclerViewManager.scrollToPosition(currentItemBeingViewed);
+        }
+    }
+
+    /*
+    @Override
+    protected void onResume() {
+        super.onResume();
         System.out.println("HOME ACTIVITY RESUMED");
         SharedPreferences sharedPreferences = getSharedPreferences("Updated_recipe", MODE_PRIVATE);
+        System.out.println("KEY IS PRESENT " + sharedPreferences.contains("updated_recipe"));
+
         if(sharedPreferences.contains("updated_recipe")){
-            System.out.println("GOT UPDATED RECIPE");
+            System.out.println("GOT UPDATED RECIPE " + items.size());
             System.out.println(sharedPreferences.getString("updated_recipe", "null"));
             String update_recipe = sharedPreferences.getString("updated_recipe", "null");
 
@@ -478,24 +484,21 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 for(int i = 0; i < items.size(); i++){
                     if(items.get(i).getRecipe().getRecipe_id() == uRecipe.getRecipe_id()){
                         items.get(i).update_item(uRecipe);
+                        System.out.println("CHILD UPDATED RECIPES< " + i);
                         recyclerViewAdapter.notifyItemChanged(i);
+                        recyclerViewManager.scrollToPosition(i);
                         break;
                     }
                 }
-                /*
-                for(Item recipe : items){
-                    if(recipe.getRecipe().getRecipe_id() == uRecipe.getRecipe_id()){
-                        recipe.update_item(uRecipe);
-                        break;
-                    }
-                }
-                add_recipes_to_ui();
-                 */
 
-                sharedPreferences.edit().putString("update_recipe", "null").apply();
+                sharedPreferences.edit().remove("updated_recipe").commit();
+                //sharedPreferences.edit().putString("updated_recipe", null).apply();
+                System.out.println("KEY IS PRESENT " + sharedPreferences.contains("updated_recipe"));
             }
         }
     }
+
+     */
 
 
     private File getImageFile(Uri result, String imageUrl){
@@ -519,6 +522,16 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         }
 
         return file;
+    }
+
+    public static void updateItem(Recipe recipe){
+        for(int i = 0; i < items.size(); i++){
+            if(items.get(i).getRecipe().getRecipe_id() == recipe.getRecipe_id()){
+                items.get(i).update_item(recipe);
+                System.out.println("CHILD UPDATED RECIPES< " + i);
+                break;
+            }
+        }
     }
 
 }
