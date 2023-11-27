@@ -7,15 +7,31 @@
         <deviceKey>
           <Key>
             <type value="VIRTUAL_DEVICE_PATH" />
-
             <value value="$USER_HOME$/.android/avd/Pixel_2_XL_API_30.avd" />
-
           </Key>
         </deviceKey>
       </Target>
     </targetSelectedWithDropDown>
-
-    <timeTargetWasSelectedWithDropDown value="2023-11-01T16:09:06.196208Z" />
-
+    <timeTargetWasSelectedWithDropDown value="2023-11-26T19:40:18.935065Z" />
+    <targetsSelectedWithDialog>
+      <Target>
+        <type value="QUICK_BOOT_TARGET" />
+        <deviceKey>
+          <Key>
+            <type value="VIRTUAL_DEVICE_PATH" />
+            <value value="$USER_HOME$/.android/avd/Pixel_2_XL_API_30.avd" />
+          </Key>
+        </deviceKey>
+      </Target>
+      <Target>
+        <type value="QUICK_BOOT_TARGET" />
+        <deviceKey>
+          <Key>
+            <type value="VIRTUAL_DEVICE_PATH" />
+            <value value="$USER_HOME$/.android/avd/Nexus_4_API_30.avd" />
+          </Key>
+        </deviceKey>
+      </Target>
+    </targetsSelectedWithDialog>
   </component>
 </project>

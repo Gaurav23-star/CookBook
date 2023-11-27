@@ -295,7 +295,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     private void add_recipes_to_ui(){
         RecyclerView recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        MyAdapter adapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin());
+        MyAdapter adapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin(), currentUser);
         recyclerView.setAdapter(adapter);
     }
 

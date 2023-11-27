@@ -243,6 +243,19 @@ final public class ApiCaller {
         return delete_request(NOTIFICATION_URL, jsonData );
     }
 
+    public ApiResponse UserLikesRecipe(String user_id, String recipe_id){
+        final String jsonData = "{\"user_id\": \"" + user_id + "\"," + "\"recipe_id\": \"" + recipe_id + "\"}";
+
+        return post_request(FAVORITES_URL, jsonData);
+    }
+
+    public ApiResponse UserUnlikesRecipe(String user_id, String recipe_id){
+        final String jsonData = "{\"user_id\": \"" + user_id + "\"," + "\"recipe_id\": \"" + recipe_id + "\"}";
+
+        return delete_request(FAVORITES_URL, jsonData );
+    }
+
+
 
     public ApiResponse getAllComments(int recipe_id){
         String queryParams = "?recipe_id=" + recipe_id;
