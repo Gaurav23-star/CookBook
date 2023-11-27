@@ -2,7 +2,15 @@ package com.cookbook.model;
 
 import androidx.annotation.NonNull;
 
+import com.google.gson.Gson;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 /*
 Abstract super class for users and admins.
@@ -20,6 +28,8 @@ public class User implements Serializable {
     protected int isAdmin;
     protected int isBanned;
     protected String username;
+
+    private static final String USER_URL = "http://172.16.122.20:8080/update-user";
 
     public User(int user_id, String first_name, String last_name, String email_id, String password, int isAdmin, int isBanned, String username) {
         this.user_id = user_id;
@@ -76,6 +86,45 @@ public class User implements Serializable {
         return email_id;
     }
 
+    public static void banUser(int user_id) {
+        final Thread thread = new Thread(() -> {
+
+            try {
+                final URL url = new URL(USER_URL + "?user_id=" + user_id);
+                final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+                connection.setRequestMethod("PATCH");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
+
+                final String jsonData = "{\"isBanned\": 1 }";
+
+                System.out.println("Json Payload: " + jsonData);
+
+                final OutputStream os = connection.getOutputStream();
+                final OutputStreamWriter osw = new OutputStreamWriter(os, StandardCharsets.UTF_8);
+
+                osw.write(jsonData);
+                osw.flush();
+
+                final int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    // final InputStream responseBody = connection.getInputStream();
+
+                    //String jsonString = convertStreamToString(responseBody);
+                    System.out.println("Banned User");
+
+                } else {
+                    System.out.println("Response code is " + responseCode);
+                }
+            } catch (Exception e) {
+                System.out.println("EXCEPTION OCCURRED " + e);
+
+            }
+        });
+        thread.start();
+
+    }
 /*
     not sure whats redundant here
     implement this later, add the getters as well
