@@ -31,6 +31,7 @@ const DOWNLOAD_RECIPE_IMAGE_ENDPOINT = USER_DEFINED_RECIPES_ENDPOINT.concat('/do
 const USER_SEARCH_ENDPOINT = "/user-search";
 const FAVORITES_ENDPOINT = '/favorites';
 const USERS_ENDPOINT = '/users';
+const RECIPE_SEARCH = '/search-recipe';
 
 // Define table constants
 const USER_DEFINED_RECIPES_TABLE = 'user_defined_recipes';
@@ -561,7 +562,8 @@ app.get(USER_DEFINED_RECIPES_ENDPOINT.concat('/:pageNumber'), async (req, res) =
         //await new Promise(resolve => setTimeout(resolve, 1000));
           console.log("Delay ended");
 
-        const sql = `SELECT * FROM ${USER_DEFINED_RECIPES_TABLE} ORDER BY recipe_id LIMIT ${recipesPerPage} OFFSET ${offset}`;
+        const sql = `SELECT R.* FROM ${USER_DEFINED_RECIPES_TABLE} AS R JOIN ${USERS_TABLE} as U ON R.user_id = U.user_id WHERE U.isBanned = 0 ORDER BY R.recipe_id LIMIT ${recipesPerPage} OFFSET ${offset}`;
+        //const sql = `SELECT * FROM ${USER_DEFINED_RECIPES_TABLE} ORDER BY recipe_id LIMIT ${recipesPerPage} OFFSET ${offset}`;
         const result = await db.pool.query(sql);
         res.status(200).send(convertBigIntsToNumbers(result));
     } catch (err) {
@@ -569,8 +571,6 @@ app.get(USER_DEFINED_RECIPES_ENDPOINT.concat('/:pageNumber'), async (req, res) =
         res.status(500).send(convertBigIntsToNumbers(err))
     }
 })
-
-
 
 //GET method to get user given their userid /user/:userId
 app.get(USERS_ENDPOINT.concat('/:userId'), async (req, res) => {
@@ -585,6 +585,23 @@ app.get(USERS_ENDPOINT.concat('/:userId'), async (req, res) => {
         console.log(error);
         res.status(500).send(convertBigIntsToNumbers(error));
         
+    }
+})
+
+//GET method to search recipe /search-recipe?search=
+
+app.get(RECIPE_SEARCH, async (req, res) => {
+    try {
+        const searchQuery = req.query.search;
+        const searchResultsLimit = 10;
+        console.log("SEARCH IS " + searchQuery)
+
+        const sql = `SELECT * FROM ${USER_DEFINED_RECIPES_TABLE} WHERE recipe_name LIKE '%${searchQuery}%' OR ingredients LIKE '%${searchQuery}%' OR description LIKE '%${searchQuery}%' OR instructions LIKE '%${searchQuery}%' LIMIT ${searchResultsLimit}`;
+        const result = await db.pool.query(sql)
+        res.status(200).send(convertBigIntsToNumbers(result));
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(convertBigIntsToNumbers(error));
     }
 })
 

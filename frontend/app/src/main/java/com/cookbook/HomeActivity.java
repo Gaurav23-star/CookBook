@@ -19,6 +19,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.webkit.MimeTypeMap;
@@ -28,6 +30,7 @@ import android.widget.ImageButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.cookbook.model.ApiResponse;
@@ -205,6 +208,29 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
 
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.search_menu, menu);
+
+        MenuItem menuItem = menu.findItem(R.id.app_bar_search);
+        menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(@NonNull MenuItem item) {
+                System.out.println("SEARCH CLICKED");
+                changeActivityToRecipeSearch();
+                return false;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private void changeActivityToRecipeSearch(){
+        final Intent intent = new Intent(HomeActivity.this, RecipeSearchActivity.class);
+        intent.putExtra("current_user",currentUser);
+        startActivity(intent);
     }
 
     private void displayCreateNewRecipeDialog() {
