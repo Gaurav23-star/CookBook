@@ -400,16 +400,14 @@ app.post(LOGIN_ENDPOINT, async (req, res) => {
     }
 });
 
-//Post method for /comments
-
+//Post method for /user-defined-recipes/comments
 app.post(COMMENTS_ENDPOINT, async (req, res) => {
-
     try {
         const { user_id, recipe_id, comment } = req.body
 
         if(user_id && recipe_id && comment){
 
-            sqlQuery = `INSERT INTO ${COMMENTS_TABLE} VALUES (? , ? , ?)`;
+            sqlQuery = `INSERT INTO ${COMMENTS_TABLE} (recipe_id, comment, user_id) VALUES (? , ? , ?)`;
             const result = await db.pool.query(sqlQuery, [recipe_id, comment, user_id]);
 
             console.log(result);
@@ -427,20 +425,45 @@ app.post(COMMENTS_ENDPOINT, async (req, res) => {
 
 })
 
-//GET method for /comments
+//GET method for /user-defined-recipes/comments
 app.get(COMMENTS_ENDPOINT, async (req, res) => {
     try {
-        const recipe_id = req.query.recipe_id;
+        const commentId = req.query.commentId;
 
-        if(recipe_id != undefined){
-            sqlQuery = `SELECT C.recipe_id, C.comment, C.user_id, U.username FROM ${COMMENTS_TABLE} AS C JOIN ${USERS_TABLE} AS U ON C.user_id = U.user_id WHERE C.recipe_id = ?`;
-            const result = await db.pool.query(sqlQuery, recipe_id);
+        if(commentId != undefined){
+            // check if the comment with the provided commentId exists
+            const sqlCommentExistsQuery = `SELECT COUNT(*) FROM ${COMMENTS_TABLE} WHERE comment_id = ?`;
+		    const commentExists = (await db.pool.query(sqlCommentExistsQuery, [commentId]))[0]['COUNT(*)'];
+
+            if (commentExists == 0) {
+                res.status(200).send('No comment exists with the provided id.\n');
+                return;
+            }
+
+            sqlQuery = `SELECT * FROM ${COMMENTS_TABLE} WHERE comment_id = ?`;
+            const result = await db.pool.query(sqlQuery, [commentId]);
             console.log(result);
             res.status(200).send(convertBigIntsToNumbers(result));
         }
         else{
-            res.status(400).json({message: "recipe_id is required"});
+            res.status(400).json({message: "You must provide the commentId.\n"});
         }
+    } catch (error) {
+        res.status(500).send(convertBigIntsToNumbers(error));
+    }
+})
+
+//DELETE method for /user-defined-recipes/comments
+app.delete(COMMENTS_ENDPOINT, async (req, res) => {
+    try {
+        const commentId = req.query.commentId;
+        if (commentId == undefined) {
+            res.status(400).send('You must provide the commentId.\n');
+            return;
+        }
+        const sql= `DELETE FROM ${COMMENTS_TABLE} WHERE comment_id = ${commentId}`;
+        const result = await db.pool.query(sql);
+        res.status(200).send(convertBigIntsToNumbers(result));
     } catch (error) {
         res.status(500).send(convertBigIntsToNumbers(error));
     }
