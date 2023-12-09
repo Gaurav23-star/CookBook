@@ -38,7 +38,7 @@ final public class ApiCaller {
     //API URLS
     private static final String production_host = "http://172.16.122.20:8080";
     private static final String development_host = "http://10.0.2.2:8080";
-    public static final String host = development_host;
+    public static final String host = production_host;
     private static final String USER_SEARCH_URL = host + "/user-search?text=";
     private static final String USER_IS_FOLLOWING_URL = host + "/user-is-following?user_id=";
     private static final String USER_FOLLOW_URL = host + "/user-follow";
