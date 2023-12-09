@@ -444,7 +444,7 @@ app.get(COMMENTS_ENDPOINT, async (req, res) => {
 		    const commentExists = (await db.pool.query(sqlCommentExistsQuery, [commentId]))[0]['COUNT(*)'];
 
             if (commentExists == 0) {
-                res.status(200).send('No comment exists with the provided id.\n');
+                res.status(204).send('No comment exists with the provided id.\n');
                 return;
             }
 
@@ -457,7 +457,7 @@ app.get(COMMENTS_ENDPOINT, async (req, res) => {
             const recipeExists = (await db.pool.query(sqlRecipeExistsQuery, [recipeId]))[0]['COUNT(*)'];
 
             if (recipeExists == 0) {
-                res.status(200).send('No recipe exists with the provided id.\n');
+                res.status(204).send('No recipe exists with the provided id.\n');
                 return;
             }
 
@@ -737,7 +737,6 @@ app.get(RECIPE_SEARCH, async (req, res) => {
         const searchResultsLimit = 10;
         console.log("SEARCH IS " + searchQuery)
 
-        const sql = `SELECT * FROM ${USER_DEFINED_RECIPES_TABLE} WHERE recipe_name LIKE '%${searchQuery}%' OR ingredients LIKE '%${searchQuery}%' OR description LIKE '%${searchQuery}%' OR instructions LIKE '%${searchQuery}%' LIMIT ${searchResultsLimit}`;
         const sql = `SELECT udr.*, 
             (SELECT COUNT(*) FROM ${COMMENTS_TABLE} c WHERE c.recipe_id = udr.recipe_id) AS num_comments,
             (SELECT COUNT(*) FROM ${FAVORITES_TABLE} f WHERE f.recipe_id = udr.recipe_id) AS num_likes
