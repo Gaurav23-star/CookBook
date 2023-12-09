@@ -36,7 +36,7 @@ const RECIPE_SEARCH = '/search-recipe';
 const USER_NOTIFICATION_ENDPOINT = "/users-notifications";
 const UPDATE_USER_ENDPOINT = '/update-user'
 const USER_HAS_FAVORITED_ENDPOINT = "/user-has-favorited";
-
+const COMMENTS_AND_LIKES_ENDPOINT = "/comments-and-likes"
 
 // Define table constants
 const USER_DEFINED_RECIPES_TABLE = 'user_defined_recipes';
@@ -55,7 +55,11 @@ app.get(FAVORITES_ENDPOINT, async (req, res) => {
             return;
         }
 
-        const sql = `SELECT ${USER_DEFINED_RECIPES_TABLE}.* FROM ${FAVORITES_TABLE} JOIN ${USER_DEFINED_RECIPES_TABLE} ON ${FAVORITES_TABLE}.recipe_id = ${USER_DEFINED_RECIPES_TABLE}.recipe_id WHERE ${FAVORITES_TABLE}.user_id = ?`;
+        const sql = `SELECT udr.*, 
+            (SELECT COUNT(*) FROM ${COMMENTS_TABLE} c WHERE c.recipe_id = udr.recipe_id) AS num_comments,
+            (SELECT COUNT(*) FROM ${FAVORITES_TABLE} f WHERE f.recipe_id = udr.recipe_id) AS num_likes
+            FROM ${USER_DEFINED_RECIPES_TABLE} udr WHERE udr.recipe_id IN 
+            (SELECT recipe_id FROM ${FAVORITES_TABLE} WHERE user_id = ${user_id})`;
         const result = await db.pool.query(sql, [user_id]);
         res.status(200).send(convertBigIntsToNumbers(result));
     } catch (err) {
@@ -63,7 +67,6 @@ app.get(FAVORITES_ENDPOINT, async (req, res) => {
         res.status(500).send(convertBigIntsToNumbers(err))
     }
 });
-
 
 // GET method for /favorites  -> checks if a user liked a given recipe or not
 //This could've been done in above endpoint, but i think app.use(bodyParser.urlencoded({ extended: false })); provides 
@@ -443,7 +446,10 @@ app.get(COMMENTS_ENDPOINT, async (req, res) => {
             const sqlCommentExistsQuery = `SELECT COUNT(*) FROM ${COMMENTS_TABLE} WHERE comment_id = ?`;
 		    const commentExists = (await db.pool.query(sqlCommentExistsQuery, [commentId]))[0]['COUNT(*)'];
 
-           
+            if (commentExists == 0) {
+                res.status(204).send('No comment exists with the provided id.\n');
+                return;
+            }
 
             sqlQuery = `SELECT * FROM ${COMMENTS_TABLE} WHERE comment_id = ?`;
             const result = await db.pool.query(sqlQuery, [commentId]);
@@ -454,7 +460,7 @@ app.get(COMMENTS_ENDPOINT, async (req, res) => {
             const recipeExists = (await db.pool.query(sqlRecipeExistsQuery, [recipeId]))[0]['COUNT(*)'];
 
             if (recipeExists == 0) {
-                res.status(200).send('No recipe exists with the provided id.\n');
+                res.status(204).send('No recipe exists with the provided id.\n');
                 return;
             }
 
@@ -700,15 +706,22 @@ app.get(USER_DEFINED_RECIPES_ENDPOINT.concat('/:pageNumber'), async (req, res) =
         //await new Promise(resolve => setTimeout(resolve, 1000));
           console.log("Delay ended");
 
-        const sql = `SELECT R.* FROM ${USER_DEFINED_RECIPES_TABLE} AS R JOIN ${USERS_TABLE} as U ON R.user_id = U.user_id WHERE U.isBanned = 0 ORDER BY R.recipe_id LIMIT ${recipesPerPage} OFFSET ${offset}`;
-        //const sql = `SELECT * FROM ${USER_DEFINED_RECIPES_TABLE} ORDER BY recipe_id LIMIT ${recipesPerPage} OFFSET ${offset}`;
+        const sql = `SELECT udr.*, 
+            (SELECT COUNT(*) FROM ${COMMENTS_TABLE} c WHERE c.recipe_id = udr.recipe_id) AS num_comments,
+            (SELECT COUNT(*) FROM ${FAVORITES_TABLE} f WHERE f.recipe_id = udr.recipe_id) AS num_likes
+            FROM ${USER_DEFINED_RECIPES_TABLE} udr 
+            JOIN ${USERS_TABLE} u ON u.user_id = udr.user_id 
+            WHERE u.isBanned = 0 
+            ORDER BY udr.recipe_id 
+            LIMIT ${recipesPerPage} 
+            OFFSET ${offset}`;
         const result = await db.pool.query(sql);
         res.status(200).send(convertBigIntsToNumbers(result));
     } catch (err) {
         console.log(err);
         res.status(500).send(convertBigIntsToNumbers(err))
     }
-})
+});
 
 //GET method to get user given their userid /user/:userId
 app.get(USERS_ENDPOINT.concat('/:userId'), async (req, res) => {
@@ -734,7 +747,12 @@ app.get(RECIPE_SEARCH, async (req, res) => {
         const searchResultsLimit = 10;
         console.log("SEARCH IS " + searchQuery)
 
-        const sql = `SELECT * FROM ${USER_DEFINED_RECIPES_TABLE} WHERE recipe_name LIKE '%${searchQuery}%' OR ingredients LIKE '%${searchQuery}%' OR description LIKE '%${searchQuery}%' OR instructions LIKE '%${searchQuery}%' LIMIT ${searchResultsLimit}`;
+        const sql = `SELECT udr.*, 
+            (SELECT COUNT(*) FROM ${COMMENTS_TABLE} c WHERE c.recipe_id = udr.recipe_id) AS num_comments,
+            (SELECT COUNT(*) FROM ${FAVORITES_TABLE} f WHERE f.recipe_id = udr.recipe_id) AS num_likes
+            FROM ${USER_DEFINED_RECIPES_TABLE} udr 
+            WHERE recipe_name '%${searchQuery}%' OR ingredients LIKE '%${searchQuery}%' OR description LIKE '%${searchQuery}%' OR instructions LIKE '%${searchQuery}%'
+            LIMIT ${searchResultsLimit}`;
         const result = await db.pool.query(sql)
         res.status(200).send(convertBigIntsToNumbers(result));
     } catch (error) {
