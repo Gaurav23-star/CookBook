@@ -1,10 +1,17 @@
 package com.cookbook;
 
+import static androidx.test.espresso.Espresso.onView;
+
 import android.content.Context;
 
+import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.action.ViewActions;
+import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -24,3 +31,4 @@ public class ExampleInstrumentedTest {
         assertEquals("com.cookbook", appContext.getPackageName());
     }
 }
+

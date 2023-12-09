@@ -130,7 +130,10 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
             final Handler handler = new Handler(Looper.getMainLooper());
             @Override
             public void run() {
-                ApiResponse apiResponse = ApiCaller.get_caller_instance().getFavoriteRecipes("?user_id=" + currentUser.getUser_id());
+                ApiResponse apiResponse;
+                     apiResponse = ApiCaller.get_caller_instance().getFavoriteRecipes("?user_id=" + currentUser.getUser_id());
+
+
 
                 if(apiResponse == null){
                     display_server_down_error("Server is down, Please Try again");
@@ -201,6 +204,10 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
 
             dialog.show();
         }
+    }
+    //for unit tests
+    public List<Item> getItems(){
+        return items;
     }
 
     private void changeActivityToRecipeActivity(User user, Recipe recipe){

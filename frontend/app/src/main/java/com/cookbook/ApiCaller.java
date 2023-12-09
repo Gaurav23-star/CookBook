@@ -38,7 +38,7 @@ final public class ApiCaller {
     //API URLS
     private static final String production_host = "http://172.16.122.20:8080";
     private static final String development_host = "http://10.0.2.2:8080";
-    public static final String host = development_host;
+    public static final String host = production_host;
     private static final String USER_SEARCH_URL = host + "/user-search?text=";
     private static final String USER_IS_FOLLOWING_URL = host + "/user-is-following?user_id=";
     private static final String USER_FOLLOW_URL = host + "/user-follow";
@@ -60,7 +60,7 @@ final public class ApiCaller {
     private static final String USERS_ENDPOINT = host + "/users";
     private static final String RECIPE_SEARCH_ENDPOINT = host + "/search-recipe";
     private static final String USER_HAS_FAVORITED = host + "/user-has-favorited?user_id=";
-
+    private static ApiResponse mockApiResponse;
     private ApiCaller(){
 
     }
@@ -155,6 +155,17 @@ final public class ApiCaller {
     public ApiResponse login(String email, String password) {
         final String jsonData = "{\"email_id\":\"" + email + "\", \"password\":\"" + password + "\"}";
         ApiResponse apiResponse =  post_request(LOGIN_URL, jsonData);
+        if(mockApiResponse!=null){
+            String response = mockApiResponse.getResponse_body();
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                apiResponse.setResponse_body(jsonObject.getString("user"));
+            }
+            catch (JSONException ignored){
+
+            }
+            return mockApiResponse;
+        }
         if(apiResponse != null && apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
             String response = apiResponse.getResponse_body();
             try {
@@ -169,6 +180,9 @@ final public class ApiCaller {
     }
 
     public ApiResponse signup(String firstName, String lastName, String email, String password, String username){
+        if(mockApiResponse!=null){
+            return mockApiResponse;
+        }
         final String jsonData = "{\"first_name\": \"" + firstName + "\"," +
                 "\"last_name\": \"" + lastName + "\", " +
                 "\"email_id\":\"" + email + "\", " +
@@ -192,6 +206,10 @@ final public class ApiCaller {
 
     public void getRecipeImage(){
 
+    }
+
+    public static ApiResponse getMockApiResponse() {
+        return mockApiResponse;
     }
 
     public ApiResponse getAllUserCreatedRecipes(String user_id){
@@ -285,6 +303,7 @@ final public class ApiCaller {
         return scanner.hasNext() ? scanner.next() : "";
     }
 
+
     public ApiResponse uploadRecipeImage(File file) {
         final ApiResponse[] apiResponse = {null};
         String baseUrl = host + "/user-defined-recipes/";
@@ -343,7 +362,9 @@ final public class ApiCaller {
         String query = "?search="+text;
         return get_request(RECIPE_SEARCH_ENDPOINT, query);
     }
-
+    public static void setMockApiResponse(ApiResponse mockResponse) {
+        mockApiResponse = mockResponse;
+    }
 
     interface uploadImageService {
         @Multipart

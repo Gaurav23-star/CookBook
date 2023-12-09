@@ -65,7 +65,11 @@ public class LoginActivity extends AppCompatActivity {
                     printServerDownFailure();
                     return;
                 }
-
+                if (apiResponse == ApiCaller.getMockApiResponse()) {
+                    user = gson.fromJson(apiResponse.getResponse_body(), User.class);
+                    save_user_to_device(user);
+                    changeActivityToUserHome(user);
+                }
                 if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
                     System.out.println("USER RECEIVED FROM API " + apiResponse.getResponse_body());
                     user = gson.fromJson(apiResponse.getResponse_body(), User.class);
