@@ -1,11 +1,13 @@
 package com.cookbook;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -297,12 +299,16 @@ private void get_user_created_recipes_from_server(){
         bottomNavigationView.setOnItemSelectedListener(item ->{
             switch (item.getItemId()){
                 case R.id.bottom_person:
+                    //check if the user is banned
+                    checkAndLogOutUserIfBanned();
                     Intent intent_self = new Intent(getApplicationContext(), ProfileActivity.class);
                     intent_self.putExtra("current_user",loggedInUser);
                     startActivity(intent_self);
                     finish();
                     return true;
                 case R.id.bottom_settings:
+                    //check if the user is banned
+                    checkAndLogOutUserIfBanned();
                     Intent intent_Settings = new Intent(getApplicationContext(), SettingsActivity.class);
                     intent_Settings.putExtra("current_user",loggedInUser);
                     startActivity(intent_Settings);
@@ -310,6 +316,8 @@ private void get_user_created_recipes_from_server(){
                     finish();
                     return true;
                 case R.id.bottom_notifications:
+                    //check if the user is banned
+                    checkAndLogOutUserIfBanned();
                     Intent intent_Notifications = new Intent(getApplicationContext(), NotificationsActivity.class);
                     intent_Notifications.putExtra("current_user",loggedInUser);
                     startActivity(intent_Notifications);
@@ -317,6 +325,8 @@ private void get_user_created_recipes_from_server(){
                     finish();
                     return true;
                 case R.id.bottom_favorites:
+                    //check if the user is banned
+                    checkAndLogOutUserIfBanned();
                     Intent intent_Favorites = new Intent(getApplicationContext(), FavoriteActivity.class);
                     intent_Favorites.putExtra("current_user",loggedInUser);
                     startActivity(intent_Favorites);
@@ -324,6 +334,8 @@ private void get_user_created_recipes_from_server(){
                     finish();
                     return true;
                 case R.id.bottom_home:
+                    //check if the user is banned
+                    checkAndLogOutUserIfBanned();
                       Intent intent_Home = new Intent(getApplicationContext(), HomeActivity.class);
                       intent_Home.putExtra("current_user",loggedInUser);
                       startActivity(intent_Home);
@@ -491,5 +503,48 @@ private void is_user_following_visitor(String loggedInUserId, String currentUser
         }
 
         get_user_created_recipes_from_server();
+    }
+
+    public void checkAndLogOutUserIfBanned(){
+        final Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean isBanned = ApiCaller.get_caller_instance().isUserBanned(String.valueOf(currentUser.getUser_id()));
+
+                if(isBanned){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            alertUserOfBanAndLogOut();
+                        }
+                    });
+                }
+            }
+        });
+
+        thread.start();
+    }
+
+    public void alertUserOfBanAndLogOut(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        String alertMessage = "Admin has banned you from the app. You will be signed out from the app.";
+        alertDialog.setMessage(alertMessage)
+                .setCancelable(false)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        System.out.println("DIALOG CLOSED");
+                        SharedPreferences sharedPreferences = getSharedPreferences("Saved User", MODE_PRIVATE);
+                        sharedPreferences.edit().remove("current_user").apply();
+                        Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        finish();
+                    }
+                });
+
+        AlertDialog alert = alertDialog.create();
+        alert.setTitle("YOU HAVE BEEN BANNED");
+        alert.show();
     }
 }

@@ -4,6 +4,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
@@ -12,6 +13,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -92,8 +95,6 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             currentUser = (User) getIntent().getSerializableExtra("current_user");
         }
         System.out.println("VALUE OF CURRENT USER = " + currentUser);
-        //user id 2 will be admin account / default page for now
-        //System.out.println("Current User " + currentUser.toString());
         setContentView(R.layout.activity_home);
         progressBar = findViewById(R.id.progressBar);
         swipeRefreshLayout = findViewById(R.id.refreshLayout);
@@ -108,6 +109,9 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         recipesRecyclerView.setLayoutManager(recyclerViewManager);
         recyclerViewAdapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin(), currentUser);
         recipesRecyclerView.setAdapter(recyclerViewAdapter);
+
+        //check if the user is banned
+        checkAndLogOutUserIfBanned();
         //if recipes not loaded from server, then load
         if(items.size() == 0){
             System.out.println("LIST IS EMPTY");
@@ -118,6 +122,8 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                //check if the user is banned
+                checkAndLogOutUserIfBanned();
                 server_error_text.setVisibility(View.GONE);
                 int totalCount = items.size();
                 for(int i = items.size()- 1; i >= 0; i--) items.remove(i);
@@ -307,7 +313,9 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                                 ingredients,
                                 desc,
                                 instructions,
-                                currentUser.getUser_id()
+                                currentUser.getUser_id(),
+                                0,
+                                0
                         );
 
                         if(newRecipeImageUri != null){
@@ -355,14 +363,6 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             }
         });
 
-    }
-
-
-    private void add_recipes_to_ui(){
-        RecyclerView recyclerView = findViewById(R.id.recyclerview);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        MyAdapter adapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin(), currentUser);
-        recyclerView.setAdapter(adapter);
     }
 
 
@@ -516,6 +516,8 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     @Override
     protected void onResume() {
         super.onResume();
+        //check if the user is banned
+        checkAndLogOutUserIfBanned();
         System.out.println("CURRENT ITEM BEING VIEWED = " + currentItemBeingViewed);
         System.out.println("SIZE OF ITEMS IS " + items.size());
         if(items.size() >= currentItemBeingViewed){
@@ -556,6 +558,49 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 break;
             }
         }
+    }
+
+    public void checkAndLogOutUserIfBanned(){
+        final Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean isBanned = ApiCaller.get_caller_instance().isUserBanned(String.valueOf(currentUser.getUser_id()));
+
+                if(isBanned){
+                     runOnUiThread(new Runnable() {
+                         @Override
+                         public void run() {
+                             alertUserOfBanAndLogOut();
+                         }
+                     });
+                }
+            }
+        });
+
+        thread.start();
+    }
+
+    public void alertUserOfBanAndLogOut(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        String alertMessage = "Admin has banned you from the app. You will be signed out from the app.";
+        alertDialog.setMessage(alertMessage)
+                .setCancelable(false)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        System.out.println("DIALOG CLOSED");
+                        SharedPreferences sharedPreferences = getSharedPreferences("Saved User", MODE_PRIVATE);
+                        sharedPreferences.edit().remove("current_user").apply();
+                        Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        finish();
+                    }
+                });
+
+        AlertDialog alert = alertDialog.create();
+        alert.setTitle("YOU HAVE BEEN BANNED");
+        alert.show();
     }
 
 }

@@ -2,7 +2,6 @@ package com.cookbook;
 
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -10,21 +9,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cookbook.model.ApiResponse;
 import com.cookbook.model.User;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.gson.Gson;
-import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.net.HttpURLConnection;
-import java.util.Arrays;
 import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
@@ -64,6 +57,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         holder.ing1View.setText(items.get(position).getIng1());
         holder.ing2View.setText(items.get(position).getIng2());
         holder.adminView.setImageResource(items.get(position).getAdmin());
+        holder.likesCountTextView.setText(String.valueOf(item.getRecipe().getNum_likes()));
+        holder.commentsCountTextView.setText(String.valueOf(item.getRecipe().getNum_comments()));
+
         if(admin==0){
             holder.adminView.setVisibility(View.GONE);
         }

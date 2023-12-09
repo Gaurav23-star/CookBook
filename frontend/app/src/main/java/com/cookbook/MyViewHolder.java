@@ -24,7 +24,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder{
 
     Item item;
     ImageView imageView, adminView;
-    TextView nameView, accountView,timeView, ing1View, ing2View, recipeOwner;
+    TextView nameView, accountView,timeView, ing1View, ing2View, recipeOwner, likesCountTextView, commentsCountTextView;
     ImageButton comment_button;
     ImageButton like_button;
     static User currentUser;
@@ -42,6 +42,8 @@ public class MyViewHolder extends RecyclerView.ViewHolder{
         comment_button = itemView.findViewById(R.id.commentButton);
         like_button = itemView.findViewById(R.id.likeButton);
         recipeOwner = itemView.findViewById(R.id.nameView);
+        likesCountTextView = itemView.findViewById(R.id.likeCount);
+        commentsCountTextView = itemView.findViewById(R.id.commentsCount);
         
         comment_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,10 +114,12 @@ public class MyViewHolder extends RecyclerView.ViewHolder{
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-
+                                int currentLikeCount = Integer.parseInt((String) likesCountTextView.getText());
                                 if(like_clicked){
+                                    likesCountTextView.setText(String.valueOf(currentLikeCount+1));
                                     like_button.setImageResource(R.drawable.like_button_filled);
                                 }else{
+                                    likesCountTextView.setText(String.valueOf(currentLikeCount-1));
                                     like_button.setImageResource(R.drawable.like_button_empty);
                                 }
                             }

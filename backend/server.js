@@ -440,10 +440,7 @@ app.get(COMMENTS_ENDPOINT, async (req, res) => {
             const sqlCommentExistsQuery = `SELECT COUNT(*) FROM ${COMMENTS_TABLE} WHERE comment_id = ?`;
 		    const commentExists = (await db.pool.query(sqlCommentExistsQuery, [commentId]))[0]['COUNT(*)'];
 
-            if (commentExists == 0) {
-                res.status(200).send('No comment exists with the provided id.\n');
-                return;
-            }
+           
 
             sqlQuery = `SELECT * FROM ${COMMENTS_TABLE} WHERE comment_id = ?`;
             const result = await db.pool.query(sqlQuery, [commentId]);
