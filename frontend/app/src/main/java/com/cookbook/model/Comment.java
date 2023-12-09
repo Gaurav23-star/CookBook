@@ -5,12 +5,23 @@ public class Comment {
     private int recipe_id;
     private String username;
     private String comment;
+    private int comment_id;
 
-    public Comment(int user_id, int recipe_id, String username, String comment) {
+
+    public Comment(int user_id, int recipe_id, String username, String comment, int comment_id) {
         this.user_id = user_id;
         this.recipe_id = recipe_id;
         this.username = username;
         this.comment = comment;
+        this.comment_id = comment_id;
+    }
+
+    public int getComment_id() {
+        return comment_id;
+    }
+
+    public void setComment_id(int comment_id) {
+        this.comment_id = comment_id;
     }
 
     @Override
