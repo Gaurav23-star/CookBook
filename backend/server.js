@@ -147,9 +147,13 @@ app.get(USER_DEFINED_RECIPES_ENDPOINT, async (req, res) => {
         const user_id = req.query.user_id;
         let condition;
         if (user_id == undefined) condition = "TRUE";
-        else condition = `${USERS_TABLE}.user_id = ${user_id}`;
+        else condition = `u.user_id = ${user_id}`;
 
-        const sql = `SELECT ${USER_DEFINED_RECIPES_TABLE}.* FROM ${USERS_TABLE} JOIN ${USER_DEFINED_RECIPES_TABLE} ON ${USERS_TABLE}.user_id = ${USER_DEFINED_RECIPES_TABLE}.user_id WHERE ${condition} AND ${USERS_TABLE}.isBanned = 0`;
+        const sql = `SELECT udr.*, 
+            (SELECT COUNT(*) FROM ${COMMENTS_TABLE} c WHERE c.recipe_id = udr.recipe_id) AS num_comments,
+            (SELECT COUNT(*) FROM ${FAVORITES_TABLE} f WHERE f.recipe_id = udr.recipe_id) AS num_likes
+            FROM ${USER_DEFINED_RECIPES_TABLE} udr 
+            JOIN ${USERS_TABLE} u ON u.user_id = udr.user_id WHERE ${condition} AND u.isBanned = 0`;
         const result = await db.pool.query(sql);
         res.status(200).send(convertBigIntsToNumbers(result));
     } catch (err) {
@@ -428,9 +432,10 @@ app.post(COMMENTS_ENDPOINT, async (req, res) => {
 //GET method for /user-defined-recipes/comments
 app.get(COMMENTS_ENDPOINT, async (req, res) => {
     try {
+        const recipeId = req.query.recipeId;
         const commentId = req.query.commentId;
 
-        if(commentId != undefined){
+        if (commentId != undefined && recipeId == undefined) {
             // check if the comment with the provided commentId exists
             const sqlCommentExistsQuery = `SELECT COUNT(*) FROM ${COMMENTS_TABLE} WHERE comment_id = ?`;
 		    const commentExists = (await db.pool.query(sqlCommentExistsQuery, [commentId]))[0]['COUNT(*)'];
@@ -444,14 +449,28 @@ app.get(COMMENTS_ENDPOINT, async (req, res) => {
             const result = await db.pool.query(sqlQuery, [commentId]);
             console.log(result);
             res.status(200).send(convertBigIntsToNumbers(result));
-        }
-        else{
-            res.status(400).json({message: "You must provide the commentId.\n"});
+        } else if (recipeId != undefined && commentId == undefined) {
+            const sqlRecipeExistsQuery = `SELECT COUNT(*) FROM ${COMMENTS_TABLE} WHERE recipe_id = ?`;
+            const recipeExists = (await db.pool.query(sqlRecipeExistsQuery, [recipeId]))[0]['COUNT(*)'];
+
+            if (recipeExists == 0) {
+                res.status(200).send('No recipe exists with the provided id.\n');
+                return;
+            }
+
+            sqlQuery = `SELECT * FROM ${COMMENTS_TABLE} WHERE recipe_id = ?`;
+            const result = await db.pool.query(sqlQuery, [recipeId]);
+            console.log(result);
+            res.status(200).send(convertBigIntsToNumbers(result));
+        } else if (recipeId != undefined && commentId != undefined) {
+            res.status(400).json({message: "You can query by commentId or recipeId but not both.\n"});
+        } else {
+            res.status(400).json({message: "You must provide either a commentId or a recipeId.\n"});
         }
     } catch (error) {
         res.status(500).send(convertBigIntsToNumbers(error));
     }
-})
+});
 
 //DELETE method for /user-defined-recipes/comments
 app.delete(COMMENTS_ENDPOINT, async (req, res) => {
@@ -516,7 +535,7 @@ app.get(USERS_NETWORK_LIST_ENDPOINT, async (req, res) => {
         console.log(err);
         res.status(500).send(convertBigIntsToNumbers(err));
     }
-})
+});
 
 //WORK IN PROGRESS, NOT DONE YET, SO MIGHT NOT WORK IF YOU TEST IT.
 //POST to upload image
@@ -832,11 +851,17 @@ function serializeResult(result) {
 
 
 function convertBigIntsToNumbers(obj) {
-    for (const key in obj) {
-        if (Object.prototype.hasOwnProperty.call(obj, key)) {
-            const value = obj[key];
-            if (typeof value === 'bigint') {
-                obj[key] = Number(value);
+    if (typeof obj === 'bigint') {
+        return Number(obj);
+    } else if (typeof obj === 'object') {
+        for (const key in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                const value = obj[key];
+                if (typeof value === 'bigint') {
+                    obj[key] = Number(value);
+                } else if (typeof value === 'object') {
+                    obj[key] = convertBigIntsToNumbers(value);
+                }
             }
         }
     }
