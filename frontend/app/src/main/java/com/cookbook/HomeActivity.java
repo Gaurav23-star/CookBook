@@ -446,13 +446,6 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
                 System.out.println("banUser selected, banning user with id: " + ban_id);
                 User.banUser(ban_id);
-//
-//                for (Item recipe : items) {
-//                    if (recipe.getRecipe().getUser_id() == ban_id) {
-//                        items.remove(recipe);
-//                    }
-//
-//                }
 
                 recyclerViewAdapter.notifyDataSetChanged();
                 //add_recipes_to_ui();
@@ -530,42 +523,6 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             recyclerViewManager.scrollToPosition(currentItemBeingViewed);
         }
     }
-
-    /*
-    @Override
-    protected void onResume() {
-        super.onResume();
-        System.out.println("HOME ACTIVITY RESUMED");
-        SharedPreferences sharedPreferences = getSharedPreferences("Updated_recipe", MODE_PRIVATE);
-        System.out.println("KEY IS PRESENT " + sharedPreferences.contains("updated_recipe"));
-
-        if(sharedPreferences.contains("updated_recipe")){
-            System.out.println("GOT UPDATED RECIPE " + items.size());
-            System.out.println(sharedPreferences.getString("updated_recipe", "null"));
-            String update_recipe = sharedPreferences.getString("updated_recipe", "null");
-
-            //update the recipe list with edited recipe
-            if(!update_recipe.equals("null")){
-                Recipe uRecipe = new Gson().fromJson(update_recipe, Recipe.class);
-
-                for(int i = 0; i < items.size(); i++){
-                    if(items.get(i).getRecipe().getRecipe_id() == uRecipe.getRecipe_id()){
-                        items.get(i).update_item(uRecipe);
-                        System.out.println("CHILD UPDATED RECIPES< " + i);
-                        recyclerViewAdapter.notifyItemChanged(i);
-                        recyclerViewManager.scrollToPosition(i);
-                        break;
-                    }
-                }
-
-                sharedPreferences.edit().remove("updated_recipe").commit();
-                //sharedPreferences.edit().putString("updated_recipe", null).apply();
-                System.out.println("KEY IS PRESENT " + sharedPreferences.contains("updated_recipe"));
-            }
-        }
-    }
-
-     */
 
 
     private File getImageFile(Uri result, String imageUrl){

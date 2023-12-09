@@ -35,6 +35,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class ProfileActivity extends AppCompatActivity implements RecyclerViewInterface {
@@ -66,13 +67,14 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().hide();
+        //getSupportActionBar().hide();
 
         setContentView(R.layout.activity_profile);
         //retrieve user passed in
         if(getIntent().getSerializableExtra("visiting_user") != null) {
             currentUser = (User) getIntent().getSerializableExtra("visiting_user");
             loggedInUser = (User) getIntent().getSerializableExtra("current_user");
+            Objects.requireNonNull(getSupportActionBar()).setTitle(currentUser.getUsername());
 
             items = visitingUserItems;
             followButton = findViewById(R.id.follow_button);
@@ -96,6 +98,8 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
             currentUser = (User) getIntent().getSerializableExtra("current_user");
             loggedInUser = (User) getIntent().getSerializableExtra("current_user");
             items = currentUserItems;
+            Objects.requireNonNull(getSupportActionBar()).setTitle(currentUser.getUsername());
+
         }
 
         swipeRefreshLayout = findViewById(R.id.profile_refreshLayout);

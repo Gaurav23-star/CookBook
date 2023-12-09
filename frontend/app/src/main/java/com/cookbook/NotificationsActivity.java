@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
+import android.widget.TextView;
 
 import com.cookbook.model.ApiResponse;
 import com.cookbook.model.User;
@@ -34,6 +36,7 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
     String id;
 
     String title;
+    private TextView noNotificationsTextView;
 
 
     @Override
@@ -47,6 +50,7 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
         if(getIntent().getSerializableExtra("current_user") != null){
             current_user = (User) getIntent().getSerializableExtra("current_user");
         }
+        noNotificationsTextView = findViewById(R.id.noNotificationTextView);
 
         if(notificationList.size() ==0){
             get_notification_list_from_server();
@@ -65,6 +69,7 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
     }
 
     private void add_notifications_to_ui(){
+        noNotificationsTextView.setVisibility(View.GONE);
         RecyclerView recyclerView = findViewById(R.id.notifications_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         NotificationAdapter notificationAdapter = new NotificationAdapter(getApplicationContext(), notificationList, this);
@@ -121,9 +126,11 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
 
 
                     //update user list on main thread
-                    handler.post(() ->{
-                        add_notifications_to_ui();
-                    });
+                    if(notificationList.size() > 0){
+                        handler.post(() ->{
+                            add_notifications_to_ui();
+                        });
+                    }
 
                 }else{
                     System.out.println("Server is down, Please Try again");

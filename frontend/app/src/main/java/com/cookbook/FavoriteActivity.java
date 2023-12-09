@@ -25,6 +25,7 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class FavoriteActivity extends AppCompatActivity implements RecyclerViewInterface {
     private static User currentUser;
@@ -38,7 +39,7 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorite);
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).setTitle("FAVORITES");
         //retrieve user passed in
         currentUser = (User) getIntent().getSerializableExtra("current_user");
         server_error_text = findViewById(R.id.serverErrorTextView);
