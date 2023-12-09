@@ -84,6 +84,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     private int currentItem, totalItems, scrollOutItems;
     private static int recipePageNumber = 1;
     private static int currentItemBeingViewed = 0;
+    private static int currentItemBeingEdited = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -410,6 +411,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
         System.out.println("CURRENT USEr CLICK " + currentUser.getUser_id());
         if (currentUser.getIsAdmin()==0) {
+            currentItemBeingEdited = position;
             currentItemBeingViewed = recyclerViewManager.findFirstVisibleItemPosition();
             changeActivityToRecipeActivity(currentUser, items.get(position).getRecipe());
 
@@ -520,8 +522,8 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         checkAndLogOutUserIfBanned();
         System.out.println("CURRENT ITEM BEING VIEWED = " + currentItemBeingViewed);
         System.out.println("SIZE OF ITEMS IS " + items.size());
-        if(items.size() >= currentItemBeingViewed){
-            recyclerViewAdapter.notifyItemChanged(currentItemBeingViewed);
+        if(items.size() > currentItemBeingViewed){
+            recyclerViewAdapter.notifyItemChanged(currentItemBeingEdited);
             recyclerViewManager.scrollToPosition(currentItemBeingViewed);
         }
     }
