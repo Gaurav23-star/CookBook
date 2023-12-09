@@ -412,12 +412,6 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         return true;
     }
 
-    private void changeActivityToUserHome(User user){
-        final Intent intent = new Intent(RecipeActivity.this, HomeActivity.class);
-        intent.putExtra("current_user", user);
-        startActivity(intent);
-        finish();
-    }
 
     private String convertStreamToString(InputStream is) {
         final Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
@@ -497,6 +491,8 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
                 if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
                     commentList.add(comment);
                     currentRecipe.setNum_comments(currentRecipe.getNum_comments()+1);
+                    update_home_activity_recipe_list(currentRecipe);
+
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
@@ -559,7 +555,6 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
 
         return file;
     }
-
 
 
 }
