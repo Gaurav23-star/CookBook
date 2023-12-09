@@ -24,7 +24,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder{
 
     Item item;
     ImageView imageView, adminView;
-    TextView nameView, accountView,timeView, ing1View, ing2View;
+    TextView nameView, accountView,timeView, ing1View, ing2View, recipeOwner;
     ImageButton comment_button;
     ImageButton like_button;
     static User currentUser;
@@ -41,7 +41,8 @@ public class MyViewHolder extends RecyclerView.ViewHolder{
         adminView=itemView.findViewById(R.id.admin);
         comment_button = itemView.findViewById(R.id.commentButton);
         like_button = itemView.findViewById(R.id.likeButton);
-
+        recipeOwner = itemView.findViewById(R.id.nameView);
+        
         comment_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

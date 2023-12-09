@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/recipeCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    app:cardBackgroundColor="#F5F5F5"
+    app:cardCornerRadius="20dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/recipeOwnerView"
+            android:layout_width="288dp"
+            android:layout_height="66dp"
+            android:layout_marginStart="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profileImage4"
+                android:layout_width="60dp"
+                android:layout_height="55dp"
+                android:layout_margin="0sp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"
+                android:padding="0sp"
+                android:src="@drawable/chef"
+                app:civ_border_color="@android:color/black"
+                app:civ_border_width="2dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <EditText
+                android:id="@+id/nameView"
+                android:layout_width="wrap_content"
+                android:layout_height="64dp"
+                android:layout_marginStart="10dp"
+                android:background="@null"
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:enabled="false"
+                android:inputType="none"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                app:layout_constraintStart_toEndOf="@+id/profileImage4"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Username" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageView
+            android:id="@+id/imageview"
+            android:layout_width="357dp"
+            android:layout_height="206dp"
+            android:layout_marginTop="5dp"
+            android:adjustViewBounds="false"
+            android:scaleType="centerCrop"
+            app:circularflow_radiusInDP="50dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recipeOwnerView"
+            app:srcCompat="@drawable/applepie" />
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="291dp"
+            android:layout_height="57dp"
+            android:layout_marginTop="5dp"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:textSize="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageview"
+            tools:text="Miso-Butter Roast Chicken With Acorn Squash Panzanella" />
+
+        <TextView
+            android:id="@+id/account"
+            android:layout_width="291dp"
+            android:layout_height="50dp"
+            android:textColor="@color/black"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="@+id/time"
+            tools:text="account" />
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="96dp"
+            android:layout_height="25dp"
+            android:gravity="right"
+            android:textColor="@color/black"
+            android:textSize="20dp"
+            android:visibility="gone"
+            tools:layout_editor_absoluteX="280dp"
+            tools:layout_editor_absoluteY="0dp"
+            tools:text="45 min" />
+
+        <TextView
+            android:id="@+id/ing1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/circulartextview"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:textSize="20dp"
+            android:visibility="gone"
+            tools:layout_editor_absoluteY="30dp"
+            tools:text="ing1" />
+
+        <TextView
+            android:id="@+id/ing2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/circulartextview"
+            android:gravity="center"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:textColor="@color/black"
+            android:textSize="20dp"
+            android:visibility="gone"
+            tools:layout_editor_absoluteY="19dp"
+            tools:text="ing2" />
+
+        <ImageView
+            android:id="@+id/admin"
+            android:layout_width="51dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:gravity="right"
+            android:src="@drawable/ic_baseline_settings_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/recipeOwnerView"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:backgroundTint="#000000"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@+id/linearLayout3"
+            app:layout_constraintTop_toBottomOf="@id/name"></LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayout3"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="5dp"
+            android:weightSum="10"
+            app:layout_constraintTop_toBottomOf="@+id/name">
+
+            <ImageButton
+                android:id="@+id/likeButton"
+                android:layout_width="20dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="20dp"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/like_button_empty" />
+
+            <TextView
+                android:id="@+id/likeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="12"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/commentButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="50dp"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/comment_button_empty" />
+
+            <TextView
+                android:id="@+id/commentsCount"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="34"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

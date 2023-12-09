@@ -3,6 +3,8 @@ package com.cookbook;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,11 +16,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.cookbook.model.ApiResponse;
 import com.cookbook.model.User;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,7 +47,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new MyViewHolder(LayoutInflater.from(context).inflate(R.layout.item_view,parent,false),recyclerViewInterface);
+        return new MyViewHolder(LayoutInflater.from(context).inflate(R.layout.new_item_view,parent,false),recyclerViewInterface);
     }
 
     @Override
@@ -50,9 +55,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         Item item = items.get(position);
         holder.bind(item,currentUser);
         holder.has_user_favorited_this_recipe(String.valueOf(currentUser.getUser_id()), String.valueOf(item.getRecipe().getRecipe_id()) );
-
+        loadRecipeOwnerProfile(String.valueOf(item.getRecipe().getUser_id()), holder);
         holder.nameView.setText(items.get(position).getName());
-        holder.accountView.setText(items.get(position).getAuthor());
+        //holder.accountView.setText(items.get(position).getAuthor());
         load_recipe_image(position, holder);
         //holder.imageView.setImageResource(items.get(position).getImage());
         holder.timeView.setText(items.get(position).getTime());
@@ -76,4 +81,32 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         Glide.with(this.context).load(url).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).into(holder.imageView);
 
     }
+
+    private void loadRecipeOwnerProfile(String userId, MyViewHolder viewHolder){
+        final Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    ApiResponse response = ApiCaller.get_caller_instance().getUserFromUserId(userId);
+                    if (response != null && response.getResponse_code() == HttpURLConnection.HTTP_OK){
+                        User user = new Gson().fromJson(response.getResponse_body(), User.class);
+
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            //String displayName = recipeOwner.getFirst_name() + " " + recipeOwner.getLast_name();
+                            String displayName = user.getUsername();
+                            viewHolder.recipeOwner.setText(displayName);
+                        });
+                    }
+                }
+                catch (Exception e){
+                    System.out.println(e);
+                    System.out.println("SOMETHING WENT WRONG");
+                }
+            }
+        });
+
+        thread.start();
+    }
+
 }

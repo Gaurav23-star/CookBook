@@ -74,6 +74,7 @@ public class SettingsActivity extends AppCompatActivity implements RecyclerViewI
         sharedPreferences.edit().remove("current_user").apply();
 
         Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
     }
