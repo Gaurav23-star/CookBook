@@ -73,18 +73,23 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         if(getIntent().getSerializableExtra("visiting_user") != null) {
             currentUser = (User) getIntent().getSerializableExtra("visiting_user");
             loggedInUser = (User) getIntent().getSerializableExtra("current_user");
-            //set follow/following button here
+
             items = visitingUserItems;
             followButton = findViewById(R.id.follow_button);
-            followButton.setVisibility(View.VISIBLE);
-            is_user_following_visitor(String.valueOf(loggedInUser.getUser_id()), String.valueOf(currentUser.getUser_id()));
-            followButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    updateFollowStatus();
-                }
-            });
 
+            if(currentUser.getUser_id() == loggedInUser.getUser_id()){
+                followButton.setVisibility(View.GONE);
+            }else {
+                followButton.setVisibility(View.VISIBLE);
+                is_user_following_visitor(String.valueOf(loggedInUser.getUser_id()), String.valueOf(currentUser.getUser_id()));
+                followButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        updateFollowStatus();
+                    }
+                });
+
+            }
 
 
         }else if(getIntent().getSerializableExtra("current_user") != null){
@@ -100,7 +105,6 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         biography = findViewById(R.id.bioTextView);
         followersNumber = findViewById(R.id.followersNumber);
         followingNumber = findViewById(R.id.followingNumber);
-        //biography = setText(currentUser.getBiography()); when user class has bio and bio is in users table in db, uncomment this line
         fullName.setText(currentUser.getFirst_name() + " " + currentUser.getLast_name() );
         userName.setText(currentUser.getUsername());
         postsNumber = findViewById(R.id.postsNumber);
@@ -130,9 +134,17 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
             @Override
             public void onClick(View view) {
                 final Intent intent = new Intent(getApplicationContext(), FollowersActivity.class);
-                intent.putExtra("id",String.valueOf(currentUser.getUser_id()) );
+
+                if(getIntent().getSerializableExtra("visiting_user")!= null){
+                    intent.putExtra("visiting_user",currentUser);
+                    intent.putExtra("id",String.valueOf(currentUser.getUser_id()) );
+                }else{
+                    intent.putExtra("id",String.valueOf(loggedInUser.getUser_id()) );
+                }
+
                 intent.putExtra("title","followers");
-                intent.putExtra("current_user", currentUser);
+                intent.putExtra("current_user", loggedInUser);
+
                 startActivity(intent);
             }
         });
@@ -141,9 +153,17 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
             @Override
             public void onClick(View view) {
                 final Intent intent = new Intent(getApplicationContext(), FollowersActivity.class);
-                intent.putExtra("id",String.valueOf(currentUser.getUser_id()) );
+
+                if(getIntent().getSerializableExtra("visiting_user")!= null){
+                    intent.putExtra("visiting_user",currentUser);
+                    intent.putExtra("id",String.valueOf(currentUser.getUser_id()) );
+                }else{
+                    intent.putExtra("id",String.valueOf(loggedInUser.getUser_id()) );
+                }
                 intent.putExtra("title","following");
-                intent.putExtra("current_user", currentUser);
+                intent.putExtra("current_user", loggedInUser);
+
+
                 startActivity(intent);
             }
         });
@@ -439,18 +459,26 @@ private void is_user_following_visitor(String loggedInUserId, String currentUser
         items.clear();
         if(getIntent().getSerializableExtra("visiting_user") != null){
             currentUser = (User) getIntent().getSerializableExtra("visiting_user");
-            //set follow/following button here
+
             items = visitingUserItems;
-            followButton = findViewById(R.id.follow_button);
-            followButton.setVisibility(View.VISIBLE);
             loggedInUser = (User) getIntent().getSerializableExtra("current_user");
-            is_user_following_visitor(String.valueOf(loggedInUser.getUser_id()), String.valueOf(currentUser.getUser_id()));
-            followButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    updateFollowStatus();
-                }
-            });
+
+            followButton = findViewById(R.id.follow_button);
+
+            if(currentUser.getUser_id() == loggedInUser.getUser_id()) {
+                followButton.setVisibility(View.GONE);
+            }else {
+                followButton.setVisibility(View.VISIBLE);
+
+                is_user_following_visitor(String.valueOf(loggedInUser.getUser_id()), String.valueOf(currentUser.getUser_id()));
+                followButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        updateFollowStatus();
+                    }
+                });
+            }
+
 
         }else if(getIntent().getSerializableExtra("current_user") != null){
             currentUser = (User) getIntent().getSerializableExtra("current_user");

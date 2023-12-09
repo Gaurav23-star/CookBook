@@ -30,6 +30,8 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
     String id;
     String title;
     static User current_user;
+    private static User currentUser;
+    private static User loggedInUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +42,15 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
         title = getIntent().getStringExtra("title");
         Objects.requireNonNull(getSupportActionBar()).setTitle(title);
 
-        if(getIntent().getSerializableExtra("current_user") != null){
+        if(getIntent().getSerializableExtra("visiting_user") != null){
+            currentUser = (User) getIntent().getSerializableExtra("visiting_user");
+            loggedInUser = (User) getIntent().getSerializableExtra("current_user");
+
+        }
+        else if(getIntent().getSerializableExtra("current_user") != null){
             current_user = (User) getIntent().getSerializableExtra("current_user");
+            loggedInUser = (User) getIntent().getSerializableExtra("current_user");
+
         }
 
 
@@ -71,8 +80,15 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
             @Override
             public void run() {
 
-                ApiResponse apiResponse = ApiCaller.get_caller_instance().getUsersNetworkList( String.valueOf((current_user).getUser_id()), title);
+                ApiResponse apiResponse;
 
+                if(getIntent().getSerializableExtra("visiting_user") != null){
+                    apiResponse = ApiCaller.get_caller_instance().getUsersNetworkList( String.valueOf((currentUser).getUser_id()), title);
+                    System.out.println("user id call : " + current_user.getUser_id());
+                }else{
+                     apiResponse = ApiCaller.get_caller_instance().getUsersNetworkList( String.valueOf((loggedInUser).getUser_id()), title);
+                    System.out.println("user id call : " + loggedInUser.getUser_id());
+                }
 
                 if(apiResponse == null){
                     System.out.println("Server is down, Please Try again");
@@ -125,4 +141,23 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
         //finish();
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Clear the items list to ensure it's empty before repopulating it
+        userList.clear();
+        if(getIntent().getSerializableExtra("visiting_user") != null){
+            currentUser = (User) getIntent().getSerializableExtra("visiting_user");
+            loggedInUser = (User) getIntent().getSerializableExtra("current_user");
+
+        }else if(getIntent().getSerializableExtra("current_user") != null){
+            currentUser = (User) getIntent().getSerializableExtra("current_user");
+            loggedInUser = (User) getIntent().getSerializableExtra("current_user");
+        }
+
+        get_Follower_List_from_server(title);
+
+    }
+
 }
