@@ -36,7 +36,7 @@ const RECIPE_SEARCH = '/search-recipe';
 const USER_NOTIFICATION_ENDPOINT = "/users-notifications";
 const UPDATE_USER_ENDPOINT = '/update-user'
 const USER_HAS_FAVORITED_ENDPOINT = "/user-has-favorited";
-
+const COMMENTS_AND_LIKES_ENDPOINT = "/comments-and-likes"
 
 // Define table constants
 const USER_DEFINED_RECIPES_TABLE = 'user_defined_recipes';
@@ -55,7 +55,11 @@ app.get(FAVORITES_ENDPOINT, async (req, res) => {
             return;
         }
 
-        const sql = `SELECT ${USER_DEFINED_RECIPES_TABLE}.* FROM ${FAVORITES_TABLE} JOIN ${USER_DEFINED_RECIPES_TABLE} ON ${FAVORITES_TABLE}.recipe_id = ${USER_DEFINED_RECIPES_TABLE}.recipe_id WHERE ${FAVORITES_TABLE}.user_id = ?`;
+        const sql = `SELECT udr.*, 
+            (SELECT COUNT(*) FROM ${COMMENTS_TABLE} c WHERE c.recipe_id = udr.recipe_id) AS num_comments,
+            (SELECT COUNT(*) FROM ${FAVORITES_TABLE} f WHERE f.recipe_id = udr.recipe_id) AS num_likes
+            FROM ${USER_DEFINED_RECIPES_TABLE} udr WHERE udr.recipe_id IN 
+            (SELECT recipe_id FROM ${FAVORITES_TABLE} WHERE user_id = ${user_id})`;
         const result = await db.pool.query(sql, [user_id]);
         res.status(200).send(convertBigIntsToNumbers(result));
     } catch (err) {
@@ -63,7 +67,6 @@ app.get(FAVORITES_ENDPOINT, async (req, res) => {
         res.status(500).send(convertBigIntsToNumbers(err))
     }
 });
-
 
 // GET method for /favorites  -> checks if a user liked a given recipe or not
 //This could've been done in above endpoint, but i think app.use(bodyParser.urlencoded({ extended: false })); provides 
