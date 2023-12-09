@@ -33,6 +33,9 @@ import com.cookbook.model.Recipe;
 import com.cookbook.model.User;
 import com.google.gson.Gson;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -79,6 +82,8 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
     private ConstraintLayout recipeOwnerView;
     private User recipeOwner;
     private final List<Comment> commentList = new ArrayList<>();
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -232,15 +237,13 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
             @Override
             public void onClick(View v) {
                 if(isValidEntry(commentTextView)){
-                    Comment comment = new Comment(currentUser.getUser_id(), currentRecipe.getRecipe_id(), currentUser.getUsername(),commentTextView.getText().toString());
+                    Comment comment = new Comment(currentUser.getUser_id(), currentRecipe.getRecipe_id(), currentUser.getUsername(),commentTextView.getText().toString(), 0);
                     postCommentToServer(comment);
-
 
                     InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     inputMethodManager.hideSoftInputFromWindow(commentTextView.getWindowToken(), 0);
                     commentTextView.clearFocus();
                     commentTextView.setText("");
-                    scrollView.scrollTo(commentsView.getBottom(), commentsView.getRight());
                 }
             }
         });
@@ -489,16 +492,24 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
                 }
 
                 if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
-                    commentList.add(comment);
-                    currentRecipe.setNum_comments(currentRecipe.getNum_comments()+1);
-                    update_home_activity_recipe_list(currentRecipe);
+                    try {
+                        int commentId = new JSONObject(apiResponse.getResponse_body()).getInt("insertId");
+                        comment.setComment_id(commentId);
+                        commentList.add(comment);
+                        currentRecipe.setNum_comments(currentRecipe.getNum_comments()+1);
+                        update_home_activity_recipe_list(currentRecipe);
 
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            display_comments_on_ui();
-                        }
-                    });
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                display_comments_on_ui();
+                                scrollView.scrollToDescendant(commentsView);
+                            }
+                        });
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+
                 }
             }
         });

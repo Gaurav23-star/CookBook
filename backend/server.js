@@ -464,7 +464,7 @@ app.get(COMMENTS_ENDPOINT, async (req, res) => {
                 return;
             }
 
-            sqlQuery = `SELECT C.recipe_id, C.comment, C.user_id, U.username FROM ${COMMENTS_TABLE} AS C JOIN ${USERS_TABLE} AS U ON C.user_id = U.user_id WHERE C.recipe_id = ?`;
+            sqlQuery = `SELECT C.recipe_id, C.comment, C.user_id, U.username, C.comment_id FROM ${COMMENTS_TABLE} AS C JOIN ${USERS_TABLE} AS U ON C.user_id = U.user_id WHERE C.recipe_id = ?`;
             const result = await db.pool.query(sqlQuery, [recipeId]);
             console.log(result);
             res.status(200).send(convertBigIntsToNumbers(result));
