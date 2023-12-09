@@ -19,11 +19,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
@@ -49,8 +47,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -183,7 +179,9 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
                             ingredientsView.getText().toString(),
                             descriptionView.getText().toString(),
                             instructionsView.getText().toString(),
-                            currentRecipe.getUser_id()
+                            currentRecipe.getUser_id(),
+                            currentRecipe.getNum_comments(),
+                            currentRecipe.getNum_likes()
                     );
                     updated_recipe = updatedRecipe;
                     update_recipe_on_server(updatedRecipe);
@@ -498,7 +496,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
 
                 if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
                     commentList.add(comment);
-
+                    currentRecipe.setNum_comments(currentRecipe.getNum_comments()+1);
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {

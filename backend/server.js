@@ -394,9 +394,12 @@ app.post(LOGIN_ENDPOINT, async (req, res) => {
 
             if (result.length > 0) {
                 const user = result[0];
+                if (user.isBanned === 1){
+                    res.status(401).json('You have been Banned by admin');
+                }
                 res.status(200).json({ message: 'Login successful', user: user });
             } else {
-                res.status(401).json({ message: 'Invalid credentials' });
+                res.status(401).json('Invalid credentials');
             }
         } else {
             res.status(400).json({ message: 'Email and password are required' });
@@ -461,7 +464,7 @@ app.get(COMMENTS_ENDPOINT, async (req, res) => {
                 return;
             }
 
-            sqlQuery = `SELECT * FROM ${COMMENTS_TABLE} WHERE recipe_id = ?`;
+            sqlQuery = `SELECT C.recipe_id, C.comment, C.user_id, U.username FROM ${COMMENTS_TABLE} AS C JOIN ${USERS_TABLE} AS U ON C.user_id = U.user_id WHERE C.recipe_id = ?`;
             const result = await db.pool.query(sqlQuery, [recipeId]);
             console.log(result);
             res.status(200).send(convertBigIntsToNumbers(result));

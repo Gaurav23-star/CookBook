@@ -5,6 +5,8 @@ import android.widget.ImageView;
 
 import com.cookbook.model.ApiResponse;
 import com.cookbook.model.Comment;
+import com.cookbook.model.User;
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -269,7 +271,7 @@ final public class ApiCaller {
 
 
     public ApiResponse getAllComments(int recipe_id){
-        String queryParams = "?recipe_id=" + recipe_id;
+        String queryParams = "?recipeId=" + recipe_id;
         return get_request(COMMENTS_URL, queryParams);
     }
 
@@ -342,6 +344,16 @@ final public class ApiCaller {
     public ApiResponse getRecipeSearch(String text){
         String query = "?search="+text;
         return get_request(RECIPE_SEARCH_ENDPOINT, query);
+    }
+
+    public boolean isUserBanned(String userId){
+        ApiResponse response = getUserFromUserId(userId);
+        if(response.getResponse_code() == HttpURLConnection.HTTP_OK){
+            User user = new Gson().fromJson(response.getResponse_body(), User.class);
+            if (user.getIsBanned() == 1) return true;
+            else return false;
+        }
+        return false;
     }
 
 

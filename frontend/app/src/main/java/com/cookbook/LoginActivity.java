@@ -71,8 +71,12 @@ public class LoginActivity extends AppCompatActivity {
                     user = gson.fromJson(apiResponse.getResponse_body(), User.class);
                     save_user_to_device(user);
                     changeActivityToUserHome(user);
+                }
+                else if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_UNAUTHORIZED){
+                    printInvalidCredentialsLoginFailure(apiResponse.getResponse_body());
+
                 }else{
-                    printInvalidCredentialsLoginFailure();
+                    printInvalidCredentialsLoginFailure("Invalid Credentials");
                 }
             }
         });
@@ -87,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @SuppressLint("SetTextI18n")
-    private void printInvalidCredentialsLoginFailure() {
+    private void printInvalidCredentialsLoginFailure(String message) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
