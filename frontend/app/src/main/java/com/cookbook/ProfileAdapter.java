@@ -43,7 +43,6 @@ public class ProfileAdapter extends RecyclerView.Adapter<MyViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         load_recipe_image(position, holder);
-        //holder.imageView.setImageResource(items.get(position).getImage());
         holder.adminView.setImageResource(items.get(position).getAdmin());
         if(admin==0){
             holder.adminView.setVisibility(View.GONE);

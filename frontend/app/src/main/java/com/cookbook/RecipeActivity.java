@@ -480,8 +480,12 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
             @Override
             public void run() {
                 ApiResponse apiResponse = ApiCaller.get_caller_instance().postComment(comment);
+
+                System.out.println("user logged in : " + currentUser.getUser_id());
+                ApiResponse apiResponseTwo = ApiCaller.get_caller_instance().postUserNotification("comment", String.valueOf(currentRecipe.getUser_id()), String.valueOf(currentUser.getUser_id()),  String.valueOf(currentRecipe.getRecipe_id()));
+
                 //error posting comment to server
-                if(apiResponse == null || apiResponse.getResponse_code() == 400 || apiResponse.getResponse_code() == 500){
+                if(apiResponse == null || apiResponse.getResponse_code() == 400 || apiResponse.getResponse_code() == 500 || ((apiResponseTwo == null || apiResponseTwo.getResponse_code() == 400 || apiResponseTwo.getResponse_code() == 500))){
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

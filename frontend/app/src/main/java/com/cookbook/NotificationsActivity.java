@@ -3,15 +3,20 @@ package com.cookbook;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.cookbook.model.ApiResponse;
+import com.cookbook.model.Recipe;
 import com.cookbook.model.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.Gson;
@@ -33,10 +38,9 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
 
     private final Gson gson = new Gson();
 
-    String id;
-
-    String title;
     private TextView noNotificationsTextView;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    Recipe curr_recipe;
 
 
     @Override
@@ -51,12 +55,23 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
             current_user = (User) getIntent().getSerializableExtra("current_user");
         }
         noNotificationsTextView = findViewById(R.id.noNotificationTextView);
+        swipeRefreshLayout = findViewById(R.id.notifications_refresh_layout);
 
         if(notificationList.size() ==0){
             get_notification_list_from_server();
         }else{
             add_notifications_to_ui();
         }
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                notificationList.clear();
+                get_notification_list_from_server();
+                swipeRefreshLayout.setRefreshing(false);
+                add_notifications_to_ui();
+            }
+        });
 
         handleNavigationChange();
     }
@@ -66,6 +81,13 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
     //method to ensure thread safety
     public synchronized void addNotificationThreadSafe(Notification notification) {
         notificationList.add(notification);
+    }
+
+    private void changeActivityToRecipeActivity(User user, Recipe recipe){
+        final Intent intent = new Intent(NotificationsActivity.this, RecipeActivity.class);
+        intent.putExtra("current_user",user);
+        intent.putExtra("current_recipe", recipe);
+        startActivity(intent);
     }
 
     private void add_notifications_to_ui(){
@@ -123,8 +145,6 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
                     }
 
 
-
-
                     //update user list on main thread
                     if(notificationList.size() > 0){
                         handler.post(() ->{
@@ -139,6 +159,39 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
         });
 
         thread.start();
+
+    }
+
+    private void get_recipe_from_server(String recipe_id){
+        final Thread thread = new Thread(new Runnable() {
+            final Handler handler = new Handler(Looper.getMainLooper());
+            @Override
+            public void run() {
+
+                ApiResponse apiResponse = ApiCaller.get_caller_instance().getNotificationRecipe(recipe_id);
+
+                if(apiResponse == null){
+                    System.out.println("Server is down, Please Try again");
+                    return;
+                }
+
+                if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+
+                    Recipe[] recipes = gson.fromJson(apiResponse.getResponse_body(), Recipe[].class);
+
+                    for(Recipe recipe: recipes) {
+                        if (recipe == null) System.out.println("Recipe is null");
+                        else curr_recipe = recipe;
+                    }
+
+                }else{
+                    System.out.println("Server is down, Please Try again");
+                }
+            }
+        });
+
+        thread.start();
+
 
     }
 
@@ -189,6 +242,18 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
 
     @Override
     public void onItemClick(int position) {
-        System.out.println(position);
+
+        if(notificationList.get(position).getType().equals("follow")){
+            return;
+        }
+
+        get_recipe_from_server(notificationList.get(position).getPost_id());
+
+        if ( (curr_recipe != null) ) {
+            changeActivityToRecipeActivity(current_user, curr_recipe);
+        }
+
+
     }
+
 }

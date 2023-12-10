@@ -45,7 +45,6 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
     private static User currentUser;
     private static User loggedInUser;
     private SwipeRefreshLayout swipeRefreshLayout;
-    static Recipe recipe;
     boolean isFollowing;
 
 
@@ -63,13 +62,11 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
     private TextView followingNumber;
     private TextView userName;
     private TextView fullName;
-    private TextView biography;
     private Button followButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //getSupportActionBar().hide();
 
         setContentView(R.layout.activity_profile);
         //retrieve user passed in
@@ -108,7 +105,6 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         server_error_text = findViewById(R.id.profile_serverErrorTextView);
         userName = findViewById(R.id.userNameTextView);
         fullName = findViewById(R.id.FullNameTextView);
-        biography = findViewById(R.id.bioTextView);
         followersNumber = findViewById(R.id.followersNumber);
         followingNumber = findViewById(R.id.followingNumber);
         fullName.setText(currentUser.getFirst_name() + " " + currentUser.getLast_name() );
@@ -126,14 +122,6 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
             }
         });
 
-        //user created recipes not loaded from server
-//        if(items.size()== 0){
-//            System.out.println("--------LIST IS EMPTY--------");
-//            get_user_created_recipes_from_server();
-//
-//        }else{
-//            add_recipes_to_ui();
-//        }
         add_recipes_to_ui();
 
         followersNumber.setOnClickListener(new View.OnClickListener() {
@@ -282,11 +270,6 @@ private void get_user_created_recipes_from_server(){
         items.add(new Item (recipe));
     }
 
-    private String convertStreamToString(InputStream is) {
-        final Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
-        return scanner.hasNext() ? scanner.next() : "";
-    }
-
     private void display_server_down_error(String errorText){
         server_error_text.setText(errorText);
         server_error_text.setVisibility(View.VISIBLE);
@@ -350,7 +333,7 @@ private void get_user_created_recipes_from_server(){
     @Override
     public void onItemClick(int position) {
         if(currentUser.getIsAdmin()==0){
-            changeActivityToRecipeActivity(currentUser, items.get(position).getRecipe());
+            changeActivityToRecipeActivity(loggedInUser, items.get(position).getRecipe());
         }
     }
     private void changeActivityToRecipeActivity(User user, Recipe recipe){
@@ -434,15 +417,13 @@ private void is_user_following_visitor(String loggedInUserId, String currentUser
                 if (isFollowing){
                     apiResponse = ApiCaller.get_caller_instance().UserFollowVisitingUser( String.valueOf(loggedInUser.getUser_id()), String.valueOf(currentUser.getUser_id()) );
                     apiResponseTwo = ApiCaller.get_caller_instance().postUserNotification("follow", String.valueOf(currentUser.getUser_id()), String.valueOf(loggedInUser.getUser_id()), null);
-                    System.out.println("1111111111111111111--------");
                 }else{
-                    System.out.println("222221212122222323232323232--------");
                     apiResponse = ApiCaller.get_caller_instance().UserUnfollowVisitingUser( String.valueOf(loggedInUser.getUser_id()), String.valueOf(currentUser.getUser_id()) );
                     apiResponseTwo = ApiCaller.get_caller_instance().removeUserNotification("follow", String.valueOf(currentUser.getUser_id()), String.valueOf(loggedInUser.getUser_id()), null );
                 }
 
                 if( (apiResponse != null && apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK) && (apiResponseTwo != null && apiResponseTwo.getResponse_code() == HttpURLConnection.HTTP_OK) ){
-                    //JsonElement root = new JsonParser().parse(apiResponse.getResponse_body());
+
                     try {
 
                         // Post a Runnable to the main thread to update the UI

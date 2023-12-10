@@ -62,6 +62,7 @@ final public class ApiCaller {
     private static final String USERS_ENDPOINT = host + "/users";
     private static final String RECIPE_SEARCH_ENDPOINT = host + "/search-recipe";
     private static final String USER_HAS_FAVORITED = host + "/user-has-favorited?user_id=";
+    private static final String GET_NOTIFICATION_RECIPE = host + "/get-notification-recipe?recipe_id=";
 
     private ApiCaller(){
 
@@ -143,9 +144,8 @@ final public class ApiCaller {
             if(responseCode == HttpURLConnection.HTTP_OK){
                 response = convertStreamToString(connection.getInputStream());
             }
-            System.out.println("DELETE: API RESPONSE " + response);
+
             connection.disconnect();
-            System.out.println("DELETE: API RESPONSE CODE " + connection.getResponseCode());
             return new ApiResponse(responseCode, response);
 
         } catch (IOException e) {
@@ -344,6 +344,9 @@ final public class ApiCaller {
     public ApiResponse getRecipeSearch(String text){
         String query = "?search="+text;
         return get_request(RECIPE_SEARCH_ENDPOINT, query);
+    }
+    public ApiResponse getNotificationRecipe(String recipe_id){
+        return get_request(GET_NOTIFICATION_RECIPE,recipe_id);
     }
 
     public boolean isUserBanned(String userId){
