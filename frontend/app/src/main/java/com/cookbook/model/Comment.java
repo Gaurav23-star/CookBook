@@ -1,11 +1,18 @@
 package com.cookbook.model;
 
+import com.cookbook.ApiCaller;
+
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 public class Comment {
     private int user_id;
     private int recipe_id;
     private String username;
     private String comment;
     private int comment_id;
+
+    private static final String COMMENT_URL = "http://172.16.122.20:8080/user-defined-recipes/comments";
 
 
     public Comment(int user_id, int recipe_id, String username, String comment, int comment_id) {
@@ -65,5 +72,33 @@ public class Comment {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public static void deleteComment(int comment_id) {
+
+        final Thread thread = new Thread(() -> {
+            try {
+                String deleteURL = COMMENT_URL + "?commentId=" + comment_id;
+                URL url = new URL(deleteURL);
+                final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                //sets type of request
+                connection.setRequestMethod("DELETE");
+                connection.setRequestProperty("Content-length", "0");
+                connection.setDoOutput(false);
+
+                connection.connect();
+
+                final int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    System.out.println("DELETED SUCCESSFULLY");
+                } else {
+                    System.out.println("Could not delete for some reason.");
+                }
+
+            } catch (Exception e) {
+                System.out.println("EXCEPTION OCCURRED " + e);
+            }
+        });
+        thread.start();
     }
 }
