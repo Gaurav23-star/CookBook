@@ -28,6 +28,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
     ImageButton like_button;
     static User currentUser;
     private boolean like_clicked;
+    static int recipeId;
 
     public MyViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
         super(itemView);
@@ -86,7 +87,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void update_like_status(String recipe_id) {
-
+        recipeId = Integer.valueOf(recipe_id);
         final Thread thread = new Thread(new Runnable() {
 
             final Handler handler = new Handler(Looper.getMainLooper());
@@ -118,9 +119,11 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
                                 int currentLikeCount = Integer.parseInt((String) likesCountTextView.getText());
                                 if (like_clicked) {
                                     likesCountTextView.setText(String.valueOf(currentLikeCount + 1));
+                                    HomeActivity.incrementLikeCount(recipeId);
                                     like_button.setImageResource(R.drawable.like_button_filled);
                                 } else {
                                     likesCountTextView.setText(String.valueOf(currentLikeCount - 1));
+                                    HomeActivity.decrementLikeCount(recipeId);
                                     like_button.setImageResource(R.drawable.like_button_empty);
                                 }
                             }

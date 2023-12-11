@@ -104,11 +104,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private String convertStreamToString(InputStream is) {
-        final Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
-        return scanner.hasNext() ? scanner.next() : "";
-    }
-
     private boolean isValidEmail(String email) {
         // can add more checking logic here
 

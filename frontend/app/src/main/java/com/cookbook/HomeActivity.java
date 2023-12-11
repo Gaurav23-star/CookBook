@@ -562,6 +562,26 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         }
     }
 
+    public static void decrementLikeCount(int recipe_id){
+        for (int i = 0; i < items.size(); i++) {
+            Recipe recipe = items.get(i).getRecipe();
+            if (recipe.getRecipe_id() == recipe_id) {
+                recipe.setNum_likes(recipe.getNum_likes() - 1);
+                break;
+            }
+        }
+    }
+
+    public static void incrementLikeCount(int recipe_id){
+        for (int i = 0; i < items.size(); i++) {
+            Recipe recipe = items.get(i).getRecipe();
+            if (recipe.getRecipe_id() == recipe_id) {
+                recipe.setNum_likes(recipe.getNum_likes() + 1);
+                break;
+            }
+        }
+    }
+
     public void checkAndLogOutUserIfBanned() {
         final Thread thread = new Thread(new Runnable() {
             @Override

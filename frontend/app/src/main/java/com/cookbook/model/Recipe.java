@@ -1,5 +1,7 @@
 package com.cookbook.model;
 
+import com.cookbook.ApiCaller;
+
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -17,7 +19,7 @@ public class Recipe implements Serializable {
     protected int num_comments;
     protected int num_likes;
 
-    private static final String RECIPE_URL = "http://172.16.122.20:8080/user-defined-recipes";
+    private static final String RECIPE_URL = ApiCaller.host + "/user-defined-recipes";
 
     public Recipe(int recipe_id, String recipe_name, int servings, int preparation_time_minutes, String ingredients, String description, String instructions, int user_id, int num_comments, int num_likes) {
         this.recipe_id = recipe_id;
