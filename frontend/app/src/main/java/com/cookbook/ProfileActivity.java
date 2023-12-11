@@ -187,7 +187,6 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
                 ApiResponse apiResponse = ApiCaller.get_caller_instance().getUsersFollowersAndFollowingCount(String.valueOf(currentUser.getUser_id()));
 
                 if (apiResponse == null) {
-                    System.out.println("ERROR in USERS_FOLLOWER_FUNCTION ");
                     return;
                 }
 
@@ -204,12 +203,8 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
                             followersNumber.setText(String.valueOf(numFollowers));
                             followingNumber.setText(String.valueOf(numFollowing));
                         });
-                    } else {
-                        System.out.println("The root element is not a JSON array");
                     }
 
-                } else {
-                    System.out.println("ERR in USERS_FOLLOWER_FUNCTION ----1 ");
                 }
 
             }
@@ -346,12 +341,7 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
             @Override
             public void run() {
                 ApiResponse apiResponse = ApiCaller.get_caller_instance().getUserIsFollowingVisitingUser(loggedInUserId, currentUserId);
-
-                System.out.println("logged in user : " + loggedInUserId);
-                System.out.println("currentUserId in user : " + currentUserId);
-
                 if (apiResponse == null) {
-                    System.out.println("ERROR in USERS_FOLLOWER_FUNCTION ");
                     return;
                 }
 
@@ -360,13 +350,7 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
                     if (root.isJsonArray()) {
                         JsonObject firstObject = root.getAsJsonArray().get(0).getAsJsonObject();
                         int isLoggedInUserFollowingCurrentUser = firstObject.get("COUNT(*)").getAsInt();
-                        if (isLoggedInUserFollowingCurrentUser > 0) {
-                            isFollowing = true;
-                            System.out.println("---------------- LOGGED IN USER IS FOLLOWING VISITING USER ------");
-                        } else {
-                            isFollowing = false;
-                            System.out.println("---------------- LOGGED IN USER IS NOOOOOOOTTTT FOLLOWING VISITING USER ------");
-                        }
+                        isFollowing = isLoggedInUserFollowingCurrentUser > 0;
 
                         // Post a Runnable to the main thread to update the UI
                         handler.post(new Runnable() {
@@ -380,14 +364,8 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
                             }
                         });
 
-                    } else {
-                        System.out.println("The root element is not a JSON array");
                     }
-
-                } else {
-                    System.out.println("ERR in USERS_FOLLOWER_FUNCTION ----- 2");
                 }
-
             }
         });
         thread.start();
@@ -430,9 +408,6 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
-                } else {
-                    System.out.println("ERR in USERS_FOLLOWER_FUNCTION");
                 }
 
             }
@@ -506,7 +481,7 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        System.out.println("DIALOG CLOSED");
+
                         SharedPreferences sharedPreferences = getSharedPreferences("Saved User", MODE_PRIVATE);
                         sharedPreferences.edit().remove("current_user").apply();
                         Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);

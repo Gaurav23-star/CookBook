@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -82,7 +81,7 @@ final public class ApiCaller {
             connection.disconnect();
             return new ApiResponse(connection.getResponseCode(), responseBody);
 
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
         return null;
@@ -110,13 +109,11 @@ final public class ApiCaller {
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 response = convertStreamToString(connection.getInputStream());
             }
-            System.out.println("POST: API RESPONSE " + response);
             connection.disconnect();
-            System.out.println("POST: API RESPONSE CODE " + connection.getResponseCode());
             return new ApiResponse(responseCode, response);
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
+
         }
         return null;
     }
@@ -146,8 +143,8 @@ final public class ApiCaller {
             connection.disconnect();
             return new ApiResponse(responseCode, response);
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
+
         }
         return null;
     }
@@ -189,12 +186,8 @@ final public class ApiCaller {
         return get_request(FAVORITES_URL, user_id);
     }
 
-    public void getRecipeImage() {
-
-    }
 
     public ApiResponse getAllUserCreatedRecipes(String user_id) {
-        System.out.println("GET ALL USERS " + user_id);
         return get_request(USER_CREATED_RECIPES_URL, user_id);
     }
 
@@ -267,7 +260,6 @@ final public class ApiCaller {
 
     public ApiResponse deleteComment(int comment_id) {
         String delParam = "?commentId=" + comment_id;
-        System.out.println(COMMENTS_URL + delParam);
         return delete_request(COMMENTS_URL, delParam);
     }
 
@@ -306,20 +298,17 @@ final public class ApiCaller {
         responseCall.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
-                System.out.println("SUCCESS");
-                System.out.println("response code " + response.body().getResponse_code());
-                System.out.println("response body " + response.body().getResponse_body());
                 apiResponse[0] = new ApiResponse(response.body().getResponse_code(), response.body().getResponse_body());
             }
 
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
-                System.out.println("FAILURE");
+
             }
 
         });
 
-        System.out.println("RESPONSE SENT");
+
         return apiResponse[0];
 
     }
@@ -335,7 +324,6 @@ final public class ApiCaller {
                 "\"user_id\" : \"" + userId + "\"}";
 
 
-        System.out.println("JSON POST IS " + json);
         return post_request(POST_NEW_RECIPE_URL, json);
     }
 

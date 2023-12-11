@@ -113,14 +113,13 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         commentTextView = findViewById(R.id.commentText);
         commentButton = findViewById(R.id.addCommentButton);
         scrollView = findViewById(R.id.recipeScrollView);
-        System.out.println(currentRecipe.toString());
+
         prepTimeView.setText(Integer.toString(currentRecipe.getPreparation_time_minutes()));
         servingsView.setText(Integer.toString(currentRecipe.getServings()));
 
-        System.out.println("CURRENT USER ID IN RECIPE " + currentRecipe.getUser_id());
-        System.out.println("CURRENT USER ID " + currentUser.getUser_id());
+
         if (currentRecipe.getUser_id() == currentUser.getUser_id()) {
-            System.out.println("SET EDIT VISIBLE");
+
             edit_button.setVisibility(View.VISIBLE);
         }
         edit_button.setOnClickListener(new View.OnClickListener() {
@@ -150,7 +149,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         recipeOwnerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("RECIPE OWNER CLICKED");
+
                 if (recipeOwner != null) {
                     loadUserProfile(recipeOwner);
                 }
@@ -200,7 +199,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         ActivityResultLauncher<PickVisualMediaRequest> pickPhoto = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), new ActivityResultCallback<Uri>() {
             @Override
             public void onActivityResult(Uri result) {
-                System.out.println("NEW IMAGE IS " + result);
+
                 if (result != null) {
                     MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
                     String extension = mimeTypeMap.getExtensionFromMimeType(getContentResolver().getType(result));
@@ -210,7 +209,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
                     ApiResponse apiResponse = ApiCaller.get_caller_instance().uploadRecipeImage(file);
                     recipePicture.setImageURI(result);
                     if (apiResponse != null && apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK) {
-                        System.out.println("UPDATING RECIPE IMAGE");
+
                         recipePicture.setImageURI(result);
                     }
                 }
@@ -219,7 +218,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         recipePictureEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("WANT TO EDIT RECIPE IMAGE");
+
                 pickPhoto.launch(new PickVisualMediaRequest.Builder().setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE).build());
             }
         });
@@ -274,8 +273,8 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
                         });
                     }
                 } catch (Exception e) {
-                    System.out.println(e);
-                    System.out.println("SOMETHING WENT WRONG");
+
+
                 }
             }
         });
@@ -297,8 +296,8 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
                         });
                     }
                 } catch (Exception e) {
-                    System.out.println(e);
-                    System.out.println("SOMETHING WENT WRONG");
+
+
                 }
             }
         });
@@ -326,7 +325,6 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
 
                 final String jsonData = new Gson().toJson(updatedRecipe);
 
-                System.out.println("Json Payload: " + jsonData);
 
                 final OutputStream os = connection.getOutputStream();
                 final OutputStreamWriter osw = new OutputStreamWriter(os, StandardCharsets.UTF_8);
@@ -339,15 +337,15 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
                     final InputStream responseBody = connection.getInputStream();
 
                     String jsonString = convertStreamToString(responseBody);
-                    System.out.println("Response body: " + jsonString);
+
                     recipe_updated_success();
 
                 } else {
-                    System.out.println("Response code is " + responseCode);
+
                     unable_to_update_recipe();
                 }
             } catch (Exception e) {
-                System.out.println("EXCEPTION OCCURRED " + e);
+
                 unable_to_update_recipe();
             }
         });
@@ -424,16 +422,16 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
     @Override
     protected void onPause() {
         super.onPause();
-        System.out.println("CHILD IS BEING PAUSED");
+
         if (updated_recipe != null) {
-            System.out.println("SENDING RECIPE TO HOME");
+
             update_home_activity_recipe_list(updated_recipe);
         }
     }
 
     private void getCommentsFromServer(int recipe_id) {
-        System.out.println("GETTING COMMENTS FROM SERVER");
-        System.out.println("RECIPE ID = " + recipe_id);
+
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -449,7 +447,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
                 }
                 if (apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK) {
                     Comment[] comments = new Gson().fromJson(apiResponse.getResponse_body(), Comment[].class);
-                    System.out.println(Arrays.toString(comments));
+
                     commentList.addAll(Arrays.asList(comments));
 
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -466,14 +464,14 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
     }
 
     private void postCommentToServer(Comment comment) {
-        System.out.println("POSTING COMMENT TO SERVER " + comment.getComment());
-        System.out.println("USER ID = " + comment.getUser_id() + " Recipe ID = " + comment.getRecipe_id());
+
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 ApiResponse apiResponse = ApiCaller.get_caller_instance().postComment(comment);
 
-                System.out.println("user logged in : " + currentUser.getUser_id());
+
                 ApiResponse apiResponseTwo = ApiCaller.get_caller_instance().postUserNotification("comment", String.valueOf(currentRecipe.getUser_id()), String.valueOf(currentUser.getUser_id()), String.valueOf(currentRecipe.getRecipe_id()));
 
                 //error posting comment to server
@@ -568,7 +566,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         File file = new File(dir, imageUrl);
 
         try {
-            System.out.println("COPYING FILE DATA");
+
             InputStream inputStream = getContentResolver().openInputStream(result);
             OutputStream outputStream = new FileOutputStream(file);
             byte[] buffer = new byte[1024];

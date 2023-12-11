@@ -136,26 +136,16 @@ public class User implements Serializable {
 
                 final String jsonData = "{\"isBanned\": 1 }";
 
-                System.out.println("Json Payload: " + jsonData);
 
                 final OutputStream os = connection.getOutputStream();
                 final OutputStreamWriter osw = new OutputStreamWriter(os, StandardCharsets.UTF_8);
 
                 osw.write(jsonData);
                 osw.flush();
-
                 final int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    // final InputStream responseBody = connection.getInputStream();
 
-                    //String jsonString = convertStreamToString(responseBody);
-                    System.out.println("Banned User");
+            } catch (Exception ignored) {
 
-                } else {
-                    System.out.println("Response code is " + responseCode);
-                }
-            } catch (Exception e) {
-                System.out.println("EXCEPTION OCCURRED " + e);
 
             }
         });

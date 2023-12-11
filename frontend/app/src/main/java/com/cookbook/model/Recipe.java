@@ -145,16 +145,10 @@ public class Recipe implements Serializable {
                 connection.setDoOutput(false);
 
                 connection.connect();
+                int response = connection.getResponseCode();
 
-                final int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    System.out.println("DELETED SUCCESSFULLY");
-                } else {
-                    System.out.println("Could not delete for some reason.");
-                }
+            } catch (Exception ignored) {
 
-            } catch (Exception e) {
-                System.out.println("EXCEPTION OCCURRED " + e);
             }
         });
         thread.start();

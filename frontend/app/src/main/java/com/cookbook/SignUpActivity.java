@@ -17,10 +17,8 @@ import com.cookbook.model.User;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.Objects;
-import java.util.Scanner;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -39,7 +37,7 @@ public class SignUpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
-        System.out.println("action bar " + getSupportActionBar().toString());
+
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         firstNameEditText = findViewById(R.id.firstNameEditText);
@@ -50,7 +48,7 @@ public class SignUpActivity extends AppCompatActivity {
         signupButton = findViewById(R.id.signupButton);
         errorTextView = findViewById(R.id.errorTextViewSignUp);
 
-        System.out.println("Signup button is " + signupButton);
+
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

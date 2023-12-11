@@ -51,7 +51,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     private void load_recipe_image(int position, ViewHolder holder) {
         String url = ApiCaller.GET_RECIPE_IMAGE_URL + notifications.get(position).getPost_id();
-        System.out.println("REQUEST IMAGE " + url);
+
         Glide.with(this.context).load(url).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).into(holder.post_image);
 
     }

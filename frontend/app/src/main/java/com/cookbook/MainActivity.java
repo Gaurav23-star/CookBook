@@ -25,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
 
                 User current_user = load_user();
-                System.out.println("CURRENT USER IS " + current_user);
                 //no user saved, prompt login
                 final Intent intent;
                 if (current_user == null) {

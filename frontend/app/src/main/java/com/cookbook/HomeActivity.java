@@ -53,7 +53,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Scanner;
 
 public class HomeActivity extends AppCompatActivity implements RecyclerViewInterface {
 
@@ -91,7 +90,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         if (getIntent().getSerializableExtra("current_user") != null) {
             currentUser = (User) getIntent().getSerializableExtra("current_user");
         }
-        System.out.println("VALUE OF CURRENT USER = " + currentUser);
+
         setContentView(R.layout.activity_home);
         progressBar = findViewById(R.id.progressBar);
         swipeRefreshLayout = findViewById(R.id.refreshLayout);
@@ -111,7 +110,6 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         checkAndLogOutUserIfBanned();
         //if recipes not loaded from server, then load
         if (items.size() == 0) {
-            System.out.println("LIST IS EMPTY");
             get_recipes_from_server();
         }
 
@@ -125,7 +123,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 int totalCount = items.size();
                 for (int i = items.size() - 1; i >= 0; i--) items.remove(i);
                 recyclerViewAdapter.notifyItemRangeRemoved(0, totalCount);
-                System.out.println("ITEM SIZE BEFORE REFRESH " + items.size());
+
                 recipePageNumber = 1;
                 currentItemBeingViewed = 0;
                 get_recipes_from_server();
@@ -133,7 +131,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             }
         });
         pickRecipeImageLauncher = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), result -> {
-            System.out.println("NEW IMAGE IS " + result);
+
             if (result != null) {
                 newRecipeImageUri = result;
                 newRecipeImageView.setImageURI(result);
@@ -185,7 +183,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
                     isScrolling = true;
-                    //System.out.println("SCROLL CHANGED" + newState);
+                    //
                 }
 
             }
@@ -196,12 +194,12 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 currentItem = recyclerViewManager.getChildCount();
                 totalItems = recyclerViewManager.getItemCount();
                 scrollOutItems = recyclerViewManager.findFirstCompletelyVisibleItemPosition();
-                //System.out.println("CURRENTLY " + currentItem + " DISPLAYED");
-                //System.out.println("VIEWED " + scrollOutItems + " OUT OF " + totalItems);
+                //
+                //
                 currentItemBeingViewed = recyclerViewManager.findFirstVisibleItemPosition();
 
                 if (isScrolling && (currentItem + scrollOutItems > totalItems)) {
-                    //System.out.println("ORDERING MORE RECIPES");
+                    //
                     isScrolling = false;
                     get_recipes_from_server();
                 }
@@ -220,7 +218,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem item) {
-                System.out.println("SEARCH CLICKED");
+
                 changeActivityToRecipeSearch();
                 return false;
             }
@@ -250,9 +248,9 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         recipeImageEditor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("WANT TO EDIT RECIPE IMAGE");
+
                 pickRecipeImageLauncher.launch(new PickVisualMediaRequest.Builder().setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE).build());
-                System.out.println("GOT IMAGE URI");
+
 
             }
         });
@@ -263,7 +261,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
                 if (isValidEntry(recipeTitle) && isValidEntry(recipeIngredients)
                         && isValidEntry(recipeInstructions)) {
-                    System.out.println("ALL ENTRIES ARE VALID");
+
                     String recipeName = recipeTitle.getText().toString();
                     String servings = recipeServings.getText().toString();
                     String prepareTime = recipePrepareTime.getText().toString();
@@ -379,8 +377,8 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 if (apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK) {
                     Recipe[] recipes = gson.fromJson(apiResponse.getResponse_body(), Recipe[].class);
                     int startPosition = items.size();
-                    System.out.println("RECIPE PAGE NUMBER " + recipePageNumber);
-                    System.out.println("CURRENTLY HAVE " + startPosition + " GOT " + recipes.length);
+
+
                     for (Recipe recipe : recipes) {
                         addItemThreadSafe(recipe);
                     }
@@ -402,9 +400,8 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
     @Override
     public void onItemClick(int position) {
-        System.out.println(items.toString());
 
-        System.out.println("CURRENT USEr CLICK " + currentUser.getUser_id());
+
         if (currentUser.getIsAdmin() == 0) {
             currentItemBeingEdited = position;
             currentItemBeingViewed = recyclerViewManager.findFirstVisibleItemPosition();
@@ -422,7 +419,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             dialog.show();
 
             deleteRecipe.setOnClickListener(view -> {
-                System.out.println("deleteRecipe selected");
+
                 Recipe dRecipe = (items.get(position).getRecipe());
                 Recipe.deleteRecipe(dRecipe);
 
@@ -442,7 +439,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
                 int ban_id = items.get(position).getRecipe().getUser_id();
 
-                System.out.println("banUser selected, banning user with id: " + ban_id);
+
                 User.banUser(ban_id);
 
                 recyclerViewAdapter.notifyDataSetChanged();
@@ -523,8 +520,8 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         super.onResume();
         //check if the user is banned
         checkAndLogOutUserIfBanned();
-        System.out.println("CURRENT ITEM BEING VIEWED = " + currentItemBeingViewed);
-        System.out.println("SIZE OF ITEMS IS " + items.size());
+
+
         if (items.size() > currentItemBeingViewed) {
             recyclerViewAdapter.notifyItemChanged(currentItemBeingEdited);
             recyclerViewManager.scrollToPosition(currentItemBeingViewed);
@@ -537,7 +534,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         File file = new File(dir, imageUrl);
 
         try {
-            System.out.println("COPYING FILE DATA");
+
             InputStream inputStream = getContentResolver().openInputStream(result);
             OutputStream outputStream = new FileOutputStream(file);
             byte[] buffer = new byte[1024];
@@ -559,7 +556,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         for (int i = 0; i < items.size(); i++) {
             if (items.get(i).getRecipe().getRecipe_id() == recipe.getRecipe_id()) {
                 items.get(i).update_item(recipe);
-                System.out.println("CHILD UPDATED RECIPES< " + i);
+
                 break;
             }
         }
@@ -593,7 +590,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        System.out.println("DIALOG CLOSED");
+
                         SharedPreferences sharedPreferences = getSharedPreferences("Saved User", MODE_PRIVATE);
                         sharedPreferences.edit().remove("current_user").apply();
                         Intent intent = new Intent(HomeActivity.this, LoginActivity.class);

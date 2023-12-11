@@ -62,7 +62,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
             public void onClick(View v) {
 
                 update_like_status(String.valueOf(item.getRecipe().getRecipe_id()));
-                System.out.println("VALUE OF LIKE CLICK " + like_clicked);
+
                 Toast.makeText(itemView.getContext(), "Like Clicked", Toast.LENGTH_LONG).show();
 
             }
@@ -131,7 +131,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
                     }
 
                 } else {
-                    System.out.println("ERR in update_like_status ApiResponse");
+
                 }
             }
         });
@@ -142,8 +142,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
 
     public void has_user_favorited_this_recipe(String user_id, String recipe_id) {
 
-        System.out.println("user : " + user_id);
-        System.out.println("recipe_id :  " + recipe_id);
+
         final Thread thread = new Thread(new Runnable() {
 
             final Handler handler = new Handler(Looper.getMainLooper());
@@ -153,7 +152,6 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
                 ApiResponse apiResponse = ApiCaller.get_caller_instance().UserHasFavoritedRecipe(user_id, recipe_id);
 
                 if (apiResponse == null) {
-                    System.out.println("ERROR in user-favorited-this-recipe FUNCTION ");
                     return;
                 }
 
@@ -181,8 +179,6 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
                                 }
                             });
 
-                        } else {
-                            System.out.println("The root element is not a JSON array");
                         }
 
                     } catch (Exception e) {
@@ -190,7 +186,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
                     }
 
                 } else {
-                    System.out.println("ERR in update_like_status ApiResponse");
+
                 }
             }
         });

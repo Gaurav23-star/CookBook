@@ -111,7 +111,7 @@ public class SettingsActivity extends AppCompatActivity implements RecyclerViewI
 
     @Override
     public void onItemClick(int position) {
-        System.out.println(position);
-        System.out.println("OIFOISDJFNIODSNFDIONF");
+
+
     }
 }

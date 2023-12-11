@@ -95,9 +95,8 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
 
     @Override
     public void onItemClick(int position) {
-        System.out.println(items.toString());
 
-        System.out.println("CURRENT USEr CLICK " + currentUser.getUser_id());
+
         if (currentUser.getIsAdmin() == 0) {
             changeActivityToRecipeActivity(currentUser, items.get(position).getRecipe());
         } else {
@@ -111,7 +110,7 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
             dialog.show();
 
             deleteRecipe.setOnClickListener(view -> {
-                System.out.println("deleteRecipe selected");
+
                 Recipe dRecipe = (items.get(position).getRecipe());
                 Recipe.deleteRecipe(dRecipe);
 
@@ -131,7 +130,7 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
 
                 int ban_id = items.get(position).getRecipe().getUser_id();
 
-                System.out.println("banUser selected, banning user with id: " + ban_id);
+
                 User.banUser(ban_id);
 //
 //                for (Item recipe : items) {
@@ -166,8 +165,8 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
                 ApiResponse apiResponse = ApiCaller.get_caller_instance().getRecipeSearch(text);
 
                 if (apiResponse == null) {
-                    System.out.println("Server is down, Please Try again");
-                    System.out.println("-0230--03940-2940-392-4923---------");
+
+
                     return;
                 }
 
@@ -186,7 +185,7 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
                     });
 
                 } else {
-                    System.out.println("Server is down, Please Try again");
+
                 }
             }
         });

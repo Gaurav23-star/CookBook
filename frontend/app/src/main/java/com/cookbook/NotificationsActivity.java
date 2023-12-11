@@ -105,8 +105,8 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
 
 
                 if (apiResponse == null) {
-                    System.out.println("Server is down, Please Try again");
-                    System.out.println("-errr in get_notification_list_from_server() ");
+
+
                     return;
                 }
 
@@ -116,10 +116,10 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
                     notificationList.clear();
 
                     for (Notification notification : notifications) {
-                        System.out.println(notification.getText());
-                        System.out.println(notification.getId());
+
+
                         addNotificationThreadSafe(new Notification(notification));
-                        System.out.println("notifications user Data : " + notification.getFrom_user_id());
+
                     }
 
                     //sort by notification id's (instead of creation time, it should be the same)
@@ -148,7 +148,7 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
                     }
 
                 } else {
-                    System.out.println("Server is down, Please Try again");
+
                 }
             }
         });
@@ -167,7 +167,7 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
                 ApiResponse apiResponse = ApiCaller.get_caller_instance().getNotificationRecipe(recipe_id);
 
                 if (apiResponse == null) {
-                    System.out.println("Server is down, Please Try again");
+
                     return;
                 }
 
@@ -176,12 +176,9 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
                     Recipe[] recipes = gson.fromJson(apiResponse.getResponse_body(), Recipe[].class);
 
                     for (Recipe recipe : recipes) {
-                        if (recipe == null) System.out.println("Recipe is null");
-                        else curr_recipe = recipe;
+                        if (recipe != null) curr_recipe = recipe;
                     }
 
-                } else {
-                    System.out.println("Server is down, Please Try again");
                 }
             }
         });

@@ -51,7 +51,7 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
 
         //if recipes not loaded from server, then load
         if (items.size() == 0) {
-            System.out.println("LIST IS EMPTY");
+
             get_recipes_from_server();
         }
         //if we already have recipes loaded, then
@@ -151,8 +151,6 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
                     Recipe[] recipes = gson.fromJson(apiResponse.getResponse_body(), Recipe[].class);
 
                     for (Recipe recipe : recipes) {
-                        if (recipe == null) System.out.println("RECIPE IS NULL");
-                        else System.out.println("RECIPE IS NOT NULL");
                         addItemThreadSafe(recipe);
                     }
 
@@ -195,9 +193,8 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
 
     @Override
     public void onItemClick(int position) {
-        System.out.println(items.toString());
 
-        System.out.println("CURRENT USEr CLICK " + currentUser.getUser_id());
+
         if (currentUser.getIsAdmin() == 0) {
             changeActivityToRecipeActivity(currentUser, items.get(position).getRecipe());
 
@@ -248,7 +245,7 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        System.out.println("DIALOG CLOSED");
+
                         SharedPreferences sharedPreferences = getSharedPreferences("Saved User", MODE_PRIVATE);
                         sharedPreferences.edit().remove("current_user").apply();
                         Intent intent = new Intent(FavoriteActivity.this, LoginActivity.class);

@@ -47,7 +47,6 @@ public class LoginActivity extends AppCompatActivity {
         // return if input is not valid
         if (!isValidEmail(email) || !isValidPassword(password)) return;
 
-        System.out.println("Email: " + email + ", Password: " + password);
 
         final Thread thread = new Thread(new Runnable() {
             @Override
@@ -60,7 +59,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
                 if (apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK) {
-                    System.out.println("USER RECEIVED FROM API " + apiResponse.getResponse_body());
+
                     user = gson.fromJson(apiResponse.getResponse_body(), User.class);
                     save_user_to_device(user);
                     changeActivityToUserHome(user);
@@ -133,7 +132,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onSignUpClick(View view) {
         // TODO
-        System.out.println("Signup clicked!");
+
         final Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
         startActivity(intent);
     }

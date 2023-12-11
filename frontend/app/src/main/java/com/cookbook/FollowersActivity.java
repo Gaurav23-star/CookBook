@@ -79,15 +79,15 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
 
                 if (getIntent().getSerializableExtra("visiting_user") != null) {
                     apiResponse = ApiCaller.get_caller_instance().getUsersNetworkList(String.valueOf((currentUser).getUser_id()), title);
-                    System.out.println("user id call : " + current_user.getUser_id());
+
                 } else {
                     apiResponse = ApiCaller.get_caller_instance().getUsersNetworkList(String.valueOf((loggedInUser).getUser_id()), title);
-                    System.out.println("user id call : " + loggedInUser.getUser_id());
+
                 }
 
                 if (apiResponse == null) {
-                    System.out.println("Server is down, Please Try again");
-                    System.out.println("-0230--03940-2940-392-4923---------");
+
+
                     return;
                 }
 
@@ -107,7 +107,7 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
                     });
 
                 } else {
-                    System.out.println("Server is down, Please Try again");
+
                 }
             }
         });
@@ -125,8 +125,7 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
 
     @Override
     public void onItemClick(int position) {
-        System.out.println(position);
-        System.out.println("OIFOISDJFNIODSNFDIONF");
+
 
         Intent intent_Person = new Intent(getApplicationContext(), ProfileActivity.class);
         intent_Person.putExtra("visiting_user", userList.get(position));

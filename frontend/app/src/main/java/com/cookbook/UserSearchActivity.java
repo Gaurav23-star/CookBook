@@ -88,8 +88,8 @@ public class UserSearchActivity extends AppCompatActivity implements RecyclerVie
 
 
                 if (apiResponse == null) {
-                    System.out.println("Server is down, Please Try again");
-                    System.out.println("-0230--03940-2940-392-4923---------");
+
+
                     return;
                 }
 
@@ -99,7 +99,7 @@ public class UserSearchActivity extends AppCompatActivity implements RecyclerVie
                     User[] users = gson.fromJson(apiResponse.getResponse_body(), User[].class);
 
                     for (User user : users) {
-                        System.out.println("userName : " + (user.getUsername()));
+
                         if (((current_user.getUsername()).equals(user.getUsername()))) {
                             continue;
                         }
@@ -113,7 +113,7 @@ public class UserSearchActivity extends AppCompatActivity implements RecyclerVie
                     });
 
                 } else {
-                    System.out.println("Server is down, Please Try again");
+
                 }
             }
         });
