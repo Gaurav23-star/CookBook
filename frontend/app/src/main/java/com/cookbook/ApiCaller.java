@@ -82,8 +82,8 @@ final public class ApiCaller {
             connection.disconnect();
             return new ApiResponse(connection.getResponseCode(), responseBody);
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+
         }
         return null;
     }
@@ -354,7 +354,7 @@ final public class ApiCaller {
 
     public boolean isUserBanned(String userId) {
         ApiResponse response = getUserFromUserId(userId);
-        if (response.getResponse_code() == HttpURLConnection.HTTP_OK) {
+        if (response != null && response.getResponse_code() == HttpURLConnection.HTTP_OK) {
             User user = new Gson().fromJson(response.getResponse_body(), User.class);
             return user.getIsBanned() == 1;
         }
