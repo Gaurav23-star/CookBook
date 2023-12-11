@@ -37,6 +37,7 @@ const USER_NOTIFICATION_ENDPOINT = "/users-notifications";
 const UPDATE_USER_ENDPOINT = '/update-user'
 const USER_HAS_FAVORITED_ENDPOINT = "/user-has-favorited";
 const COMMENTS_AND_LIKES_ENDPOINT = "/comments-and-likes"
+const GET_NOTIFICATION_RECIPE = "/get-notification-recipe";
 
 // Define table constants
 const USER_DEFINED_RECIPES_TABLE = 'user_defined_recipes';
@@ -837,6 +838,11 @@ app.post(USER_NOTIFICATION_ENDPOINT, async (req, res) => {
         result = await db.pool.query(sql, [type, from_user_id, to_user_id, post_id === 'null' ? null : post_id]);
         res.status(200).send(convertBigIntsToNumbers(result));
     }
+    else if(type === "comment"){
+        sql = `INSERT INTO ${NOTIFICATIONS_TABLE} (type, from_user_id, to_user_id, post_id) VALUES (?, ?, ?, ?);`
+        result = await db.pool.query(sql, [type, from_user_id, to_user_id, post_id === 'null' ? null : post_id]);
+        res.status(200).send(convertBigIntsToNumbers(result));
+    }
     else {
         throw new Error("Error on USER_NOTIFICATION_ENDPOINT");
     }
@@ -847,6 +853,27 @@ app.post(USER_NOTIFICATION_ENDPOINT, async (req, res) => {
         res.status(500).send(convertBigIntsToNumbers(error));
     }
 });
+
+
+// get method to get single notification recipe
+app.get(GET_NOTIFICATION_RECIPE, async (req, res) => {
+    try {
+        const recipe_id = req.query.recipe_id;
+
+        let sql;
+        let result;
+        
+        sql = `SELECT DISTINCT udr.* FROM ${USER_DEFINED_RECIPES_TABLE} AS udr JOIN ${NOTIFICATIONS_TABLE} AS n ON udr.recipe_id = n.post_id WHERE n.post_id = ${recipe_id};`
+        result = await db.pool.query(sql);
+        result = serializeResult(result);
+        res.status(200).send(convertBigIntsToNumbers(result));
+        
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(convertBigIntsToNumbers(err));
+    }
+})
 
 
 

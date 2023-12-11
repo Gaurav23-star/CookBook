@@ -53,8 +53,6 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
 
         }
 
-
-
        if(userList.size()==0){
            get_Follower_List_from_server(title);
        }else{
@@ -137,8 +135,6 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
         intent_Person.putExtra("visiting_user",userList.get(position));
         intent_Person.putExtra("current_user",current_user);
         startActivity(intent_Person);
-
-        //finish();
 
     }
 

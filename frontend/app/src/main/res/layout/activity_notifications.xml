@@ -7,6 +7,12 @@
     tools:context=".NotificationsActivity">
 
 
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/notifications_refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/notifications_recycler_view"
         android:layout_width="match_parent"
@@ -16,6 +22,8 @@
         android:layout_marginEnd="0sp"
         android:layout_above="@id/bottomNavigationView"
          />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 
     <TextView

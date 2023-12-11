@@ -1,21 +1,20 @@
 package com.cookbook;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 
 import android.content.Context;
 import androidx.recyclerview.widget.RecyclerView;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cookbook.model.Notification;
-import com.cookbook.model.User;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,9 +41,19 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.username.setText("@" + notifications.get(position).getUsername());
-        holder.image_profile.setImageResource(R.drawable.chef_profile);
-        holder.post_image.setImageResource(R.drawable.foodplaceholder);
         holder.text.setText(notifications.get(position).getText());
+        holder.image_profile.setImageResource(R.drawable.chef_profile);
+        holder.post_image.setImageResource(0);//set to nothing
+
+        if(! notifications.get(position).getText().equals("is following you")){
+            load_recipe_image(position,holder);
+        }
+
+    }
+    private void load_recipe_image(int position, ViewHolder holder){
+        String url = ApiCaller.GET_RECIPE_IMAGE_URL + notifications.get(position).getPost_id();
+        System.out.println("REQUEST IMAGE " + url);
+        Glide.with(this.context).load(url).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).into(holder.post_image);
 
     }
 
@@ -52,6 +61,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     public int getItemCount() {
         return notifications.size();
     }
+
 
     public class ViewHolder extends RecyclerView.ViewHolder{
 

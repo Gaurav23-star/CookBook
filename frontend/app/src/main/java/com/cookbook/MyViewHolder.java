@@ -28,7 +28,6 @@ public class MyViewHolder extends RecyclerView.ViewHolder{
     ImageButton comment_button;
     ImageButton like_button;
     static User currentUser;
-//    private boolean like_clicked = false;
     private boolean like_clicked;
     public MyViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
         super(itemView);
