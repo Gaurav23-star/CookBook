@@ -12,7 +12,7 @@ public class Comment {
     private String comment;
     private int comment_id;
 
-    private static final String COMMENT_URL = "http://172.16.122.20:8080/user-defined-recipes/comments";
+    private static final String COMMENT_URL = ApiCaller.host + "/user-defined-recipes/comments";
 
 
     public Comment(int user_id, int recipe_id, String username, String comment, int comment_id) {

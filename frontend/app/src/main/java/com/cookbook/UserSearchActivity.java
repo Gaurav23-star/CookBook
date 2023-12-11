@@ -1,14 +1,14 @@
 package com.cookbook;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.cookbook.model.ApiResponse;
 import com.cookbook.model.User;
@@ -36,7 +36,7 @@ public class UserSearchActivity extends AppCompatActivity implements RecyclerVie
 
         setContentView(R.layout.activity_user_search);
 
-        if(getIntent().getSerializableExtra("current_user") != null){
+        if (getIntent().getSerializableExtra("current_user") != null) {
             current_user = (User) getIntent().getSerializableExtra("current_user");
         }
         searchView = findViewById(R.id.userSearchView);
@@ -56,13 +56,12 @@ public class UserSearchActivity extends AppCompatActivity implements RecyclerVie
         });
 
 
-
     }
 
-    private void add_users_to_ui(){
+    private void add_users_to_ui() {
         recyclerView = findViewById(R.id.usersRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        UserAdapter userAdapter = new UserAdapter(getApplicationContext(),userList,this);
+        UserAdapter userAdapter = new UserAdapter(getApplicationContext(), userList, this);
         recyclerView.setAdapter(userAdapter);
     }
 
@@ -71,8 +70,8 @@ public class UserSearchActivity extends AppCompatActivity implements RecyclerVie
     public void onItemClick(int position) {
 
         Intent intent_Person = new Intent(getApplicationContext(), ProfileActivity.class);
-        intent_Person.putExtra("visiting_user",userList.get(position));
-        intent_Person.putExtra("current_user",current_user);
+        intent_Person.putExtra("visiting_user", userList.get(position));
+        intent_Person.putExtra("current_user", current_user);
         startActivity(intent_Person);
 
     }
@@ -81,26 +80,27 @@ public class UserSearchActivity extends AppCompatActivity implements RecyclerVie
 
         final Thread thread = new Thread(new Runnable() {
             final Handler handler = new Handler(Looper.getMainLooper());
+
             @Override
             public void run() {
 
                 ApiResponse apiResponse = ApiCaller.get_caller_instance().getUserSearch(text);
 
 
-                if(apiResponse == null){
+                if (apiResponse == null) {
                     System.out.println("Server is down, Please Try again");
                     System.out.println("-0230--03940-2940-392-4923---------");
                     return;
                 }
 
-                if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+                if (apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK) {
 
                     userList.clear();
                     User[] users = gson.fromJson(apiResponse.getResponse_body(), User[].class);
 
-                    for(User user : users){
+                    for (User user : users) {
                         System.out.println("userName : " + (user.getUsername()));
-                        if( ((current_user.getUsername()).equals(user.getUsername()))) {
+                        if (((current_user.getUsername()).equals(user.getUsername()))) {
                             continue;
                         }
                         addUserThreadSafe(new User(user));
@@ -108,11 +108,11 @@ public class UserSearchActivity extends AppCompatActivity implements RecyclerVie
                     }
 
                     //update user list on main thread
-                    handler.post(() ->{
+                    handler.post(() -> {
                         add_users_to_ui();
                     });
 
-                }else{
+                } else {
                     System.out.println("Server is down, Please Try again");
                 }
             }

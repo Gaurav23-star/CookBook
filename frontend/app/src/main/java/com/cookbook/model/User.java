@@ -2,9 +2,8 @@ package com.cookbook.model;
 
 import androidx.annotation.NonNull;
 
-import com.google.gson.Gson;
+import com.cookbook.ApiCaller;
 
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
@@ -29,7 +28,7 @@ public class User implements Serializable {
     protected int isBanned;
     protected String username;
 
-    private static final String USER_URL = "http://172.16.122.20:8080/update-user";
+    private static final String USER_URL = ApiCaller.host + "/update-user";
 
     public User(int user_id, String first_name, String last_name, String email_id, String password, int isAdmin, int isBanned, String username) {
         this.user_id = user_id;
@@ -58,30 +57,68 @@ public class User implements Serializable {
 
     }
 
-    public int getUser_id() {return user_id;}
-    public void setUser_id(int user_id) {this.user_id = user_id;}
+    public int getUser_id() {
+        return user_id;
+    }
 
-    public String getFirst_name() {return first_name;}
-    public void setFirst_name(String first_name) {this.first_name = first_name;}
+    public void setUser_id(int user_id) {
+        this.user_id = user_id;
+    }
 
-    public String getLast_name() {return last_name;}
-    public void setLast_name(String last_name) {this.last_name = last_name;}
+    public String getFirst_name() {
+        return first_name;
+    }
 
-    public String getEmail_id() {return email_id;}
-    public void setEmail_id(String email_id) {this.email_id = email_id;}
+    public void setFirst_name(String first_name) {
+        this.first_name = first_name;
+    }
 
-    public String getPassword() {return password;}
-    public void setPassword(String password) {this.password = password;}
+    public String getLast_name() {
+        return last_name;
+    }
 
-    public int getIsAdmin() {return isAdmin;}
-    public void setIsAdmin(int isAdmin) {this.isAdmin = isAdmin;}
+    public void setLast_name(String last_name) {
+        this.last_name = last_name;
+    }
 
-    public int getIsBanned() {return isBanned;}
-    public void setIsBanned(int isBanned) {this.isBanned = isBanned;}
+    public String getEmail_id() {
+        return email_id;
+    }
 
-    public String getUsername() {return username;}
+    public void setEmail_id(String email_id) {
+        this.email_id = email_id;
+    }
 
-    @Override @NonNull
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public int getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(int isAdmin) {
+        this.isAdmin = isAdmin;
+    }
+
+    public int getIsBanned() {
+        return isBanned;
+    }
+
+    public void setIsBanned(int isBanned) {
+        this.isBanned = isBanned;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    @NonNull
     public String toString() {
         return email_id;
     }
@@ -125,12 +162,5 @@ public class User implements Serializable {
         thread.start();
 
     }
-/*
-    not sure whats redundant here
-    implement this later, add the getters as well
-
-    private ArrayList<Recipe> recipes;
-    private ArrayList<User> followedUsers;
-*/
 
 }

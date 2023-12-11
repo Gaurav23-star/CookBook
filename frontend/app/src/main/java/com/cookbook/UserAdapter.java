@@ -1,7 +1,6 @@
 package com.cookbook;
 
 import android.content.Context;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -16,10 +15,10 @@ import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserViewHolder> {
     Context context;
-    private RecyclerViewInterface recyclerViewInterface;
+    private final RecyclerViewInterface recyclerViewInterface;
     List<User> users = Collections.synchronizedList(new ArrayList<User>());
 
-    public UserAdapter(Context context, List<User> users, RecyclerViewInterface recyclerViewInterface){
+    public UserAdapter(Context context, List<User> users, RecyclerViewInterface recyclerViewInterface) {
         this.context = context;
         this.users = users;
         this.recyclerViewInterface = recyclerViewInterface;

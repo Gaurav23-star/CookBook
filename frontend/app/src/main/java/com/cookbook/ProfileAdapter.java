@@ -15,7 +15,7 @@ import java.util.List;
 
 public class ProfileAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
-    private RecyclerViewInterface recyclerViewInterface;
+    private final RecyclerViewInterface recyclerViewInterface;
 
     Context context;
     List<Item> items;
@@ -25,7 +25,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<MyViewHolder> {
         this.context = context;
         this.items = items;
         this.recyclerViewInterface = recyclerViewInterface;
-        this.admin=admin;
+        this.admin = admin;
     }
 
     @NonNull
@@ -44,12 +44,12 @@ public class ProfileAdapter extends RecyclerView.Adapter<MyViewHolder> {
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         load_recipe_image(position, holder);
         holder.adminView.setImageResource(items.get(position).getAdmin());
-        if(admin==0){
+        if (admin == 0) {
             holder.adminView.setVisibility(View.GONE);
         }
     }
 
-    private void load_recipe_image(int position, MyViewHolder holder){
+    private void load_recipe_image(int position, MyViewHolder holder) {
         String url = ApiCaller.GET_RECIPE_IMAGE_URL + items.get(position).getRecipe().getRecipe_id();
         System.out.println("REQUEST IMAGE " + url);
         Glide.with(this.context).load(url).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).fitCenter().into(holder.imageView);

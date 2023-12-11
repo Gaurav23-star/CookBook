@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.cookbook.model.ApiResponse;
@@ -16,13 +17,8 @@ import com.cookbook.model.User;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -37,7 +33,6 @@ public class SignUpActivity extends AppCompatActivity {
     private Button signupButton;
     private TextView errorTextView;
     private static User user;
-
 
 
     @Override
@@ -66,38 +61,38 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
 
-    private void signup(View v){
+    private void signup(View v) {
         String firstName = firstNameEditText.getText().toString();
         String lastName = lastNameEditText.getText().toString();
         String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
         String username = usernameEditText.getText().toString();
 
-        if(!isValidName(firstName, lastName) || !isValidEmail(email) || !isValidPassword(password) || !isValidUserName(username)) return;
+        if (!isValidName(firstName, lastName) || !isValidEmail(email) || !isValidPassword(password) || !isValidUserName(username))
+            return;
 
 
         final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-               ApiResponse apiResponse = ApiCaller.get_caller_instance().signup(firstName, lastName, email, password, username);
-               if(apiResponse == null) {
-                   printServerDownFailure();
-                   return;
-               }
-               //User successfully created
-               if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
-                   //redirect user to home activity
-                   try {
-                       int user_id = new JSONObject(apiResponse.getResponse_body()).getInt("insertId");
-                       user = new User(user_id, firstName, lastName, email, password, 0, 0, username);
-                       changeActivityToUserHome(user);
-                   } catch (JSONException e) {
-                       e.printStackTrace();
-                   }
-               }
-               else {
-                   printUserAlreadyExistsFailure();
-               }
+                ApiResponse apiResponse = ApiCaller.get_caller_instance().signup(firstName, lastName, email, password, username);
+                if (apiResponse == null) {
+                    printServerDownFailure();
+                    return;
+                }
+                //User successfully created
+                if (apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK) {
+                    //redirect user to home activity
+                    try {
+                        int user_id = new JSONObject(apiResponse.getResponse_body()).getInt("insertId");
+                        user = new User(user_id, firstName, lastName, email, password, 0, 0, username);
+                        changeActivityToUserHome(user);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    printUserAlreadyExistsFailure();
+                }
             }
         });
         thread.start();
@@ -105,7 +100,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
-    private void changeActivityToUserHome(User user){
+    private void changeActivityToUserHome(User user) {
         final Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
         //intent.putExtra("current_user", user);
         startActivity(intent);
@@ -113,7 +108,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     @SuppressLint("SetTextI18n")
-    private void printUserAlreadyExistsFailure(){
+    private void printUserAlreadyExistsFailure() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -126,7 +121,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     @SuppressLint("SetTextI18n")
-    private void printServerDownFailure(){
+    private void printServerDownFailure() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -137,12 +132,10 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
 
-
-
-    private boolean isValidEmail(String email){
+    private boolean isValidEmail(String email) {
         //can add more checking logic here
 
-        if(email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+        if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             this.emailEditText.requestFocus();
             this.emailEditText.setError("Please Enter Valid Email");
             return false;
@@ -150,9 +143,9 @@ public class SignUpActivity extends AppCompatActivity {
         return true;
     }
 
-    private boolean isValidPassword(String password){
+    private boolean isValidPassword(String password) {
         //Can add more checking logic here
-        if(password.isEmpty()){
+        if (password.isEmpty()) {
             this.passwordEditText.requestFocus();
             this.passwordEditText.setError("You must enter a password");
             return false;
@@ -160,8 +153,8 @@ public class SignUpActivity extends AppCompatActivity {
         return true;
     }
 
-    private boolean isValidUserName(String username){
-        if(username.isEmpty()){
+    private boolean isValidUserName(String username) {
+        if (username.isEmpty()) {
             this.usernameEditText.requestFocus();
             this.usernameEditText.setError("You must enter a username");
             return false;
@@ -170,23 +163,18 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
 
-    private boolean isValidName(String firstName, String lastName){
-        if(firstName.isEmpty()){
+    private boolean isValidName(String firstName, String lastName) {
+        if (firstName.isEmpty()) {
             this.firstNameEditText.requestFocus();
             this.firstNameEditText.setError("first name required");
             return false;
 
-        }else if(lastName.isEmpty()){
+        } else if (lastName.isEmpty()) {
             this.lastNameEditText.requestFocus();
             this.lastNameEditText.setError("last name required");
             return false;
         }
         return true;
-    }
-
-    private String convertStreamToString(InputStream is) {
-        final Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
-        return scanner.hasNext() ? scanner.next() : "";
     }
 
 

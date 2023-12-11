@@ -132,9 +132,9 @@ public class Recipe implements Serializable {
                 '}';
     }
 
-    public static void deleteRecipe (Recipe recipe) {
+    public static void deleteRecipe(Recipe recipe) {
 
-        final Thread thread = new Thread (() -> {
+        final Thread thread = new Thread(() -> {
             try {
                 String deleteURL = RECIPE_URL + "?recipe_id=" + recipe.getRecipe_id() + "&user_id=" + recipe.getUser_id();
                 URL url = new URL(deleteURL);

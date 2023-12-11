@@ -16,34 +16,34 @@ public class Item {
         this.name = recipe.getRecipe_name();
         this.author = Integer.toString(recipe.getUser_id());
         this.image = R.drawable.foodplaceholder;
-        this.time = Integer.toString(recipe.getPreparation_time_minutes())+"mins";
+        this.time = recipe.getPreparation_time_minutes() + "mins";
         String[] ings = recipe.getIngredients().split(",");
-        this.ing1= ings[0];
-        if(ings.length==1){
-            this.ing2="society";
-        }else{
-            this.ing2=ings[1];
+        this.ing1 = ings[0];
+        if (ings.length == 1) {
+            this.ing2 = "society";
+        } else {
+            this.ing2 = ings[1];
         }
 
-        this.admin=R.drawable.ic_baseline_settings_24;
-        this.recipe=recipe;
+        this.admin = R.drawable.ic_baseline_settings_24;
+        this.recipe = recipe;
     }
 
-    public void update_item(Recipe recipe){
+    public void update_item(Recipe recipe) {
         this.name = recipe.getRecipe_name();
         this.author = Integer.toString(recipe.getUser_id());
         this.image = R.drawable.foodplaceholder;
-        this.time = Integer.toString(recipe.getPreparation_time_minutes())+"mins";
+        this.time = recipe.getPreparation_time_minutes() + "mins";
         String[] ings = recipe.getIngredients().split(",");
-        this.ing1= ings[0];
-        if(ings.length==1){
-            this.ing2="society";
-        }else{
-            this.ing2=ings[1];
+        this.ing1 = ings[0];
+        if (ings.length == 1) {
+            this.ing2 = "society";
+        } else {
+            this.ing2 = ings[1];
         }
 
-        this.admin=R.drawable.ic_baseline_settings_24;
-        this.recipe=recipe;
+        this.admin = R.drawable.ic_baseline_settings_24;
+        this.recipe = recipe;
     }
 
     public String getName() {

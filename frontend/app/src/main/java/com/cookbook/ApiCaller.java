@@ -1,8 +1,5 @@
 package com.cookbook;
 
-import android.net.Uri;
-import android.widget.ImageView;
-
 import com.cookbook.model.ApiResponse;
 import com.cookbook.model.Comment;
 import com.cookbook.model.User;
@@ -54,7 +51,7 @@ final public class ApiCaller {
     private static final String USER_FOLLOWER_FOLLOWING_COUNT_URL = host + "/user-followers-following-count?user_id=";
     private static final String USERS_NETWORK_LIST_URL = host + "/users-network-list?user_id=";
     private static final String NOTIFICATION_URL = host + "/users-notifications";
-    private static final String USERS_NOTIFICATIONS_URL = host +"/users-notifications?to_user_id=";
+    private static final String USERS_NOTIFICATIONS_URL = host + "/users-notifications?to_user_id=";
     public static final String GET_RECIPE_IMAGE_URL = host + "/user-defined-recipes/download_image/";
     private static final String COMMENTS_URL = RECIPE_URL + "/comments";
     //private static final String COMMENTS_URL = "http://10.66.7.132:8080/user-defined-recipes/comments";
@@ -64,17 +61,18 @@ final public class ApiCaller {
     private static final String USER_HAS_FAVORITED = host + "/user-has-favorited?user_id=";
     private static final String GET_NOTIFICATION_RECIPE = host + "/get-notification-recipe?recipe_id=";
 
-    private ApiCaller(){
+    private ApiCaller() {
 
     }
-    public static ApiCaller get_caller_instance(){
-        if(apiCaller == null){
+
+    public static ApiCaller get_caller_instance() {
+        if (apiCaller == null) {
             apiCaller = new ApiCaller();
         }
         return apiCaller;
     }
 
-    private ApiResponse get_request(String sUrl, String query){
+    private ApiResponse get_request(String sUrl, String query) {
         try {
             final URL url = new URL(sUrl + query);
             final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -90,7 +88,7 @@ final public class ApiCaller {
         return null;
     }
 
-    private ApiResponse post_request(String sUrl, String RequestBody){
+    private ApiResponse post_request(String sUrl, String RequestBody) {
 
         try {
             final URL url = new URL(sUrl);
@@ -109,7 +107,7 @@ final public class ApiCaller {
             int responseCode = connection.getResponseCode();
             String response = "";
 
-            if(responseCode == HttpURLConnection.HTTP_OK){
+            if (responseCode == HttpURLConnection.HTTP_OK) {
                 response = convertStreamToString(connection.getInputStream());
             }
             System.out.println("POST: API RESPONSE " + response);
@@ -124,7 +122,7 @@ final public class ApiCaller {
     }
 
 
-    private ApiResponse delete_request(String sUrl, String RequestBody){
+    private ApiResponse delete_request(String sUrl, String RequestBody) {
         try {
             final URL url = new URL(sUrl);
             final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -141,7 +139,7 @@ final public class ApiCaller {
             int responseCode = connection.getResponseCode();
             String response = "";
 
-            if(responseCode == HttpURLConnection.HTTP_OK){
+            if (responseCode == HttpURLConnection.HTTP_OK) {
                 response = convertStreamToString(connection.getInputStream());
             }
 
@@ -156,21 +154,20 @@ final public class ApiCaller {
 
     public ApiResponse login(String email, String password) {
         final String jsonData = "{\"email_id\":\"" + email + "\", \"password\":\"" + password + "\"}";
-        ApiResponse apiResponse =  post_request(LOGIN_URL, jsonData);
-        if(apiResponse != null && apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+        ApiResponse apiResponse = post_request(LOGIN_URL, jsonData);
+        if (apiResponse != null && apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK) {
             String response = apiResponse.getResponse_body();
             try {
                 JSONObject jsonObject = new JSONObject(response);
                 apiResponse.setResponse_body(jsonObject.getString("user"));
-            }
-            catch (JSONException ignored){
+            } catch (JSONException ignored) {
 
             }
         }
         return apiResponse;
     }
 
-    public ApiResponse signup(String firstName, String lastName, String email, String password, String username){
+    public ApiResponse signup(String firstName, String lastName, String email, String password, String username) {
         final String jsonData = "{\"first_name\": \"" + firstName + "\"," +
                 "\"last_name\": \"" + lastName + "\", " +
                 "\"email_id\":\"" + email + "\", " +
@@ -180,48 +177,48 @@ final public class ApiCaller {
         return post_request(SIGNUP_URL, jsonData);
     }
 
-    public ApiResponse getAllRecipes(){
+    public ApiResponse getAllRecipes() {
         return get_request(RECIPE_URL, "");
     }
 
-    public ApiResponse getRecipePages(int pageNumber){
-        return get_request(RECIPE_URL + "/"+pageNumber, "");
+    public ApiResponse getRecipePages(int pageNumber) {
+        return get_request(RECIPE_URL + "/" + pageNumber, "");
     }
 
     public ApiResponse getFavoriteRecipes(final String user_id) {
         return get_request(FAVORITES_URL, user_id);
     }
 
-    public void getRecipeImage(){
+    public void getRecipeImage() {
 
     }
 
-    public ApiResponse getAllUserCreatedRecipes(String user_id){
+    public ApiResponse getAllUserCreatedRecipes(String user_id) {
         System.out.println("GET ALL USERS " + user_id);
-        return get_request(USER_CREATED_RECIPES_URL,user_id);
+        return get_request(USER_CREATED_RECIPES_URL, user_id);
     }
 
-    public ApiResponse getUsersFollowersAndFollowingCount(String user_id){
-        return get_request(USER_FOLLOWER_FOLLOWING_COUNT_URL,user_id);
+    public ApiResponse getUsersFollowersAndFollowingCount(String user_id) {
+        return get_request(USER_FOLLOWER_FOLLOWING_COUNT_URL, user_id);
     }
 
-    public ApiResponse getUsersNetworkList(String user_id, String networkType){
-        return get_request(USERS_NETWORK_LIST_URL, user_id + "&"+"network_type="+networkType);
+    public ApiResponse getUsersNetworkList(String user_id, String networkType) {
+        return get_request(USERS_NETWORK_LIST_URL, user_id + "&" + "network_type=" + networkType);
     }
 
-    public ApiResponse getUserSearch(String text){
+    public ApiResponse getUserSearch(String text) {
         return get_request(USER_SEARCH_URL, text);
     }
 
-    public ApiResponse getUserIsFollowingVisitingUser(String userId, String visitorId){
-        return get_request(USER_IS_FOLLOWING_URL, userId + "&"+"visitor_id="+visitorId);
+    public ApiResponse getUserIsFollowingVisitingUser(String userId, String visitorId) {
+        return get_request(USER_IS_FOLLOWING_URL, userId + "&" + "visitor_id=" + visitorId);
     }
 
-    public ApiResponse UserFollowVisitingUser(String userId, String visitorId){
-    final String jsonData = "{\"user_id\": \"" + userId + "\"," +
-            "\"visitor_id\":\"" + visitorId + "\"}";
+    public ApiResponse UserFollowVisitingUser(String userId, String visitorId) {
+        final String jsonData = "{\"user_id\": \"" + userId + "\"," +
+                "\"visitor_id\":\"" + visitorId + "\"}";
 
-        return post_request(USER_FOLLOW_URL, jsonData );
+        return post_request(USER_FOLLOW_URL, jsonData);
     }
 
     public ApiResponse UserUnfollowVisitingUser(String loggedInUserId, String currentUserId) {
@@ -229,11 +226,11 @@ final public class ApiCaller {
         return delete_request(USER_UNFOLLOW_URL, jsonData);
     }
 
-    public ApiResponse getUsersNotifications(String to_user_id){
-        return get_request(USERS_NOTIFICATIONS_URL, to_user_id );
+    public ApiResponse getUsersNotifications(String to_user_id) {
+        return get_request(USERS_NOTIFICATIONS_URL, to_user_id);
     }
 
-    public ApiResponse postUserNotification(String type, String to_user_id, String from_user_id, String post_id){
+    public ApiResponse postUserNotification(String type, String to_user_id, String from_user_id, String post_id) {
         final String jsonData = "{\"type\": \"" + type + "\"," +
                 "\"post_id\": \"" + post_id + "\"," +
                 "\"to_user_id\": \"" + to_user_id + "\"," +
@@ -242,30 +239,30 @@ final public class ApiCaller {
         return post_request(NOTIFICATION_URL, jsonData);
     }
 
-    public ApiResponse removeUserNotification(String type, String to_user_id, String from_user_id, String post_id){
+    public ApiResponse removeUserNotification(String type, String to_user_id, String from_user_id, String post_id) {
 
         final String jsonData = "{\"type\": \"" + type + "\"," +
                 "\"post_id\": \"" + post_id + "\"," +
                 "\"to_user_id\": \"" + to_user_id + "\"," +
                 "\"from_user_id\": \"" + from_user_id + "\"}";
 
-        return delete_request(NOTIFICATION_URL, jsonData );
+        return delete_request(NOTIFICATION_URL, jsonData);
     }
 
-    public ApiResponse UserLikesRecipe(String user_id, String recipe_id){
+    public ApiResponse UserLikesRecipe(String user_id, String recipe_id) {
         final String jsonData = "{\"user_id\": \"" + user_id + "\"," + "\"recipe_id\": \"" + recipe_id + "\"}";
 
         return post_request(FAVORITES_URL, jsonData);
     }
 
-    public ApiResponse UserUnlikesRecipe(String user_id, String recipe_id){
+    public ApiResponse UserUnlikesRecipe(String user_id, String recipe_id) {
         final String jsonData = "{\"user_id\": \"" + user_id + "\"," + "\"recipe_id\": \"" + recipe_id + "\"}";
 
-        return delete_request(FAVORITES_URL, jsonData );
+        return delete_request(FAVORITES_URL, jsonData);
     }
 
-    public ApiResponse UserHasFavoritedRecipe(String user_id, String recipe_id){
-        return get_request(USER_HAS_FAVORITED, user_id + "&"+"recipe_id="+recipe_id);
+    public ApiResponse UserHasFavoritedRecipe(String user_id, String recipe_id) {
+        return get_request(USER_HAS_FAVORITED, user_id + "&" + "recipe_id=" + recipe_id);
     }
 
     public ApiResponse deleteComment(int comment_id) {
@@ -274,15 +271,15 @@ final public class ApiCaller {
         return delete_request(COMMENTS_URL, delParam);
     }
 
-    public ApiResponse getAllComments(int recipe_id){
+    public ApiResponse getAllComments(int recipe_id) {
         String queryParams = "?recipeId=" + recipe_id;
         return get_request(COMMENTS_URL, queryParams);
     }
 
-    public ApiResponse postComment(Comment comment){
+    public ApiResponse postComment(Comment comment) {
         String json = "{\"recipe_id\": \"" + comment.getRecipe_id() + "\"," +
-                      "\"comment\": \"" + comment.getComment() + "\"," +
-                      "\"user_id\": \"" + comment.getUser_id() + "\"}";
+                "\"comment\": \"" + comment.getComment() + "\"," +
+                "\"user_id\": \"" + comment.getUser_id() + "\"}";
         return post_request(COMMENTS_URL, json);
     }
 
@@ -314,6 +311,7 @@ final public class ApiCaller {
                 System.out.println("response body " + response.body().getResponse_body());
                 apiResponse[0] = new ApiResponse(response.body().getResponse_code(), response.body().getResponse_body());
             }
+
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
                 System.out.println("FAILURE");
@@ -326,7 +324,7 @@ final public class ApiCaller {
 
     }
 
-    public ApiResponse postNewRecipe(String recipeName, String desc, String servings, String prepareTime, String ingredients, String instructions, int userId){
+    public ApiResponse postNewRecipe(String recipeName, String desc, String servings, String prepareTime, String ingredients, String instructions, int userId) {
 
         String json = "{\"recipe_name\": \"" + recipeName + "\"," +
                 "\"servings\" : \"" + servings + "\"," +
@@ -341,24 +339,24 @@ final public class ApiCaller {
         return post_request(POST_NEW_RECIPE_URL, json);
     }
 
-    public ApiResponse getUserFromUserId(String userId){
+    public ApiResponse getUserFromUserId(String userId) {
         return get_request(USERS_ENDPOINT, "/".concat(userId));
     }
 
-    public ApiResponse getRecipeSearch(String text){
-        String query = "?search="+text;
+    public ApiResponse getRecipeSearch(String text) {
+        String query = "?search=" + text;
         return get_request(RECIPE_SEARCH_ENDPOINT, query);
     }
-    public ApiResponse getNotificationRecipe(String recipe_id){
-        return get_request(GET_NOTIFICATION_RECIPE,recipe_id);
+
+    public ApiResponse getNotificationRecipe(String recipe_id) {
+        return get_request(GET_NOTIFICATION_RECIPE, recipe_id);
     }
 
-    public boolean isUserBanned(String userId){
+    public boolean isUserBanned(String userId) {
         ApiResponse response = getUserFromUserId(userId);
-        if(response.getResponse_code() == HttpURLConnection.HTTP_OK){
+        if (response.getResponse_code() == HttpURLConnection.HTTP_OK) {
             User user = new Gson().fromJson(response.getResponse_body(), User.class);
-            if (user.getIsBanned() == 1) return true;
-            else return false;
+            return user.getIsBanned() == 1;
         }
         return false;
     }

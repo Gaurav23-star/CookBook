@@ -32,6 +32,7 @@ public class CommentsViewAdapter extends RecyclerView.Adapter<CommentsViewAdapte
         private final TextView username;
         private final TextView commentContent;
         private final ImageView avatar;
+
         public CommentsViewHolder(@NonNull View itemView, RecyclerViewInterface listener) {
             super(itemView);
             username = itemView.findViewById(R.id.userName);
@@ -54,7 +55,7 @@ public class CommentsViewAdapter extends RecyclerView.Adapter<CommentsViewAdapte
             return commentContent;
         }
 
-        public ImageView getAvatar(){
+        public ImageView getAvatar() {
             return avatar;
         }
     }
@@ -62,7 +63,7 @@ public class CommentsViewAdapter extends RecyclerView.Adapter<CommentsViewAdapte
     @NonNull
     @Override
     public CommentsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new CommentsViewHolder(LayoutInflater.from(context).inflate(R.layout.comments_view, parent, false),this.recyclerViewInterface);
+        return new CommentsViewHolder(LayoutInflater.from(context).inflate(R.layout.comments_view, parent, false), this.recyclerViewInterface);
     }
 
     @Override

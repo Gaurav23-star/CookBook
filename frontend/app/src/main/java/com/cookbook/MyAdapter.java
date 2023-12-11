@@ -22,7 +22,7 @@ import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
-    private RecyclerViewInterface recyclerViewInterface;
+    private final RecyclerViewInterface recyclerViewInterface;
 
     Context context;
     List<Item> items;
@@ -33,21 +33,21 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         this.context = context;
         this.items = items;
         this.recyclerViewInterface = recyclerViewInterface;
-        this.admin=admin;
-        this.currentUser = currentUser;
+        this.admin = admin;
+        MyAdapter.currentUser = currentUser;
     }
 
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new MyViewHolder(LayoutInflater.from(context).inflate(R.layout.new_item_view,parent,false),recyclerViewInterface);
+        return new MyViewHolder(LayoutInflater.from(context).inflate(R.layout.new_item_view, parent, false), recyclerViewInterface);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Item item = items.get(position);
-        holder.bind(item,currentUser);
-        holder.has_user_favorited_this_recipe(String.valueOf(currentUser.getUser_id()), String.valueOf(item.getRecipe().getRecipe_id()) );
+        holder.bind(item, currentUser);
+        holder.has_user_favorited_this_recipe(String.valueOf(currentUser.getUser_id()), String.valueOf(item.getRecipe().getRecipe_id()));
         loadRecipeOwnerProfile(String.valueOf(item.getRecipe().getUser_id()), holder);
         holder.nameView.setText(items.get(position).getName());
         //holder.accountView.setText(items.get(position).getAuthor());
@@ -60,7 +60,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         holder.likesCountTextView.setText(String.valueOf(item.getRecipe().getNum_likes()));
         holder.commentsCountTextView.setText(String.valueOf(item.getRecipe().getNum_comments()));
 
-        if(admin==0){
+        if (admin == 0) {
             holder.adminView.setVisibility(View.GONE);
         }
     }
@@ -71,21 +71,21 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
     }
 
 
-    private void load_recipe_image(int position, MyViewHolder holder){
+    private void load_recipe_image(int position, MyViewHolder holder) {
         String url = ApiCaller.GET_RECIPE_IMAGE_URL + items.get(position).getRecipe().getRecipe_id();
         System.out.println("REQUEST IMAGE " + url);
         Glide.with(this.context).load(url).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).into(holder.imageView);
 
     }
 
-    private void loadRecipeOwnerProfile(String userId, MyViewHolder viewHolder){
+    private void loadRecipeOwnerProfile(String userId, MyViewHolder viewHolder) {
         final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
 
                 try {
                     ApiResponse response = ApiCaller.get_caller_instance().getUserFromUserId(userId);
-                    if (response != null && response.getResponse_code() == HttpURLConnection.HTTP_OK){
+                    if (response != null && response.getResponse_code() == HttpURLConnection.HTTP_OK) {
                         User user = new Gson().fromJson(response.getResponse_body(), User.class);
 
                         new Handler(Looper.getMainLooper()).post(() -> {
@@ -94,8 +94,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
                             viewHolder.recipeOwner.setText(displayName);
                         });
                     }
-                }
-                catch (Exception e){
+                } catch (Exception e) {
                     System.out.println(e);
                     System.out.println("SOMETHING WENT WRONG");
                 }

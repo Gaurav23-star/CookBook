@@ -1,30 +1,23 @@
 package com.cookbook;
 
-import com.cookbook.model.*;
-
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
-import android.util.Patterns;
 import android.widget.TextView;
-import com.cookbook.model.User;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.cookbook.model.ApiResponse;
+import com.cookbook.model.User;
+import com.google.gson.Gson;
 
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
-import com.google.gson.*;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText emailEditText;
@@ -32,7 +25,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView errorTextView;
 
     static User user;
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,21 +54,20 @@ public class LoginActivity extends AppCompatActivity {
             public void run() {
                 ApiResponse apiResponse = ApiCaller.get_caller_instance().login(email, password);
 
-                if(apiResponse == null){
+                if (apiResponse == null) {
                     printServerDownFailure();
                     return;
                 }
 
-                if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+                if (apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK) {
                     System.out.println("USER RECEIVED FROM API " + apiResponse.getResponse_body());
                     user = gson.fromJson(apiResponse.getResponse_body(), User.class);
                     save_user_to_device(user);
                     changeActivityToUserHome(user);
-                }
-                else if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_UNAUTHORIZED){
+                } else if (apiResponse.getResponse_code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
                     printInvalidCredentialsLoginFailure(apiResponse.getResponse_body());
 
-                }else{
+                } else {
                     printInvalidCredentialsLoginFailure("Invalid Credentials");
                 }
             }
@@ -148,7 +140,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
     //save user information to device
-    private void save_user_to_device(User user){
+    private void save_user_to_device(User user) {
         SharedPreferences sharedPreferences = getSharedPreferences("Saved User", MODE_PRIVATE);
         sharedPreferences.edit().putString("current_user", new Gson().toJson(user)).apply();
     }
