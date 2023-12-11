@@ -9,6 +9,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -79,6 +80,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
     private RecyclerView commentsView;
     private EditText commentTextView;
     private Button commentButton;
+    private Button delete_comment_button;
     private ConstraintLayout recipeOwnerView;
     private User recipeOwner;
     private final List<Comment> commentList = new ArrayList<>();
@@ -95,7 +97,6 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
 
         edit_button = findViewById(R.id.editButton);
         save_button = findViewById(R.id.saveButton);
-
 
         recipePicture = findViewById(R.id.recipeView);
         recipePictureEdit = findViewById(R.id.recipe_image_edit);
@@ -122,8 +123,6 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         System.out.println(currentRecipe.toString());
         prepTimeView.setText(Integer.toString(currentRecipe.getPreparation_time_minutes()));
         servingsView.setText(Integer.toString(currentRecipe.getServings()));
-
-
 
         System.out.println("CURRENT USER ID IN RECIPE " + currentRecipe.getUser_id());
         System.out.println("CURRENT USER ID " + currentUser.getUser_id());
@@ -534,7 +533,34 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
 
     @Override
     public void onItemClick(int position) {
-        loadCommentOwnerProfile(Integer.toString(commentList.get(position).getUser_id()));
+        if (currentUser.getIsAdmin() == 0) {
+            loadCommentOwnerProfile(Integer.toString(commentList.get(position).getUser_id()));
+        } else {
+            final Dialog dialog = new Dialog(this);
+            dialog.setCancelable(true);
+            dialog.setContentView(R.layout.admin_comment_dialog);
+            final Button deleteComment = dialog.findViewById(R.id.deleteComment);
+            final Button viewProfile = dialog.findViewById(R.id.viewProfile);
+
+            dialog.show();
+
+            deleteComment.setOnClickListener(view -> {
+
+                Comment.deleteComment(commentList.get(position).getComment_id());
+
+                commentList.clear();
+                getCommentsFromServer(currentRecipe.getRecipe_id());
+
+                dialog.dismiss();
+            });
+
+            viewProfile.setOnClickListener(view -> {
+
+                loadCommentOwnerProfile(Integer.toString(commentList.get(position).getUser_id()));
+
+                dialog.dismiss();
+            });
+        }
     }
 
 

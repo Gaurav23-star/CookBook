@@ -420,6 +420,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.admin_dialog);
+            final Button viewRecipe = dialog.findViewById(R.id.viewRecipe);
             final Button banUser = dialog.findViewById(R.id.banUser);
             final Button deleteRecipe = dialog.findViewById(R.id.deleteRecipe);
 
@@ -452,6 +453,16 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 recyclerViewAdapter.notifyDataSetChanged();
                 //add_recipes_to_ui();
                 dialog.dismiss();
+            });
+
+            viewRecipe.setOnClickListener(view -> {
+
+                currentItemBeingEdited = position;
+                currentItemBeingViewed = recyclerViewManager.findFirstVisibleItemPosition();
+                changeActivityToRecipeActivity(currentUser, items.get(position).getRecipe());
+
+                dialog.dismiss();
+
             });
         }
     }

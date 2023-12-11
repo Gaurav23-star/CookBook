@@ -6,26 +6,18 @@
     android:layout_height="wrap_content">
 
     <Button
-        android:id="@+id/deleteRecipe"
+        android:id="@+id/deleteComment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Delete Recipe"
-         />
+        android:text="Delete Comment"
+        />
 
     <Button
-        android:id="@+id/banUser"
+        android:id="@+id/viewProfile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Ban User"
-        android:layout_below="@id/deleteRecipe"
-         />
-
-    <Button
-        android:id="@+id/viewRecipe"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="View Recipe"
-        android:layout_below="@id/banUser"
+        android:text="View Profile"
+        android:layout_below="@+id/deleteComment"
         />
 
 </RelativeLayout>
