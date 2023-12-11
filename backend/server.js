@@ -13,9 +13,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 
-const authRouter = require('./authenticate')
-app.use('/', authRouter)
-
 // Define endpoint constants
 const USER_DEFINED_RECIPES_ENDPOINT = '/user-defined-recipes';
 const CREATE_ACCOUNT_ENDPOINT = '/create-account';
@@ -713,7 +710,7 @@ app.get(USER_DEFINED_RECIPES_ENDPOINT.concat('/:pageNumber'), async (req, res) =
             FROM ${USER_DEFINED_RECIPES_TABLE} udr 
             JOIN ${USERS_TABLE} u ON u.user_id = udr.user_id 
             WHERE u.isBanned = 0 
-            ORDER BY udr.recipe_id 
+            ORDER BY udr.recipe_id desc
             LIMIT ${recipesPerPage} 
             OFFSET ${offset}`;
         const result = await db.pool.query(sql);
