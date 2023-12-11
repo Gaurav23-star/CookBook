@@ -3,6 +3,7 @@ package com.cookbook;
 import static android.content.Context.MODE_PRIVATE;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
@@ -41,11 +42,6 @@ import com.cookbook.model.ApiResponse;
 
 import java.net.HttpURLConnection;
 
-/**
- * Instrumented test, which will execute on an Android device.
- *
- * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
- */
 @RunWith(AndroidJUnit4.class)
 public class LoginActivityTest {
     private static final String INVALID_EMAIL = "invalid@email.com";
@@ -66,14 +62,15 @@ public class LoginActivityTest {
     @Test
     public void testValidLogin() {
         // Start the activity
-        Intents.init();
+
         ActivityScenario.launch(LoginActivity.class);
         // Enter valid credentials and click login
 
         onView(withId(R.id.emailEditText)).perform(ViewActions.typeText("dummy@dummy.com"));
         onView(withId(R.id.passwordEditText)).perform(ViewActions.typeText("12345"));
         onView(withId(R.id.loginButton_id)).perform(ViewActions.click());
-        intended(IntentMatchers.hasComponent(HomeActivity.class.getName()));
+        Intents.init();
+        intended(hasComponent(HomeActivity.class.getName()));
         Intents.release();
         /*Intents.release();
         intended(allOf(
@@ -97,10 +94,6 @@ public class LoginActivityTest {
     }
 
 
-    @After
-    public void tearDown() {
-        // Clear SharedPreferences after each test
 
-    }
 }
 

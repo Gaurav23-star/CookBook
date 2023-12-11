@@ -43,7 +43,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
     androidTestImplementation'androidx.test.espresso:espresso-contrib:3.5.1'
-    androidTestImplementation 'org.mockito:mockito-core:1.10.19'
+    androidTestImplementation 'org.mockito:mockito-android:5.8.0'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.12.5'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.5'
