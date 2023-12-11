@@ -1,19 +1,7 @@
 package com.cookbook;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.PickVisualMediaRequest;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSmoothScroller;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,12 +16,21 @@ import android.view.Window;
 import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.SearchView;
 import android.widget.TextView;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.cookbook.model.ApiResponse;
 import com.cookbook.model.Recipe;
@@ -57,9 +53,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Scanner;
 
-public class HomeActivity extends AppCompatActivity implements RecyclerViewInterface{
+public class HomeActivity extends AppCompatActivity implements RecyclerViewInterface {
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private static User currentUser;
@@ -92,10 +87,10 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         super.onCreate(savedInstanceState);
         Objects.requireNonNull(getSupportActionBar()).setTitle("HOME");
         //retrieve user passed in by login activity
-        if(getIntent().getSerializableExtra("current_user") != null){
+        if (getIntent().getSerializableExtra("current_user") != null) {
             currentUser = (User) getIntent().getSerializableExtra("current_user");
         }
-        System.out.println("VALUE OF CURRENT USER = " + currentUser);
+
         setContentView(R.layout.activity_home);
         progressBar = findViewById(R.id.progressBar);
         swipeRefreshLayout = findViewById(R.id.refreshLayout);
@@ -108,14 +103,13 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         recyclerViewManager = new LinearLayoutManager(this);
 
         recipesRecyclerView.setLayoutManager(recyclerViewManager);
-        recyclerViewAdapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin(), currentUser);
+        recyclerViewAdapter = new MyAdapter(getApplicationContext(), items, this, currentUser.getIsAdmin(), currentUser);
         recipesRecyclerView.setAdapter(recyclerViewAdapter);
 
         //check if the user is banned
         checkAndLogOutUserIfBanned();
         //if recipes not loaded from server, then load
-        if(items.size() == 0){
-            System.out.println("LIST IS EMPTY");
+        if (items.size() == 0) {
             get_recipes_from_server();
         }
 
@@ -127,9 +121,9 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 checkAndLogOutUserIfBanned();
                 server_error_text.setVisibility(View.GONE);
                 int totalCount = items.size();
-                for(int i = items.size()- 1; i >= 0; i--) items.remove(i);
+                for (int i = items.size() - 1; i >= 0; i--) items.remove(i);
                 recyclerViewAdapter.notifyItemRangeRemoved(0, totalCount);
-                System.out.println("ITEM SIZE BEFORE REFRESH " + items.size());
+
                 recipePageNumber = 1;
                 currentItemBeingViewed = 0;
                 get_recipes_from_server();
@@ -137,8 +131,8 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             }
         });
         pickRecipeImageLauncher = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), result -> {
-            System.out.println("NEW IMAGE IS " + result);
-            if(result != null){
+
+            if (result != null) {
                 newRecipeImageUri = result;
                 newRecipeImageView.setImageURI(result);
             }
@@ -147,12 +141,12 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         addMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isMenuShowing){
+                if (isMenuShowing) {
                     addNewFriendButton.hide();
                     addNewRecipeButton.hide();
                     addMenuButton.setImageResource(R.drawable.baseline_add_24);
                     isMenuShowing = false;
-                }else{
+                } else {
                     addNewRecipeButton.show();
                     addNewFriendButton.show();
                     addMenuButton.setImageResource(R.drawable.baseline_close_24);
@@ -177,7 +171,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             @Override
             public void onClick(View v) {
                 final Intent intent_UserSearch = new Intent(getApplicationContext(), UserSearchActivity.class);
-                intent_UserSearch.putExtra("current_user",currentUser);
+                intent_UserSearch.putExtra("current_user", currentUser);
                 startActivity(intent_UserSearch);
             }
         });
@@ -187,9 +181,9 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if(newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL){
+                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
                     isScrolling = true;
-                    //System.out.println("SCROLL CHANGED" + newState);
+                    //
                 }
 
             }
@@ -200,19 +194,17 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 currentItem = recyclerViewManager.getChildCount();
                 totalItems = recyclerViewManager.getItemCount();
                 scrollOutItems = recyclerViewManager.findFirstCompletelyVisibleItemPosition();
-                //System.out.println("CURRENTLY " + currentItem + " DISPLAYED");
-                //System.out.println("VIEWED " + scrollOutItems + " OUT OF " + totalItems);
+                //
+                //
                 currentItemBeingViewed = recyclerViewManager.findFirstVisibleItemPosition();
 
-                if(isScrolling && (currentItem + scrollOutItems > totalItems)){
-                    //System.out.println("ORDERING MORE RECIPES");
+                if (isScrolling && (currentItem + scrollOutItems > totalItems)) {
+                    //
                     isScrolling = false;
                     get_recipes_from_server();
                 }
             }
         });
-
-
 
 
     }
@@ -226,7 +218,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem item) {
-                System.out.println("SEARCH CLICKED");
+
                 changeActivityToRecipeSearch();
                 return false;
             }
@@ -234,9 +226,9 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         return super.onCreateOptionsMenu(menu);
     }
 
-    private void changeActivityToRecipeSearch(){
+    private void changeActivityToRecipeSearch() {
         final Intent intent = new Intent(HomeActivity.this, RecipeSearchActivity.class);
-        intent.putExtra("current_user",currentUser);
+        intent.putExtra("current_user", currentUser);
         startActivity(intent);
     }
 
@@ -256,9 +248,9 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         recipeImageEditor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("WANT TO EDIT RECIPE IMAGE");
+
                 pickRecipeImageLauncher.launch(new PickVisualMediaRequest.Builder().setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE).build());
-                System.out.println("GOT IMAGE URI");
+
 
             }
         });
@@ -267,9 +259,9 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             @Override
             public void onClick(View v) {
 
-                if(isValidEntry(recipeTitle) && isValidEntry(recipeIngredients)
-                && isValidEntry(recipeInstructions)){
-                    System.out.println("ALL ENTRIES ARE VALID");
+                if (isValidEntry(recipeTitle) && isValidEntry(recipeIngredients)
+                        && isValidEntry(recipeInstructions)) {
+
                     String recipeName = recipeTitle.getText().toString();
                     String servings = recipeServings.getText().toString();
                     String prepareTime = recipePrepareTime.getText().toString();
@@ -283,10 +275,10 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             }
         });
 
-       bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.setContentView(view);
     }
 
-    private void post_recipe_to_server(String recipeName, String desc, String servings, String prepareTime, String ingredients, String instructions){
+    private void post_recipe_to_server(String recipeName, String desc, String servings, String prepareTime, String ingredients, String instructions) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -301,7 +293,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 );
 
 
-                if(response != null && response.getResponse_code() == HttpURLConnection.HTTP_OK){
+                if (response != null && response.getResponse_code() == HttpURLConnection.HTTP_OK) {
                     try {
                         int recipeId = new JSONObject(response.getResponse_body()).getInt("insertId");
 
@@ -319,7 +311,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                                 0
                         );
 
-                        if(newRecipeImageUri != null){
+                        if (newRecipeImageUri != null) {
                             MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
                             String extension = mimeTypeMap.getExtensionFromMimeType(getContentResolver().getType(newRecipeImageUri));
                             String imageUrl = recipeId + "." + extension;
@@ -329,9 +321,9 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                         }
                         items.add(0, new Item(recipe));
                         runOnUiThread(() -> {
-                            recyclerViewAdapter.notifyItemInserted(0);
-                            recipesRecyclerView.scrollToPosition(0);
-                        }
+                                    recyclerViewAdapter.notifyItemInserted(0);
+                                    recipesRecyclerView.scrollToPosition(0);
+                                }
                         );
 
                     } catch (JSONException e) {
@@ -347,15 +339,15 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         thread.start();
     }
 
-    private boolean isValidEntry(EditText view){
-        if(view.getText().toString().trim().equals("")){
+    private boolean isValidEntry(EditText view) {
+        if (view.getText().toString().trim().equals("")) {
             view.setError("cannot be empty");
             return false;
         }
         return true;
     }
 
-    private void display_server_down_error(String errorText){
+    private void display_server_down_error(String errorText) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -367,36 +359,37 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     }
 
 
-    private void get_recipes_from_server(){
+    private void get_recipes_from_server() {
         progressBar.setVisibility(View.VISIBLE);
         final Thread thread = new Thread(new Runnable() {
             final Handler handler = new Handler(Looper.getMainLooper());
+
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void run() {
                 ApiResponse apiResponse = ApiCaller.get_caller_instance().getRecipePages(recipePageNumber++);
 
-                if(apiResponse == null){
+                if (apiResponse == null) {
                     display_server_down_error("Server is down, Please Try again");
                     return;
                 }
 
-                if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+                if (apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK) {
                     Recipe[] recipes = gson.fromJson(apiResponse.getResponse_body(), Recipe[].class);
                     int startPosition = items.size();
-                    System.out.println("RECIPE PAGE NUMBER " + recipePageNumber);
-                    System.out.println("CURRENTLY HAVE " + startPosition + " GOT " + recipes.length);
-                    for(Recipe recipe : recipes){
+
+
+                    for (Recipe recipe : recipes) {
                         addItemThreadSafe(recipe);
                     }
 
                     //update recipe list on main thread
-                    handler.post(() ->{
+                    handler.post(() -> {
                         recyclerViewAdapter.notifyItemInserted(startPosition);
                         progressBar.setVisibility(View.GONE);
                     });
 
-                }else{
+                } else {
                     display_server_down_error("Something went wrong.");
                 }
             }
@@ -407,10 +400,9 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
     @Override
     public void onItemClick(int position) {
-        System.out.println(items.toString());
 
-        System.out.println("CURRENT USEr CLICK " + currentUser.getUser_id());
-        if (currentUser.getIsAdmin()==0) {
+
+        if (currentUser.getIsAdmin() == 0) {
             currentItemBeingEdited = position;
             currentItemBeingViewed = recyclerViewManager.findFirstVisibleItemPosition();
             changeActivityToRecipeActivity(currentUser, items.get(position).getRecipe());
@@ -427,13 +419,13 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             dialog.show();
 
             deleteRecipe.setOnClickListener(view -> {
-                System.out.println("deleteRecipe selected");
+
                 Recipe dRecipe = (items.get(position).getRecipe());
                 Recipe.deleteRecipe(dRecipe);
 
                 //remove deleted recipe from UI
-                for(Item recipe : items){
-                    if(recipe.getRecipe().getRecipe_id() == dRecipe.getRecipe_id()){
+                for (Item recipe : items) {
+                    if (recipe.getRecipe().getRecipe_id() == dRecipe.getRecipe_id()) {
                         items.remove(recipe);
                         break;
                     }
@@ -447,7 +439,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
 
                 int ban_id = items.get(position).getRecipe().getUser_id();
 
-                System.out.println("banUser selected, banning user with id: " + ban_id);
+
                 User.banUser(ban_id);
 
                 recyclerViewAdapter.notifyDataSetChanged();
@@ -466,56 +458,53 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
             });
         }
     }
-    private String convertStreamToString(InputStream is) {
-        final Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
-        return scanner.hasNext() ? scanner.next() : "";
-    }
-    private void changeActivityToRecipeActivity(User user, Recipe recipe){
+
+    private void changeActivityToRecipeActivity(User user, Recipe recipe) {
 
         final Intent intent = new Intent(HomeActivity.this, RecipeActivity.class);
-        intent.putExtra("current_user",user);
+        intent.putExtra("current_user", user);
         intent.putExtra("current_recipe", recipe);
         startActivity(intent);
     }
 
     //method to ensure thread safety
     public synchronized void addItemThreadSafe(Recipe recipe) {
-        items.add(new Item (recipe));
+        items.add(new Item(recipe));
     }
 
 
-    public void handleNavigationChange(){
+    public void handleNavigationChange() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.bottom_home);
 
-        bottomNavigationView.setOnItemSelectedListener(item ->{
-            switch (item.getItemId()){
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            switch (item.getItemId()) {
                 case R.id.bottom_home:
                     return true;
                 case R.id.bottom_favorites:
                     Intent intent_Favorites = new Intent(getApplicationContext(), FavoriteActivity.class);
-                    intent_Favorites.putExtra("current_user",currentUser);
+                    intent_Favorites.putExtra("current_user", currentUser);
                     startActivity(intent_Favorites);
-                    overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
+                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                     finish();
                     return true;
                 case R.id.bottom_person:
                     Intent intent_Person = new Intent(getApplicationContext(), ProfileActivity.class);
-                    intent_Person.putExtra("current_user",currentUser);
+                    intent_Person.putExtra("current_user", currentUser);
                     startActivity(intent_Person);
-                    overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
+                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                     finish();
                     return true;
                 case R.id.bottom_notifications:
                     Intent intent_Notifications = new Intent(getApplicationContext(), NotificationsActivity.class);
-                    intent_Notifications.putExtra("current_user",currentUser);
+                    intent_Notifications.putExtra("current_user", currentUser);
                     startActivity(intent_Notifications);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
                     return true;
                 case R.id.bottom_settings:
                     final Intent intent_Settings = new Intent(getApplicationContext(), SettingsActivity.class);
-                    intent_Settings.putExtra("current_user",currentUser);
+                    intent_Settings.putExtra("current_user", currentUser);
                     startActivity(intent_Settings);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
@@ -531,21 +520,21 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         super.onResume();
         //check if the user is banned
         checkAndLogOutUserIfBanned();
-        System.out.println("CURRENT ITEM BEING VIEWED = " + currentItemBeingViewed);
-        System.out.println("SIZE OF ITEMS IS " + items.size());
-        if(items.size() > currentItemBeingViewed){
+
+
+        if (items.size() > currentItemBeingViewed) {
             recyclerViewAdapter.notifyItemChanged(currentItemBeingEdited);
             recyclerViewManager.scrollToPosition(currentItemBeingViewed);
         }
     }
 
 
-    private File getImageFile(Uri result, String imageUrl){
+    private File getImageFile(Uri result, String imageUrl) {
         File dir = getApplicationContext().getFilesDir();
         File file = new File(dir, imageUrl);
 
         try {
-            System.out.println("COPYING FILE DATA");
+
             InputStream inputStream = getContentResolver().openInputStream(result);
             OutputStream outputStream = new FileOutputStream(file);
             byte[] buffer = new byte[1024];
@@ -563,29 +552,29 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         return file;
     }
 
-    public static void updateItem(Recipe recipe){
-        for(int i = 0; i < items.size(); i++){
-            if(items.get(i).getRecipe().getRecipe_id() == recipe.getRecipe_id()){
+    public static void updateItem(Recipe recipe) {
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).getRecipe().getRecipe_id() == recipe.getRecipe_id()) {
                 items.get(i).update_item(recipe);
-                System.out.println("CHILD UPDATED RECIPES< " + i);
+
                 break;
             }
         }
     }
 
-    public void checkAndLogOutUserIfBanned(){
+    public void checkAndLogOutUserIfBanned() {
         final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 boolean isBanned = ApiCaller.get_caller_instance().isUserBanned(String.valueOf(currentUser.getUser_id()));
 
-                if(isBanned){
-                     runOnUiThread(new Runnable() {
-                         @Override
-                         public void run() {
-                             alertUserOfBanAndLogOut();
-                         }
-                     });
+                if (isBanned) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            alertUserOfBanAndLogOut();
+                        }
+                    });
                 }
             }
         });
@@ -593,7 +582,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         thread.start();
     }
 
-    public void alertUserOfBanAndLogOut(){
+    public void alertUserOfBanAndLogOut() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         String alertMessage = "Admin has banned you from the app. You will be signed out from the app.";
         alertDialog.setMessage(alertMessage)
@@ -601,11 +590,11 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        System.out.println("DIALOG CLOSED");
+
                         SharedPreferences sharedPreferences = getSharedPreferences("Saved User", MODE_PRIVATE);
                         sharedPreferences.edit().remove("current_user").apply();
                         Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
                         finish();
                     }

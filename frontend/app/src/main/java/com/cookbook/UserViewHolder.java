@@ -1,14 +1,11 @@
 package com.cookbook;
 
-import android.media.Image;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import org.w3c.dom.Text;
 
 public class UserViewHolder extends RecyclerView.ViewHolder {
 
@@ -24,10 +21,10 @@ public class UserViewHolder extends RecyclerView.ViewHolder {
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(recyclerViewInterface != null){
+                if (recyclerViewInterface != null) {
                     int position = getBindingAdapterPosition();
 
-                    if(position != RecyclerView.NO_POSITION){
+                    if (position != RecyclerView.NO_POSITION) {
                         recyclerViewInterface.onItemClick(position);
                     }
                 }

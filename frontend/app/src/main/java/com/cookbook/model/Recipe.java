@@ -132,9 +132,9 @@ public class Recipe implements Serializable {
                 '}';
     }
 
-    public static void deleteRecipe (Recipe recipe) {
+    public static void deleteRecipe(Recipe recipe) {
 
-        final Thread thread = new Thread (() -> {
+        final Thread thread = new Thread(() -> {
             try {
                 String deleteURL = RECIPE_URL + "?recipe_id=" + recipe.getRecipe_id() + "&user_id=" + recipe.getUser_id();
                 URL url = new URL(deleteURL);
@@ -145,16 +145,10 @@ public class Recipe implements Serializable {
                 connection.setDoOutput(false);
 
                 connection.connect();
+                int response = connection.getResponseCode();
 
-                final int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    System.out.println("DELETED SUCCESSFULLY");
-                } else {
-                    System.out.println("Could not delete for some reason.");
-                }
+            } catch (Exception ignored) {
 
-            } catch (Exception e) {
-                System.out.println("EXCEPTION OCCURRED " + e);
             }
         });
         thread.start();

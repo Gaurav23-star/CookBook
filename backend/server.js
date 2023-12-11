@@ -13,9 +13,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 
-const authRouter = require('./authenticate')
-app.use('/', authRouter)
-
 // Define endpoint constants
 const USER_DEFINED_RECIPES_ENDPOINT = '/user-defined-recipes';
 const CREATE_ACCOUNT_ENDPOINT = '/create-account';
@@ -713,7 +710,7 @@ app.get(USER_DEFINED_RECIPES_ENDPOINT.concat('/:pageNumber'), async (req, res) =
             FROM ${USER_DEFINED_RECIPES_TABLE} udr 
             JOIN ${USERS_TABLE} u ON u.user_id = udr.user_id 
             WHERE u.isBanned = 0 
-            ORDER BY udr.recipe_id 
+            ORDER BY udr.recipe_id desc
             LIMIT ${recipesPerPage} 
             OFFSET ${offset}`;
         const result = await db.pool.query(sql);
@@ -752,7 +749,7 @@ app.get(RECIPE_SEARCH, async (req, res) => {
             (SELECT COUNT(*) FROM ${COMMENTS_TABLE} c WHERE c.recipe_id = udr.recipe_id) AS num_comments,
             (SELECT COUNT(*) FROM ${FAVORITES_TABLE} f WHERE f.recipe_id = udr.recipe_id) AS num_likes
             FROM ${USER_DEFINED_RECIPES_TABLE} udr 
-            WHERE recipe_name '%${searchQuery}%' OR ingredients LIKE '%${searchQuery}%' OR description LIKE '%${searchQuery}%' OR instructions LIKE '%${searchQuery}%'
+            WHERE recipe_name LIKE '%${searchQuery}%' OR ingredients LIKE '%${searchQuery}%' OR description LIKE '%${searchQuery}%' OR instructions LIKE '%${searchQuery}%'
             LIMIT ${searchResultsLimit}`;
         const result = await db.pool.query(sql)
         res.status(200).send(convertBigIntsToNumbers(result));

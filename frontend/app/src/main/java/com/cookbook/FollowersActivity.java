@@ -1,18 +1,15 @@
 package com.cookbook;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.View;
-import android.widget.Toolbar;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.cookbook.model.ApiResponse;
-import com.cookbook.model.Recipe;
 import com.cookbook.model.User;
 import com.google.gson.Gson;
 
@@ -42,31 +39,30 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
         title = getIntent().getStringExtra("title");
         Objects.requireNonNull(getSupportActionBar()).setTitle(title);
 
-        if(getIntent().getSerializableExtra("visiting_user") != null){
+        if (getIntent().getSerializableExtra("visiting_user") != null) {
             currentUser = (User) getIntent().getSerializableExtra("visiting_user");
             loggedInUser = (User) getIntent().getSerializableExtra("current_user");
 
-        }
-        else if(getIntent().getSerializableExtra("current_user") != null){
+        } else if (getIntent().getSerializableExtra("current_user") != null) {
             current_user = (User) getIntent().getSerializableExtra("current_user");
             loggedInUser = (User) getIntent().getSerializableExtra("current_user");
 
         }
 
-       if(userList.size()==0){
-           get_Follower_List_from_server(title);
-       }else{
-           add_users_to_ui();
-       }
+        if (userList.size() == 0) {
+            get_Follower_List_from_server(title);
+        } else {
+            add_users_to_ui();
+        }
 
 
     }
 
 
-    private void add_users_to_ui(){
+    private void add_users_to_ui() {
         RecyclerView recyclerView = findViewById(R.id.followers_recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        UserAdapter userAdapter = new UserAdapter(getApplicationContext(),userList,this);
+        UserAdapter userAdapter = new UserAdapter(getApplicationContext(), userList, this);
         recyclerView.setAdapter(userAdapter);
     }
 
@@ -75,42 +71,43 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
 
         final Thread thread = new Thread(new Runnable() {
             final Handler handler = new Handler(Looper.getMainLooper());
+
             @Override
             public void run() {
 
                 ApiResponse apiResponse;
 
-                if(getIntent().getSerializableExtra("visiting_user") != null){
-                    apiResponse = ApiCaller.get_caller_instance().getUsersNetworkList( String.valueOf((currentUser).getUser_id()), title);
-                    System.out.println("user id call : " + current_user.getUser_id());
-                }else{
-                     apiResponse = ApiCaller.get_caller_instance().getUsersNetworkList( String.valueOf((loggedInUser).getUser_id()), title);
-                    System.out.println("user id call : " + loggedInUser.getUser_id());
+                if (getIntent().getSerializableExtra("visiting_user") != null) {
+                    apiResponse = ApiCaller.get_caller_instance().getUsersNetworkList(String.valueOf((currentUser).getUser_id()), title);
+
+                } else {
+                    apiResponse = ApiCaller.get_caller_instance().getUsersNetworkList(String.valueOf((loggedInUser).getUser_id()), title);
+
                 }
 
-                if(apiResponse == null){
-                    System.out.println("Server is down, Please Try again");
-                    System.out.println("-0230--03940-2940-392-4923---------");
+                if (apiResponse == null) {
+
+
                     return;
                 }
 
-                if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+                if (apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK) {
 
                     User[] users = gson.fromJson(apiResponse.getResponse_body(), User[].class);
                     userList.clear();
-                    for(User user : users){
+                    for (User user : users) {
 
                         addUserThreadSafe(new User(user));
 
                     }
 
                     //update user list on main thread
-                    handler.post(() ->{
+                    handler.post(() -> {
                         add_users_to_ui();
                     });
 
-                }else{
-                    System.out.println("Server is down, Please Try again");
+                } else {
+
                 }
             }
         });
@@ -128,12 +125,11 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
 
     @Override
     public void onItemClick(int position) {
-        System.out.println(position );
-        System.out.println("OIFOISDJFNIODSNFDIONF");
+
 
         Intent intent_Person = new Intent(getApplicationContext(), ProfileActivity.class);
-        intent_Person.putExtra("visiting_user",userList.get(position));
-        intent_Person.putExtra("current_user",current_user);
+        intent_Person.putExtra("visiting_user", userList.get(position));
+        intent_Person.putExtra("current_user", current_user);
         startActivity(intent_Person);
 
     }
@@ -143,11 +139,11 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
         super.onResume();
         // Clear the items list to ensure it's empty before repopulating it
         userList.clear();
-        if(getIntent().getSerializableExtra("visiting_user") != null){
+        if (getIntent().getSerializableExtra("visiting_user") != null) {
             currentUser = (User) getIntent().getSerializableExtra("visiting_user");
             loggedInUser = (User) getIntent().getSerializableExtra("current_user");
 
-        }else if(getIntent().getSerializableExtra("current_user") != null){
+        } else if (getIntent().getSerializableExtra("current_user") != null) {
             currentUser = (User) getIntent().getSerializableExtra("current_user");
             loggedInUser = (User) getIntent().getSerializableExtra("current_user");
         }

@@ -12,7 +12,7 @@ public class Comment {
     private String comment;
     private int comment_id;
 
-    private static final String COMMENT_URL = "http://172.16.122.20:8080/user-defined-recipes/comments";
+    private static final String COMMENT_URL = ApiCaller.host + "/user-defined-recipes/comments";
 
 
     public Comment(int user_id, int recipe_id, String username, String comment, int comment_id) {
@@ -89,14 +89,8 @@ public class Comment {
                 connection.connect();
 
                 final int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    System.out.println("DELETED SUCCESSFULLY");
-                } else {
-                    System.out.println("Could not delete for some reason.");
-                }
+            } catch (Exception ignored) {
 
-            } catch (Exception e) {
-                System.out.println("EXCEPTION OCCURRED " + e);
             }
         });
         thread.start();

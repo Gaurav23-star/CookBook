@@ -1,11 +1,5 @@
 package com.cookbook;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,6 +11,12 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.cookbook.model.ApiResponse;
 import com.cookbook.model.Recipe;
@@ -50,13 +50,13 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
         swipeRefreshLayout = findViewById(R.id.refreshLayout);
 
         //if recipes not loaded from server, then load
-        if(items.size() == 0){
-            System.out.println("LIST IS EMPTY");
+        if (items.size() == 0) {
+
             get_recipes_from_server();
         }
         //if we already have recipes loaded, then
         // just update the UI, no need to reload from server again
-        else{
+        else {
             add_recipes_to_ui();
         }
 
@@ -80,12 +80,12 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
         handleNavigationChange();
     }
 
-    public void handleNavigationChange(){
+    public void handleNavigationChange() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.bottom_favorites);
 
-        bottomNavigationView.setOnItemSelectedListener(item ->{
-            switch (item.getItemId()){
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            switch (item.getItemId()) {
                 case R.id.bottom_favorites:
                     //check if the user is banned
                     checkAndLogOutUserIfBanned();
@@ -94,16 +94,16 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
                     //check if the user is banned
                     checkAndLogOutUserIfBanned();
                     Intent intent_Person = new Intent(getApplicationContext(), ProfileActivity.class);
-                    intent_Person.putExtra("current_user",currentUser);
+                    intent_Person.putExtra("current_user", currentUser);
                     startActivity(intent_Person);
-                    overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
+                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                     finish();
                     return true;
                 case R.id.bottom_settings:
                     //check if the user is banned
                     checkAndLogOutUserIfBanned();
                     Intent intent_Settings = new Intent(getApplicationContext(), SettingsActivity.class);
-                    intent_Settings.putExtra("current_user",currentUser);
+                    intent_Settings.putExtra("current_user", currentUser);
                     startActivity(intent_Settings);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
@@ -114,7 +114,7 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
                     //check if the user is banned
                     checkAndLogOutUserIfBanned();
                     Intent intent_Notifications = new Intent(getApplicationContext(), NotificationsActivity.class);
-                    intent_Notifications.putExtra("current_user",currentUser);
+                    intent_Notifications.putExtra("current_user", currentUser);
                     startActivity(intent_Notifications);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
@@ -123,7 +123,7 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
                     //check if the user is banned
                     checkAndLogOutUserIfBanned();
                     Intent intent_Home = new Intent(getApplicationContext(), HomeActivity.class);
-                    intent_Home.putExtra("current_user",currentUser);
+                    intent_Home.putExtra("current_user", currentUser);
                     startActivity(intent_Home);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
@@ -134,24 +134,23 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
         });
     }
 
-    private void get_recipes_from_server(){
+    private void get_recipes_from_server() {
         final Thread thread = new Thread(new Runnable() {
             final Handler handler = new Handler(Looper.getMainLooper());
+
             @Override
             public void run() {
                 ApiResponse apiResponse = ApiCaller.get_caller_instance().getFavoriteRecipes("?user_id=" + currentUser.getUser_id());
 
-                if(apiResponse == null){
+                if (apiResponse == null) {
                     display_server_down_error("Server is down, Please Try again");
                     return;
                 }
 
-                if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK) {
+                if (apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK) {
                     Recipe[] recipes = gson.fromJson(apiResponse.getResponse_body(), Recipe[].class);
 
                     for (Recipe recipe : recipes) {
-                        if (recipe == null) System.out.println("RECIPE IS NULL");
-                        else System.out.println("RECIPE IS NOT NULL");
                         addItemThreadSafe(recipe);
                     }
 
@@ -160,7 +159,7 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
                         add_recipes_to_ui();
                     });
 
-                } else{
+                } else {
                     display_server_down_error("Something went wrong.");
                 }
             }
@@ -173,15 +172,15 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
         items.add(new Item(recipe));
     }
 
-    private void add_recipes_to_ui(){
+    private void add_recipes_to_ui() {
         favoritesPageTextView.setVisibility(View.INVISIBLE);
         RecyclerView recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        MyAdapter adapter = new MyAdapter(getApplicationContext(), items,this, currentUser.getIsAdmin(), currentUser);
+        MyAdapter adapter = new MyAdapter(getApplicationContext(), items, this, currentUser.getIsAdmin(), currentUser);
         recyclerView.setAdapter(adapter);
     }
 
-    private void display_server_down_error(String errorText){
+    private void display_server_down_error(String errorText) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -194,10 +193,9 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
 
     @Override
     public void onItemClick(int position) {
-        System.out.println(items.toString());
 
-        System.out.println("CURRENT USEr CLICK " + currentUser.getUser_id());
-        if (currentUser.getIsAdmin()==0) {
+
+        if (currentUser.getIsAdmin() == 0) {
             changeActivityToRecipeActivity(currentUser, items.get(position).getRecipe());
 
         } else {
@@ -212,20 +210,20 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
         }
     }
 
-    private void changeActivityToRecipeActivity(User user, Recipe recipe){
+    private void changeActivityToRecipeActivity(User user, Recipe recipe) {
         final Intent intent = new Intent(FavoriteActivity.this, RecipeActivity.class);
-        intent.putExtra("current_user",user);
+        intent.putExtra("current_user", user);
         intent.putExtra("current_recipe", recipe);
         startActivity(intent);
     }
 
-    public void checkAndLogOutUserIfBanned(){
+    public void checkAndLogOutUserIfBanned() {
         final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 boolean isBanned = ApiCaller.get_caller_instance().isUserBanned(String.valueOf(currentUser.getUser_id()));
 
-                if(isBanned){
+                if (isBanned) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -239,7 +237,7 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
         thread.start();
     }
 
-    public void alertUserOfBanAndLogOut(){
+    public void alertUserOfBanAndLogOut() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         String alertMessage = "Admin has banned you from the app. You will be signed out from the app.";
         alertDialog.setMessage(alertMessage)
@@ -247,11 +245,11 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        System.out.println("DIALOG CLOSED");
+
                         SharedPreferences sharedPreferences = getSharedPreferences("Saved User", MODE_PRIVATE);
                         sharedPreferences.edit().remove("current_user").apply();
                         Intent intent = new Intent(FavoriteActivity.this, LoginActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
                         finish();
                     }

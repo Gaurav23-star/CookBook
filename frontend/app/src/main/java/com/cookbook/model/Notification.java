@@ -21,17 +21,17 @@ public class Notification {
         this.post_id = post_id;
         this.created_at = created_at;
 
-        if(this.type.equals("follow")){
+        if (this.type.equals("follow")) {
             this.text = "is following you";
-        }else if(type.equals("like")){
+        } else if (type.equals("like")) {
             this.text = "liked your post";
-        }else{
+        } else {
             this.text = "commented on your post";
         }
 
     }
 
-    public Notification(Notification notification){
+    public Notification(Notification notification) {
         this.id = notification.getId();
         this.username = notification.getUsername();
         this.type = notification.getType();
@@ -39,11 +39,11 @@ public class Notification {
         this.to_user_id = notification.getTo_user_id();
         this.post_id = notification.getPost_id();
         this.created_at = notification.getCreated_at();
-        if(this.type.equals("follow")){
+        if (this.type.equals("follow")) {
             this.text = "is following you";
-        }else if(type.equals("like")){
+        } else if (type.equals("like")) {
             this.text = "liked your post";
-        }else{
+        } else {
             this.text = "commented on your post";
         }
     }

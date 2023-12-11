@@ -1,14 +1,11 @@
 package com.cookbook;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.PersistableBundle;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 
@@ -36,12 +33,13 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
     private MyAdapter recyclerViewAdapter;
     private LinearLayoutManager recyclerViewManager;
     private static final List<Item> items = Collections.synchronizedList(new ArrayList<Item>());
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_search);
 
-        if(getIntent().getSerializableExtra("current_user") != null){
+        if (getIntent().getSerializableExtra("current_user") != null) {
             currentUser = (User) getIntent().getSerializableExtra("current_user");
         }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -51,7 +49,7 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
         recipesRecyclerView = findViewById(R.id.recipeRecyclerView);
         recyclerViewManager = new LinearLayoutManager(this);
         recipesRecyclerView.setLayoutManager(recyclerViewManager);
-        recyclerViewAdapter = new MyAdapter(getApplicationContext(),items,this, currentUser.getIsAdmin(), currentUser);
+        recyclerViewAdapter = new MyAdapter(getApplicationContext(), items, this, currentUser.getIsAdmin(), currentUser);
         recipesRecyclerView.setAdapter(recyclerViewAdapter);
 
 
@@ -70,11 +68,10 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
                     @Override
                     public void run() {
                         // do stuff
-                        if(newText.trim().equals("")){
+                        if (newText.trim().equals("")) {
                             items.clear();
                             recyclerViewAdapter.notifyDataSetChanged();
-                        }
-                        else getRecipesFromSearchQuery(newText);
+                        } else getRecipesFromSearchQuery(newText);
                     }
                 }, 500);
                 return false;
@@ -82,17 +79,15 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
         });
 
 
-
     }
 
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
-            case android.R.id.home:
-                finish();
-                return true;
+        // Respond to the action bar's Up/Home button
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -100,10 +95,9 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
 
     @Override
     public void onItemClick(int position) {
-        System.out.println(items.toString());
 
-        System.out.println("CURRENT USEr CLICK " + currentUser.getUser_id());
-        if (currentUser.getIsAdmin()==0) {
+
+        if (currentUser.getIsAdmin() == 0) {
             changeActivityToRecipeActivity(currentUser, items.get(position).getRecipe());
         } else {
             final Dialog dialog = new Dialog(this);
@@ -116,13 +110,13 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
             dialog.show();
 
             deleteRecipe.setOnClickListener(view -> {
-                System.out.println("deleteRecipe selected");
+
                 Recipe dRecipe = (items.get(position).getRecipe());
                 Recipe.deleteRecipe(dRecipe);
 
                 //remove deleted recipe from UI
-                for(Item recipe : items){
-                    if(recipe.getRecipe().getRecipe_id() == dRecipe.getRecipe_id()){
+                for (Item recipe : items) {
+                    if (recipe.getRecipe().getRecipe_id() == dRecipe.getRecipe_id()) {
                         items.remove(recipe);
                         break;
                     }
@@ -136,7 +130,7 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
 
                 int ban_id = items.get(position).getRecipe().getUser_id();
 
-                System.out.println("banUser selected, banning user with id: " + ban_id);
+
                 User.banUser(ban_id);
 //
 //                for (Item recipe : items) {
@@ -153,78 +147,45 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
         }
     }
 
-    private void changeActivityToRecipeActivity(User user, Recipe recipe){
+    private void changeActivityToRecipeActivity(User user, Recipe recipe) {
 
         final Intent intent = new Intent(RecipeSearchActivity.this, RecipeActivity.class);
-        intent.putExtra("current_user",user);
+        intent.putExtra("current_user", user);
         intent.putExtra("current_recipe", recipe);
         startActivity(intent);
     }
 
-    private void getRecipesFromSearchQuery(String text){
+    private void getRecipesFromSearchQuery(String text) {
         final Thread thread = new Thread(new Runnable() {
             final Handler handler = new Handler(Looper.getMainLooper());
+
             @Override
             public void run() {
 
                 ApiResponse apiResponse = ApiCaller.get_caller_instance().getRecipeSearch(text);
 
-                if(apiResponse == null){
-                    System.out.println("Server is down, Please Try again");
-                    System.out.println("-0230--03940-2940-392-4923---------");
+                if (apiResponse == null) {
+
+
                     return;
                 }
 
-                if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
+                if (apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK) {
 
                     items.clear();
                     Recipe[] recipes = new Gson().fromJson(apiResponse.getResponse_body(), Recipe[].class);
 
-                    for(Recipe recipe : recipes){
+                    for (Recipe recipe : recipes) {
                         addItemThreadSafe(recipe);
                     }
 
                     //update user list on main thread
-                    handler.post(() ->{
+                    handler.post(() -> {
                         recyclerViewAdapter.notifyDataSetChanged();
                     });
 
-                }else{
-                    System.out.println("Server is down, Please Try again");
-                }
-            }
-        });
+                } else {
 
-        thread.start();
-    }
-    private void get_recipes_from_server(){
-        final Thread thread = new Thread(new Runnable() {
-            final Handler handler = new Handler(Looper.getMainLooper());
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void run() {
-                ApiResponse apiResponse = ApiCaller.get_caller_instance().getAllRecipes();
-
-                if(apiResponse == null){
-                    return;
-                }
-
-                if(apiResponse.getResponse_code() == HttpURLConnection.HTTP_OK){
-                    Gson gson = new Gson();
-                    Recipe[] recipes = gson.fromJson(apiResponse.getResponse_body(), Recipe[].class);
-                    int startPosition = items.size();
-                    for(Recipe recipe : recipes){
-                        addItemThreadSafe(recipe);
-                    }
-
-                    //update recipe list on main thread
-                    handler.post(() ->{
-                        recyclerViewAdapter.notifyDataSetChanged();
-                       // progressBar.setVisibility(View.GONE);
-                    });
-
-                }else{
-                    //display_server_down_error("Something went wrong.");
                 }
             }
         });
@@ -233,6 +194,6 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
     }
 
     public synchronized void addItemThreadSafe(Recipe recipe) {
-        items.add(new Item (recipe));
+        items.add(new Item(recipe));
     }
 }

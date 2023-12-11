@@ -1,16 +1,14 @@
 package com.cookbook;
 
-import androidx.annotation.NonNull;
-
-
 import android.content.Context;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -22,9 +20,9 @@ import java.util.List;
 
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder> {
 
-    private Context context;
+    private final Context context;
     private List<Notification> notifications = Collections.synchronizedList(new ArrayList<Notification>());
-    private RecyclerViewInterface recyclerViewInterface;
+    private final RecyclerViewInterface recyclerViewInterface;
 
     public NotificationAdapter(Context context, List<Notification> notifications, RecyclerViewInterface recyclerViewInterface) {
         this.context = context;
@@ -45,14 +43,15 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         holder.image_profile.setImageResource(R.drawable.chef_profile);
         holder.post_image.setImageResource(0);//set to nothing
 
-        if(! notifications.get(position).getText().equals("is following you")){
-            load_recipe_image(position,holder);
+        if (!notifications.get(position).getText().equals("is following you")) {
+            load_recipe_image(position, holder);
         }
 
     }
-    private void load_recipe_image(int position, ViewHolder holder){
+
+    private void load_recipe_image(int position, ViewHolder holder) {
         String url = ApiCaller.GET_RECIPE_IMAGE_URL + notifications.get(position).getPost_id();
-        System.out.println("REQUEST IMAGE " + url);
+
         Glide.with(this.context).load(url).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).into(holder.post_image);
 
     }
@@ -63,7 +62,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     }
 
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public class ViewHolder extends RecyclerView.ViewHolder {
 
         public ImageView image_profile, post_image;
         public TextView username, text;
@@ -79,10 +78,10 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(recyclerViewInterface != null){
+                    if (recyclerViewInterface != null) {
                         int position = getBindingAdapterPosition();
 
-                        if(position != RecyclerView.NO_POSITION){
+                        if (position != RecyclerView.NO_POSITION) {
                             recyclerViewInterface.onItemClick(position);
                         }
                     }
