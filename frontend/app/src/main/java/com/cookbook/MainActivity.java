@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // Method to load user information from SharedPreferences
     public User load_user() {
         SharedPreferences sharedPreferences = getSharedPreferences("Saved User", MODE_PRIVATE);
         String user_json_string = sharedPreferences.getString("current_user", null);

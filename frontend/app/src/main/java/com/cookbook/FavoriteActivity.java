@@ -80,6 +80,9 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
         handleNavigationChange();
     }
 
+    /**
+     * Handles the change in the bottom navigation view.
+     */
     public void handleNavigationChange() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.bottom_favorites);
@@ -134,6 +137,9 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
         });
     }
 
+    /**
+     * Retrieves recipes from the server.
+     */
     private void get_recipes_from_server() {
         final Thread thread = new Thread(new Runnable() {
             final Handler handler = new Handler(Looper.getMainLooper());
@@ -168,10 +174,18 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
         thread.start();
     }
 
+    /**
+     * Adds an item to the list in a thread-safe manner.
+     *
+     * @param recipe The recipe to add.
+     */
     private synchronized void addItemThreadSafe(Recipe recipe) {
         items.add(new Item(recipe));
     }
 
+    /**
+     * Updates the UI by adding recipes to the RecyclerView.
+     */
     private void add_recipes_to_ui() {
         favoritesPageTextView.setVisibility(View.INVISIBLE);
         RecyclerView recyclerView = findViewById(R.id.recyclerview);
@@ -180,6 +194,11 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
         recyclerView.setAdapter(adapter);
     }
 
+    /**
+     * Displays a server down error message.
+     *
+     * @param errorText The error message to display.
+     */
     private void display_server_down_error(String errorText) {
         runOnUiThread(new Runnable() {
             @Override
@@ -210,6 +229,12 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
         }
     }
 
+    /**
+     * Changes the activity to RecipeActivity.
+     *
+     * @param user   The current user.
+     * @param recipe The selected recipe.
+     */
     private void changeActivityToRecipeActivity(User user, Recipe recipe) {
         final Intent intent = new Intent(FavoriteActivity.this, RecipeActivity.class);
         intent.putExtra("current_user", user);
@@ -217,6 +242,9 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
         startActivity(intent);
     }
 
+    /**
+     * Checks if the user is banned and logs them out if banned.
+     */
     public void checkAndLogOutUserIfBanned() {
         final Thread thread = new Thread(new Runnable() {
             @Override
@@ -237,6 +265,9 @@ public class FavoriteActivity extends AppCompatActivity implements RecyclerViewI
         thread.start();
     }
 
+    /**
+     * Alerts the user of the ban and logs them out.
+     */
     public void alertUserOfBanAndLogOut() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         String alertMessage = "Admin has banned you from the app. You will be signed out from the app.";

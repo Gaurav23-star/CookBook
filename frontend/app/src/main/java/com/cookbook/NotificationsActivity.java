@@ -77,6 +77,7 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
         notificationList.add(notification);
     }
 
+    // Method to change the activity to RecipeActivity
     private void changeActivityToRecipeActivity(User user, Recipe recipe) {
         final Intent intent = new Intent(NotificationsActivity.this, RecipeActivity.class);
         intent.putExtra("current_user", user);
@@ -84,6 +85,7 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
         startActivity(intent);
     }
 
+    // Method to add notifications to the UI
     private void add_notifications_to_ui() {
         noNotificationsTextView.setVisibility(View.GONE);
         RecyclerView recyclerView = findViewById(R.id.notifications_recycler_view);
@@ -93,6 +95,7 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
 
     }
 
+    // Method to fetch notification list from the server
     private void get_notification_list_from_server() {
 
         final Thread thread = new Thread(new Runnable() {
@@ -157,6 +160,7 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
 
     }
 
+    // Method to fetch a recipe from the server
     private void get_recipe_from_server(String recipe_id) {
         final Thread thread = new Thread(new Runnable() {
             final Handler handler = new Handler(Looper.getMainLooper());
@@ -189,6 +193,7 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
     }
 
 
+    // Method to handle bottom navigation changes
     public void handleNavigationChange() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.bottom_notifications);
@@ -233,6 +238,7 @@ public class NotificationsActivity extends AppCompatActivity implements Recycler
     }
 
 
+    // Item click callback from RecyclerView
     @Override
     public void onItemClick(int position) {
 

@@ -65,6 +65,11 @@ final public class ApiCaller {
 
     }
 
+    /**
+     * Get an instance of the ApiCaller using the singleton pattern.
+     *
+     * @return An instance of ApiCaller.
+     */
     public static ApiCaller get_caller_instance() {
         if (apiCaller == null) {
             apiCaller = new ApiCaller();
@@ -72,6 +77,13 @@ final public class ApiCaller {
         return apiCaller;
     }
 
+    /**
+     * Make a GET request to the specified URL with the given query.
+     *
+     * @param sUrl  The base URL.
+     * @param query The query parameters.
+     * @return An ApiResponse object containing the response code and body.
+     */
     private ApiResponse get_request(String sUrl, String query) {
         try {
             final URL url = new URL(sUrl + query);
@@ -87,6 +99,13 @@ final public class ApiCaller {
         }
         return null;
     }
+    /**
+     * Make a POST request to the specified URL with the given request body.
+     *
+     * @param sUrl        The base URL.
+     * @param RequestBody The request body in JSON format.
+     * @return An ApiResponse object containing the response code and body.
+     */
 
     private ApiResponse post_request(String sUrl, String RequestBody) {
 
@@ -119,7 +138,13 @@ final public class ApiCaller {
         return null;
     }
 
-
+    /**
+     * Make a DELETE request to the specified URL with the given request body.
+     *
+     * @param sUrl        The base URL.
+     * @param RequestBody The request body in JSON format.
+     * @return An ApiResponse object containing the response code and body.
+     */
     private ApiResponse delete_request(String sUrl, String RequestBody) {
         try {
             final URL url = new URL(sUrl);
@@ -150,6 +175,13 @@ final public class ApiCaller {
         return null;
     }
 
+    /**
+     * Perform user login with the given email and password.
+     *
+     * @param email    The user's email.
+     * @param password The user's password.
+     * @return An ApiResponse object containing the login response.
+     */
     public ApiResponse login(String email, String password) {
         final String jsonData = "{\"email_id\":\"" + email + "\", \"password\":\"" + password + "\"}";
         ApiResponse apiResponse = post_request(LOGIN_URL, jsonData);
@@ -165,6 +197,16 @@ final public class ApiCaller {
         return apiResponse;
     }
 
+    /**
+     * Sign up a new user with the provided user information.
+     *
+     * @param firstName The user's first name.
+     * @param lastName  The user's last name.
+     * @param email     The user's email address.
+     * @param password  The user's chosen password.
+     * @param username  The desired username for the new user.
+     * @return An ApiResponse object containing the response code and body after signing up.
+     */
     public ApiResponse signup(String firstName, String lastName, String email, String password, String username) {
         final String jsonData = "{\"first_name\": \"" + firstName + "\"," +
                 "\"last_name\": \"" + lastName + "\", " +
@@ -175,9 +217,6 @@ final public class ApiCaller {
         return post_request(SIGNUP_URL, jsonData);
     }
 
-    public ApiResponse getAllRecipes() {
-        return get_request(RECIPE_URL, "");
-    }
 
     public ApiResponse getRecipePages(int pageNumber) {
         return get_request(RECIPE_URL + "/" + pageNumber, "");
@@ -259,10 +298,6 @@ final public class ApiCaller {
         return get_request(USER_HAS_FAVORITED, user_id + "&" + "recipe_id=" + recipe_id);
     }
 
-    public ApiResponse deleteComment(int comment_id) {
-        String delParam = "?commentId=" + comment_id;
-        return delete_request(COMMENTS_URL, delParam);
-    }
 
     public ApiResponse getAllComments(int recipe_id) {
         String queryParams = "?recipeId=" + recipe_id;

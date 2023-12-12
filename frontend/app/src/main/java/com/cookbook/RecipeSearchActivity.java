@@ -34,6 +34,7 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
     private LinearLayoutManager recyclerViewManager;
     private static final List<Item> items = Collections.synchronizedList(new ArrayList<Item>());
 
+    // Called when the activity is created
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +83,7 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
     }
 
 
+    // Handles options item selection in the action bar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Respond to the action bar's Up/Home button
@@ -93,6 +95,7 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
     }
 
 
+    // Handles item click events in the RecyclerView
     @Override
     public void onItemClick(int position) {
 
@@ -122,7 +125,6 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
                     }
                 }
                 recyclerViewAdapter.notifyDataSetChanged();
-                //add_recipes_to_ui();
                 dialog.dismiss();
             });
 
@@ -132,21 +134,15 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
 
 
                 User.banUser(ban_id);
-//
-//                for (Item recipe : items) {
-//                    if (recipe.getRecipe().getUser_id() == ban_id) {
-//                        items.remove(recipe);
-//                    }
-//
-//                }
 
                 recyclerViewAdapter.notifyDataSetChanged();
-                //add_recipes_to_ui();
+
                 dialog.dismiss();
             });
         }
     }
 
+    // Changes the activity to RecipeActivity based on the selected recipe and user
     private void changeActivityToRecipeActivity(User user, Recipe recipe) {
 
         final Intent intent = new Intent(RecipeSearchActivity.this, RecipeActivity.class);
@@ -155,6 +151,7 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
         startActivity(intent);
     }
 
+    // Retrieves recipes from the server based on a search query
     private void getRecipesFromSearchQuery(String text) {
         final Thread thread = new Thread(new Runnable() {
             final Handler handler = new Handler(Looper.getMainLooper());
@@ -193,6 +190,7 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
         thread.start();
     }
 
+    // Adds an item to the list of items in a thread-safe manner
     public synchronized void addItemThreadSafe(Recipe recipe) {
         items.add(new Item(recipe));
     }

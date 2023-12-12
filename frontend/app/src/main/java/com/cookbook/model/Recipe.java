@@ -8,6 +8,7 @@ import java.net.URL;
 
 public class Recipe implements Serializable {
 
+    // Fields representing attributes of a recipe
     protected int recipe_id;
     protected String recipe_name;
     protected int servings;
@@ -19,8 +20,10 @@ public class Recipe implements Serializable {
     protected int num_comments;
     protected int num_likes;
 
+    // Base URL for recipe-related API calls
     private static final String RECIPE_URL = ApiCaller.host + "/user-defined-recipes";
 
+    // Constructor for creating a Recipe object
     public Recipe(int recipe_id, String recipe_name, int servings, int preparation_time_minutes, String ingredients, String description, String instructions, int user_id, int num_comments, int num_likes) {
         this.recipe_id = recipe_id;
         this.recipe_name = recipe_name;
@@ -34,90 +37,80 @@ public class Recipe implements Serializable {
         this.num_likes = num_likes;
     }
 
+    // Default constructor
     public Recipe() {
 
     }
 
+    // Getter method to retrieve the number of comments on the recipe
     public int getNum_comments() {
         return num_comments;
     }
 
+    // Setter method to set the number of comments on the recipe
     public void setNum_comments(int num_comments) {
         this.num_comments = num_comments;
     }
 
+    // Getter method to retrieve the number of likes on the recipe
     public int getNum_likes() {
         return num_likes;
     }
 
+    // Setter method to set the number of likes on the recipe
     public void setNum_likes(int num_likes) {
         this.num_likes = num_likes;
     }
 
+    // Getter method to retrieve the ID of the recipe
     public int getRecipe_id() {
         return recipe_id;
     }
 
-    public void setRecipe_id(int recipe_id) {
-        this.recipe_id = recipe_id;
-    }
 
+    // Getter method to retrieve the name of the recipe
     public String getRecipe_name() {
         return recipe_name;
     }
 
-    public void setRecipe_name(String recipe_name) {
-        this.recipe_name = recipe_name;
-    }
 
+    // Getter method to retrieve the number of servings
     public int getServings() {
         return servings;
     }
 
-    public void setServings(int servings) {
-        this.servings = servings;
-    }
 
+    // Getter method to retrieve the preparation time in minutes
     public int getPreparation_time_minutes() {
         return preparation_time_minutes;
     }
 
-    public void setPreparation_time_minutes(int preparation_time_minutes) {
-        this.preparation_time_minutes = preparation_time_minutes;
-    }
 
+    // Getter method to retrieve the list of ingredients
     public String getIngredients() {
         return ingredients;
     }
 
-    public void setIngredients(String ingredients) {
-        this.ingredients = ingredients;
-    }
 
+    // Getter method to retrieve the description of the recipe
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
+    // Getter method to retrieve the cooking instructions
     public String getInstructions() {
         return instructions;
     }
 
-    public void setInstructions(String instructions) {
-        this.instructions = instructions;
-    }
 
+    // Getter method to retrieve the ID of the user who created the recipe
     public int getUser_id() {
         return user_id;
     }
 
-    public void setUser_id(int user_id) {
-        this.user_id = user_id;
-    }
 
+    // String representation of the Recipe object
     @Override
     public String toString() {
         return "Recipe{" +
@@ -134,6 +127,7 @@ public class Recipe implements Serializable {
                 '}';
     }
 
+    // Method to delete a recipe using API call
     public static void deleteRecipe(Recipe recipe) {
 
         final Thread thread = new Thread(() -> {

@@ -24,18 +24,21 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     private List<Notification> notifications = Collections.synchronizedList(new ArrayList<Notification>());
     private final RecyclerViewInterface recyclerViewInterface;
 
+
     public NotificationAdapter(Context context, List<Notification> notifications, RecyclerViewInterface recyclerViewInterface) {
         this.context = context;
         this.notifications = notifications;
         this.recyclerViewInterface = recyclerViewInterface;
     }
 
+    // Inflates the layout for each item in the RecyclerView
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new NotificationAdapter.ViewHolder(LayoutInflater.from(context).inflate(R.layout.notification_item, parent, false), recyclerViewInterface);
     }
 
+    // Binds data to the ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.username.setText("@" + notifications.get(position).getUsername());
@@ -49,6 +52,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     }
 
+    // Loads a recipe image using Glide
     private void load_recipe_image(int position, ViewHolder holder) {
         String url = ApiCaller.GET_RECIPE_IMAGE_URL + notifications.get(position).getPost_id();
 
@@ -62,6 +66,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     }
 
 
+    // ViewHolder class for holding views of each item
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         public ImageView image_profile, post_image;

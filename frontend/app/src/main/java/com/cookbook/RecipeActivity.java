@@ -101,7 +101,6 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         prepTimeView = findViewById(R.id.prepTimeEditText);
         servingsView = findViewById(R.id.servingsEditText);
         recipeOwnerView = findViewById(R.id.recipeOwnerView);
-        //recipePicture.setImageResource(R.drawable.foodplaceholder);
         loadRecipeImage(recipePicture);
 
         titleView.setText(currentRecipe.getRecipe_name());
@@ -141,7 +140,6 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         if (currentRecipe.getUser_id() != currentUser.getUser_id()) {
             loadRecipeOwnerProfile(Integer.toString(currentRecipe.getUser_id()));
         } else {
-            //String displayName = currentUser.getFirst_name() + " " + currentUser.getLast_name();
             String displayName = currentUser.getUsername();
             nameView.setText(displayName);
         }
@@ -246,6 +244,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         }
     }
 
+    // Handles options item selection in the action bar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Respond to the action bar's Up/Home button
@@ -256,6 +255,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         return super.onOptionsItemSelected(item);
     }
 
+    // Loads the profile of the owner of the recipe
     private void loadRecipeOwnerProfile(String userId) {
         final Thread thread = new Thread(new Runnable() {
             @Override
@@ -282,6 +282,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         thread.start();
     }
 
+    // Loads the profile of the owner of a comment
     private void loadCommentOwnerProfile(String userId) {
         final Thread thread = new Thread(new Runnable() {
             @Override
@@ -305,6 +306,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         thread.start();
     }
 
+    // Opens the profile activity for a given user
     private void loadUserProfile(User user) {
         Intent intent_Person = new Intent(getApplicationContext(), ProfileActivity.class);
         intent_Person.putExtra("visiting_user", user);
@@ -312,6 +314,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         startActivity(intent_Person);
     }
 
+    // Updates the recipe on the server
     private void update_recipe_on_server(Recipe updatedRecipe) {
         final Thread thread = new Thread(() -> {
 
@@ -352,6 +355,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         thread.start();
     }
 
+    // Displays a success message when the recipe is updated
     private void recipe_updated_success() {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
@@ -362,6 +366,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         });
     }
 
+    // Displays an error message when unable to update the recipe
     private void unable_to_update_recipe() {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
@@ -371,6 +376,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         });
     }
 
+    // Makes the specified fields editable
     private void makeFieldsEditable(EditText view) {
         //view.setBackground(getResources().getDrawable(R.drawable.edittext_border));
         int originalLines = view.getLineCount();
@@ -386,6 +392,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         view.requestLayout();
     }
 
+    // Makes the specified fields non-editable
     private void makeFieldsNonEditable(EditText view) {
         //view.setBackground(null);
         int originalLines = view.getLineCount();
@@ -397,6 +404,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         view.setVerticalScrollBarEnabled(true);
     }
 
+    // Checks if the entry in the EditText is valid
     private boolean isValidEntry(EditText view) {
         if (view.getText().toString().trim().equals("")) {
             view.setError("cannot be empty");
@@ -406,12 +414,14 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
     }
 
 
+    // Converts the input stream to a string
     private String convertStreamToString(InputStream is) {
         final Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
         return scanner.hasNext() ? scanner.next() : "";
     }
 
 
+    // Updates the recipe list in the home activity
     private void update_home_activity_recipe_list(Recipe recipe) {
         HomeActivity.updateItem(recipe);
         //SharedPreferences sharedPreferences = getSharedPreferences("Updated_recipe", MODE_PRIVATE);
@@ -419,6 +429,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
     }
 
 
+    // Called when the activity is paused
     @Override
     protected void onPause() {
         super.onPause();
@@ -429,6 +440,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         }
     }
 
+    // Retrieves comments from the server for a given recipe ID
     private void getCommentsFromServer(int recipe_id) {
 
 
@@ -463,6 +475,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         thread.start();
     }
 
+    // Posts a comment to the server
     private void postCommentToServer(Comment comment) {
 
 
@@ -513,6 +526,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
     }
 
 
+    // Displays comments on the UI using a RecyclerView
     private void display_comments_on_ui() {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         CommentsViewAdapter commentsViewAdapter = new CommentsViewAdapter(getApplicationContext(), commentList, this);
@@ -521,11 +535,13 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
 
     }
 
+    // Loads the recipe image using Glide
     private void loadRecipeImage(ImageView imageView) {
         String url = ApiCaller.GET_RECIPE_IMAGE_URL + currentRecipe.getRecipe_id();
         Glide.with(this).load(url).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).dontAnimate().into(imageView);
     }
 
+    // Handles item click events in the RecyclerView
     @Override
     public void onItemClick(int position) {
         if (currentUser.getIsAdmin() == 0) {
@@ -561,6 +577,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         }
     }
 
+    // Gets the image file from the selected URI
     private File getImageFile(Uri result, String imageUrl) {
         File dir = getApplicationContext().getFilesDir();
         File file = new File(dir, imageUrl);
