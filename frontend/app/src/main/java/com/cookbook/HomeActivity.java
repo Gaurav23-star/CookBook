@@ -590,6 +590,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
                 if (getIntent().getSerializableExtra("value") != null) {
                     mockAPI = getIntent().getIntExtra("value",0);
                 }
+
                 if(mockAPI==1){
                     return;
                 }
