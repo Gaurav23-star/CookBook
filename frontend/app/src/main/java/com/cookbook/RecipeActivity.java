@@ -563,7 +563,7 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
                 getCommentsFromServer(currentRecipe.getRecipe_id());
                 currentRecipe.setNum_comments(currentRecipe.getNum_comments() - 1);
                 update_home_activity_recipe_list(currentRecipe);
-
+                display_comments_on_ui();
 
                 dialog.dismiss();
             });
