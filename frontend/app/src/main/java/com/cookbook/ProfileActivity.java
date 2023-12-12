@@ -168,6 +168,7 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         handleNavigationChange();
     }
 
+    // Method to add recipes to the UI
     private void add_recipes_to_ui() {
         RecyclerView recyclerView = findViewById(R.id.profile_recyclerview);
         ProfileAdapter adapter = new ProfileAdapter(getApplicationContext(), items, this, currentUser.getIsAdmin());// ---
@@ -178,6 +179,7 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
 
     }
 
+    // Method to get the count of users following and users being followed
     private void get_Users_Following_And_FollowingCount() {
         final Thread thread = new Thread(new Runnable() {
             final Handler handler = new Handler(Looper.getMainLooper());
@@ -213,6 +215,7 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
 
     }
 
+    // Method to fetch user-created recipes from the server
     private void get_user_created_recipes_from_server() {
         final Thread thread = new Thread(new Runnable() {
             final Handler handler = new Handler(Looper.getMainLooper());
@@ -257,11 +260,13 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         items.add(new Item(recipe));
     }
 
+    // Method to display a server down error
     private void display_server_down_error(String errorText) {
         server_error_text.setText(errorText);
         server_error_text.setVisibility(View.VISIBLE);
     }
 
+    // Method to handle bottom navigation changes
     public void handleNavigationChange() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.bottom_person);
@@ -317,6 +322,7 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         });
     }
 
+    // Item click callback from RecyclerView
     @Override
     public void onItemClick(int position) {
         if (currentUser.getIsAdmin() == 0) {
@@ -324,6 +330,7 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
         }
     }
 
+    // Method to change the activity to RecipeActivity
     private void changeActivityToRecipeActivity(User user, Recipe recipe) {
         final Intent intent = new Intent(ProfileActivity.this, RecipeActivity.class);
         intent.putExtra("current_user", user);
@@ -332,6 +339,7 @@ public class ProfileActivity extends AppCompatActivity implements RecyclerViewIn
     }
 
 
+    // Method to check if the user is banned and log them out if banned
     private void is_user_following_visitor(String loggedInUserId, String currentUserId) {
 
         final Thread thread = new Thread(new Runnable() {

@@ -20,6 +20,8 @@ import java.net.HttpURLConnection;
 import java.util.Scanner;
 
 public class LoginActivity extends AppCompatActivity {
+
+    // UI elements
     private EditText emailEditText;
     private EditText passwordEditText;
     private TextView errorTextView;
@@ -38,6 +40,7 @@ public class LoginActivity extends AppCompatActivity {
         errorTextView = findViewById(R.id.ErrorTextView);
     }
 
+    // Click handler for the login button
     public void onLoginClick(final View view) {
         this.errorTextView.setVisibility(View.INVISIBLE);
         final String email = emailEditText.getText().toString();
@@ -74,6 +77,7 @@ public class LoginActivity extends AppCompatActivity {
         thread.start();
     }
 
+    // Method to navigate to the home activity with the current user
     private void changeActivityToUserHome(User user) {
         final Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
         intent.putExtra("current_user", user);
@@ -81,6 +85,7 @@ public class LoginActivity extends AppCompatActivity {
         finish();
     }
 
+    // Method to display an error message for invalid credentials
     @SuppressLint("SetTextI18n")
     private void printInvalidCredentialsLoginFailure(String message) {
         runOnUiThread(new Runnable() {
@@ -93,6 +98,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    // Method to display an error message for server down failure
     @SuppressLint("SetTextI18n")
     private void printServerDownFailure() {
         runOnUiThread(new Runnable() {

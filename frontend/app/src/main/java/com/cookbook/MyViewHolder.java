@@ -30,6 +30,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
     private boolean like_clicked;
     static int recipeId;
 
+    // Constructor for the ViewHolder
     public MyViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
         super(itemView);
         imageView = itemView.findViewById(R.id.imageview);
@@ -81,11 +82,13 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
         });
     }
 
+    // Binds data to the ViewHolder
     public void bind(Item item, User currentUser) {
         MyViewHolder.currentUser = currentUser;
         this.item = item;
     }
 
+    // Updates the like status for a recipe
     public void update_like_status(String recipe_id) {
         recipeId = Integer.valueOf(recipe_id);
         final Thread thread = new Thread(new Runnable() {
@@ -143,6 +146,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
 
     }
 
+    // Checks if the current user has favorited this recipe
     public void has_user_favorited_this_recipe(String user_id, String recipe_id) {
 
 

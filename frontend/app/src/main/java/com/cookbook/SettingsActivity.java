@@ -19,13 +19,16 @@ import java.util.Objects;
 public class SettingsActivity extends AppCompatActivity implements RecyclerViewInterface {
 
 
+    // Static field to store the current user
     private static User currentUser;
+    // UI elements
     private Button logout;
     private TextView fullName;
     private TextView userName;
     private CardView cardView;
 
     @Override
+    // Called when the activity is created
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
@@ -53,6 +56,7 @@ public class SettingsActivity extends AppCompatActivity implements RecyclerViewI
 
     }
 
+    // Logs out the current user and redirects to the login activity
     private void logout_User() {
         SharedPreferences sharedPreferences = getSharedPreferences("Saved User", MODE_PRIVATE);
         sharedPreferences.edit().remove("current_user").apply();
@@ -63,6 +67,7 @@ public class SettingsActivity extends AppCompatActivity implements RecyclerViewI
         finish();
     }
 
+    // Handles navigation changes in the bottom navigation view
     public void handleNavigationChange() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.bottom_settings);
@@ -109,6 +114,7 @@ public class SettingsActivity extends AppCompatActivity implements RecyclerViewI
         });
     }
 
+    // Handles item click events in the RecyclerView (not used in this activity)
     @Override
     public void onItemClick(int position) {
 

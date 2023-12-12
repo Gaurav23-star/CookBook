@@ -28,6 +28,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<MyViewHolder> {
         this.admin = admin;
     }
 
+    // Inflates the layout for each item view
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -40,6 +41,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<MyViewHolder> {
         return new MyViewHolder(v, recyclerViewInterface);
     }
 
+    // Binds the data to the views in each item view
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         load_recipe_image(position, holder);
@@ -49,6 +51,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<MyViewHolder> {
         }
     }
 
+    // Method to load the recipe image using Glide
     private void load_recipe_image(int position, MyViewHolder holder) {
         String url = ApiCaller.GET_RECIPE_IMAGE_URL + items.get(position).getRecipe().getRecipe_id();
 
@@ -56,6 +59,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     }
 
+    // Returns the total number of items in the data set
     @Override
     public int getItemCount() {
         return items.size();

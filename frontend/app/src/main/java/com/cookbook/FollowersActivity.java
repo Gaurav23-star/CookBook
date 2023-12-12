@@ -58,7 +58,9 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
 
     }
 
-
+    /**
+     * Populate UI with user data.
+     */
     private void add_users_to_ui() {
         RecyclerView recyclerView = findViewById(R.id.followers_recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -66,7 +68,11 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
         recyclerView.setAdapter(userAdapter);
     }
 
-    //  ---- Depending on title => Could be the users Follower List or the Users Following List
+    /**
+     * Get the list of followers or following from the server based on the title.
+     *
+     * @param title Indicates whether to fetch followers or following.
+     */
     private void get_Follower_List_from_server(String title) {
 
         final Thread thread = new Thread(new Runnable() {
@@ -118,7 +124,11 @@ public class FollowersActivity extends AppCompatActivity implements RecyclerView
     }
 
 
-    //method to ensure thread safety
+    /**
+     * Method to ensure thread safety while adding users to the list.
+     *
+     * @param user The user to add to the list.
+     */
     public synchronized void addUserThreadSafe(User user) {
         userList.add(user);
     }

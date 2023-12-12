@@ -20,6 +20,7 @@ public class CommentsViewAdapter extends RecyclerView.Adapter<CommentsViewAdapte
     List<Comment> comments;
     RecyclerViewInterface recyclerViewInterface;
 
+    // Constructor for the CommentsViewAdapter class
     public CommentsViewAdapter(Context context, List<Comment> comments, RecyclerViewInterface listener) {
         this.context = context;
         this.comments = comments;
@@ -27,12 +28,14 @@ public class CommentsViewAdapter extends RecyclerView.Adapter<CommentsViewAdapte
     }
 
 
+    // ViewHolder class for individual comments
     public static class CommentsViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView username;
         private final TextView commentContent;
         private final ImageView avatar;
 
+        // Constructor for CommentsViewHolder
         public CommentsViewHolder(@NonNull View itemView, RecyclerViewInterface listener) {
             super(itemView);
             username = itemView.findViewById(R.id.userName);
@@ -47,6 +50,7 @@ public class CommentsViewAdapter extends RecyclerView.Adapter<CommentsViewAdapte
             });
         }
 
+        // Getter methods for the views in the ViewHolder
         public TextView getUsername() {
             return username;
         }
@@ -60,12 +64,14 @@ public class CommentsViewAdapter extends RecyclerView.Adapter<CommentsViewAdapte
         }
     }
 
+    // Create a new ViewHolder instance when needed
     @NonNull
     @Override
     public CommentsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new CommentsViewHolder(LayoutInflater.from(context).inflate(R.layout.comments_view, parent, false), this.recyclerViewInterface);
     }
 
+    // Bind data to the views in the ViewHolder
     @Override
     public void onBindViewHolder(@NonNull CommentsViewHolder holder, int position) {
         holder.getUsername().setText(comments.get(position).getUsername());

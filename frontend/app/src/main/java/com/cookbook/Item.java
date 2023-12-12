@@ -3,6 +3,7 @@ package com.cookbook;
 import com.cookbook.model.Recipe;
 
 public class Item {
+    // Fields representing properties of a recipe item
     String name;
     String author;
     int image;
@@ -12,6 +13,9 @@ public class Item {
     int admin;
     Recipe recipe;
 
+    // Constructor initializing an Item with a Recipe
+    // Extract information from the Recipe and set it to Item fields
+    // Used for creating a new Item when a Recipe is retrieved
     public Item(Recipe recipe) {
         this.name = recipe.getRecipe_name();
         this.author = Integer.toString(recipe.getUser_id());
@@ -29,6 +33,9 @@ public class Item {
         this.recipe = recipe;
     }
 
+    // Method to update an Item with a new Recipe
+    // Update fields with information from the new Recipe
+    // Used when the underlying Recipe data is modified
     public void update_item(Recipe recipe) {
         this.name = recipe.getRecipe_name();
         this.author = Integer.toString(recipe.getUser_id());

@@ -22,13 +22,17 @@ import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
+    // Interface for handling item click events
     private final RecyclerViewInterface recyclerViewInterface;
 
+    // Context of the adapter
     Context context;
+    // List of items to be displayed in the RecyclerView
     List<Item> items;
     int admin;
     static User currentUser;
 
+    // Constructor for the adapter
     public MyAdapter(@NonNull Context context, List<Item> items, RecyclerViewInterface recyclerViewInterface, int admin, User currentUser) {
         this.context = context;
         this.items = items;
@@ -37,12 +41,14 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         MyAdapter.currentUser = currentUser;
     }
 
+    // Inflates the view for each item in the RecyclerView
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new MyViewHolder(LayoutInflater.from(context).inflate(R.layout.new_item_view, parent, false), recyclerViewInterface);
     }
 
+    // Binds the data to the ViewHolder for each item
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Item item = items.get(position);
@@ -71,6 +77,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
     }
 
 
+    // Loads the recipe image using Glide
     private void load_recipe_image(int position, MyViewHolder holder) {
         String url = ApiCaller.GET_RECIPE_IMAGE_URL + items.get(position).getRecipe().getRecipe_id();
 
@@ -78,6 +85,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     }
 
+    // Loads the profile of the recipe owner
     private void loadRecipeOwnerProfile(String userId, MyViewHolder viewHolder) {
         final Thread thread = new Thread(new Runnable() {
             @Override

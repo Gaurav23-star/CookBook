@@ -22,7 +22,9 @@ import java.util.Objects;
 
 public class SignUpActivity extends AppCompatActivity {
 
+    // API URL for user signup
     private static final String SIGNUP_URL = "http://172.16.122.20:8080/create-account";
+    // UI elements
     private EditText firstNameEditText;
     private EditText lastNameEditText;
     private EditText emailEditText;
@@ -33,6 +35,7 @@ public class SignUpActivity extends AppCompatActivity {
     private static User user;
 
 
+    // Called when the activity is created
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +62,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
 
+    // Handles the signup button click event
     private void signup(View v) {
         String firstName = firstNameEditText.getText().toString();
         String lastName = lastNameEditText.getText().toString();
@@ -98,6 +102,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
+    // Changes the activity to the home activity for the signed-up user
     private void changeActivityToUserHome(User user) {
         final Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
         //intent.putExtra("current_user", user);
@@ -105,6 +110,7 @@ public class SignUpActivity extends AppCompatActivity {
         finish();
     }
 
+    // Displays an error message for a user already exists failure
     @SuppressLint("SetTextI18n")
     private void printUserAlreadyExistsFailure() {
         runOnUiThread(new Runnable() {
@@ -118,6 +124,7 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
+    // Displays an error message for a server down failure
     @SuppressLint("SetTextI18n")
     private void printServerDownFailure() {
         runOnUiThread(new Runnable() {
@@ -130,6 +137,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
 
+    // Validates the email format
     private boolean isValidEmail(String email) {
         //can add more checking logic here
 
@@ -141,6 +149,7 @@ public class SignUpActivity extends AppCompatActivity {
         return true;
     }
 
+    // Validates the password
     private boolean isValidPassword(String password) {
         //Can add more checking logic here
         if (password.isEmpty()) {
@@ -161,6 +170,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
 
+    // Validates the username
     private boolean isValidName(String firstName, String lastName) {
         if (firstName.isEmpty()) {
             this.firstNameEditText.requestFocus();

@@ -226,12 +226,16 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         return super.onCreateOptionsMenu(menu);
     }
 
+    // Change the activity to RecipeSearchActivity
     private void changeActivityToRecipeSearch() {
         final Intent intent = new Intent(HomeActivity.this, RecipeSearchActivity.class);
         intent.putExtra("current_user", currentUser);
         startActivity(intent);
     }
 
+    // Display a dialog for creating a new recipe
+    // Includes UI elements for recipe details and an image picker
+    // Handles user input and initiates the recipe creation process
     private void displayCreateNewRecipeDialog() {
         View view = getLayoutInflater().inflate(R.layout.create_recipe_activity, null, false);
 
@@ -278,6 +282,8 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         bottomSheetDialog.setContentView(view);
     }
 
+    // Posts a new recipe to the server
+    // Initiates a thread to handle the API call and updates UI on success
     private void post_recipe_to_server(String recipeName, String desc, String servings, String prepareTime, String ingredients, String instructions) {
         Thread thread = new Thread(new Runnable() {
             @Override

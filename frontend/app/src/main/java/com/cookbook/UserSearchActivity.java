@@ -21,12 +21,18 @@ import java.util.List;
 
 public class UserSearchActivity extends AppCompatActivity implements RecyclerViewInterface {
 
+    // Static variable to store the current user
     static User current_user;
+
+    // RecyclerView and SearchView variables
     private RecyclerView recyclerView;
     private SearchView searchView;
 
 
+    // List to store the retrieved user list
     List<User> userList = Collections.synchronizedList(new ArrayList<User>());
+
+    // Gson instance for JSON processing
     private final Gson gson = new Gson();
 
 
@@ -58,6 +64,7 @@ public class UserSearchActivity extends AppCompatActivity implements RecyclerVie
 
     }
 
+    // Method to add users to the UI using a RecyclerView
     private void add_users_to_ui() {
         recyclerView = findViewById(R.id.usersRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -66,6 +73,7 @@ public class UserSearchActivity extends AppCompatActivity implements RecyclerVie
     }
 
 
+    // Implementation of the item click action
     @Override
     public void onItemClick(int position) {
 
@@ -76,6 +84,7 @@ public class UserSearchActivity extends AppCompatActivity implements RecyclerVie
 
     }
 
+    // Method to retrieve the user list from the server based on the search query
     private void getUserListFromSearchQuery(String text) {
 
         final Thread thread = new Thread(new Runnable() {
