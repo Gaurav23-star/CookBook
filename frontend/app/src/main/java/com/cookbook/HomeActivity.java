@@ -586,6 +586,13 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
         final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                int mockAPI = 0;
+                if (getIntent().getSerializableExtra("value") != null) {
+                    mockAPI = getIntent().getIntExtra("value",0);
+                }
+                if(mockAPI==1){
+                    return;
+                }
                 boolean isBanned = ApiCaller.get_caller_instance().isUserBanned(String.valueOf(currentUser.getUser_id()));
 
                 if (isBanned) {

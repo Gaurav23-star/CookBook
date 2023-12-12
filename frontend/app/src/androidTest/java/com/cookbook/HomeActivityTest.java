@@ -34,7 +34,7 @@ public class HomeActivityTest {
             new ActivityScenarioRule<>(
                     new Intent(
                             InstrumentationRegistry.getInstrumentation().getTargetContext(),
-                            HomeActivity.class).putExtra("current_user", mockedUser));
+                            HomeActivity.class).putExtra("current_user", mockedUser).putExtra("value",1));
 
     @Before
     public void setUp() throws IOException {
@@ -42,20 +42,19 @@ public class HomeActivityTest {
         // Inject the mocked adapter into the RecyclerView
 
         Mockito.when(mockedUser.getUser_id()).thenReturn(9); // Set user_id as needed
-        Mockito.when(mockedUser.getEmail_id()).thenReturn("dummy@dummy.com"); // Set email_id as needed
+        Mockito.when(mockedUser.getEmail_id()).thenReturn("dan@gmail.com"); // Set email_id as needed
         Mockito.when(mockedUser.getPassword()).thenReturn("12345"); // Set password as needed
         Mockito.when(mockedUser.getIsAdmin()).thenReturn(0); // Set isAdmin as needed
         Mockito.when(mockedUser.getIsBanned()).thenReturn(0); // Set isBanned as needed
-        Mockito.when(mockedUser.getUsername()).thenReturn("dummy"); // Set username as needed\
-
+        Mockito.when(mockedUser.getUsername()).thenReturn("dan"); // Set username as needed
 
     }
 
     @Test
     //The system must allow users to view their own recipes as a list.
     public void testRecyclerViewDisplayed() {
-        ActivityScenario<HomeActivity> activityActivityScenarioRule= scenarioRule.getScenario();
 
+        ActivityScenario<HomeActivity> activityActivityScenarioRule= scenarioRule.getScenario();
         //Checks if User's recipes are displayed
         onView(withId(R.id.recyclerview))
                 .check(matches(isDisplayed()));
