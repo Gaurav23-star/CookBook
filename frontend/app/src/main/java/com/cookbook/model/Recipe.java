@@ -67,80 +67,48 @@ public class Recipe implements Serializable {
         return recipe_id;
     }
 
-    // Setter method to set the ID of the recipe
-    public void setRecipe_id(int recipe_id) {
-        this.recipe_id = recipe_id;
-    }
 
     // Getter method to retrieve the name of the recipe
     public String getRecipe_name() {
         return recipe_name;
     }
 
-    // Setter method to set the name of the recipe
-    public void setRecipe_name(String recipe_name) {
-        this.recipe_name = recipe_name;
-    }
 
     // Getter method to retrieve the number of servings
     public int getServings() {
         return servings;
     }
 
-    // Setter method to set the number of servings
-    public void setServings(int servings) {
-        this.servings = servings;
-    }
 
     // Getter method to retrieve the preparation time in minutes
     public int getPreparation_time_minutes() {
         return preparation_time_minutes;
     }
 
-    // Setter method to set the preparation time in minutes
-    public void setPreparation_time_minutes(int preparation_time_minutes) {
-        this.preparation_time_minutes = preparation_time_minutes;
-    }
 
     // Getter method to retrieve the list of ingredients
     public String getIngredients() {
         return ingredients;
     }
 
-    // Setter method to set the list of ingredients
-    public void setIngredients(String ingredients) {
-        this.ingredients = ingredients;
-    }
 
     // Getter method to retrieve the description of the recipe
     public String getDescription() {
         return description;
     }
 
-    // Setter method to set the description of the recipe
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     // Getter method to retrieve the cooking instructions
     public String getInstructions() {
         return instructions;
     }
 
-    // Setter method to set the cooking instructions
-    public void setInstructions(String instructions) {
-        this.instructions = instructions;
-    }
 
     // Getter method to retrieve the ID of the user who created the recipe
     public int getUser_id() {
         return user_id;
     }
 
-    // Setter method to set the ID of the user who created the recipe
-    public void setUser_id(int user_id) {
-        this.user_id = user_id;
-    }
 
     // String representation of the Recipe object
     @Override

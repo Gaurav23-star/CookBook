@@ -217,9 +217,6 @@ final public class ApiCaller {
         return post_request(SIGNUP_URL, jsonData);
     }
 
-    public ApiResponse getAllRecipes() {
-        return get_request(RECIPE_URL, "");
-    }
 
     public ApiResponse getRecipePages(int pageNumber) {
         return get_request(RECIPE_URL + "/" + pageNumber, "");
@@ -301,10 +298,6 @@ final public class ApiCaller {
         return get_request(USER_HAS_FAVORITED, user_id + "&" + "recipe_id=" + recipe_id);
     }
 
-    public ApiResponse deleteComment(int comment_id) {
-        String delParam = "?commentId=" + comment_id;
-        return delete_request(COMMENTS_URL, delParam);
-    }
 
     public ApiResponse getAllComments(int recipe_id) {
         String queryParams = "?recipeId=" + recipe_id;

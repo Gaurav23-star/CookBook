@@ -101,7 +101,6 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         prepTimeView = findViewById(R.id.prepTimeEditText);
         servingsView = findViewById(R.id.servingsEditText);
         recipeOwnerView = findViewById(R.id.recipeOwnerView);
-        //recipePicture.setImageResource(R.drawable.foodplaceholder);
         loadRecipeImage(recipePicture);
 
         titleView.setText(currentRecipe.getRecipe_name());
@@ -141,7 +140,6 @@ public class RecipeActivity extends AppCompatActivity implements RecyclerViewInt
         if (currentRecipe.getUser_id() != currentUser.getUser_id()) {
             loadRecipeOwnerProfile(Integer.toString(currentRecipe.getUser_id()));
         } else {
-            //String displayName = currentUser.getFirst_name() + " " + currentUser.getLast_name();
             String displayName = currentUser.getUsername();
             nameView.setText(displayName);
         }

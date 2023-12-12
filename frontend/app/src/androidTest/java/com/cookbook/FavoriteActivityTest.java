@@ -48,8 +48,6 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 public class FavoriteActivityTest {
     @Mock
-    private MyAdapter mockedAdapter;
-    @Mock
     public User mockedUser = Mockito.mock(User.class);
     User userTest;
     @Rule

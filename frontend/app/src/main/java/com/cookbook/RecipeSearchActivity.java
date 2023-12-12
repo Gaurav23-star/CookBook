@@ -125,7 +125,6 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
                     }
                 }
                 recyclerViewAdapter.notifyDataSetChanged();
-                //add_recipes_to_ui();
                 dialog.dismiss();
             });
 
@@ -135,16 +134,9 @@ public class RecipeSearchActivity extends AppCompatActivity implements RecyclerV
 
 
                 User.banUser(ban_id);
-//
-//                for (Item recipe : items) {
-//                    if (recipe.getRecipe().getUser_id() == ban_id) {
-//                        items.remove(recipe);
-//                    }
-//
-//                }
 
                 recyclerViewAdapter.notifyDataSetChanged();
-                //add_recipes_to_ui();
+
                 dialog.dismiss();
             });
         }

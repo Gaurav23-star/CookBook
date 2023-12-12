@@ -65,30 +65,19 @@ public class Comment {
         return user_id;
     }
 
-    // Setter method to set the user ID associated with the comment
-    public void setUser_id(int user_id) {
-        this.user_id = user_id;
-    }
 
     // Getter method to retrieve the recipe ID associated with the comment
     public int getRecipe_id() {
         return recipe_id;
     }
 
-    // Setter method to set the recipe ID associated with the comment
-    public void setRecipe_id(int recipe_id) {
-        this.recipe_id = recipe_id;
-    }
+
 
     // Getter method to retrieve the content of the comment
     public String getComment() {
         return comment;
     }
 
-    // Setter method to set the content of the comment
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
 
     // Method to delete a comment with a specified comment ID
     public static void deleteComment(int comment_id) {

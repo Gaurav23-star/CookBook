@@ -105,7 +105,6 @@ public class SignUpActivity extends AppCompatActivity {
     // Changes the activity to the home activity for the signed-up user
     private void changeActivityToUserHome(User user) {
         final Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
-        //intent.putExtra("current_user", user);
         startActivity(intent);
         finish();
     }

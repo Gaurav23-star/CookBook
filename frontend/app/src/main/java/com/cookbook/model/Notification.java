@@ -51,10 +51,6 @@ public class Notification {
         }
     }
 
-    // Default constructor
-    public Notification() {
-
-    }
 
     // Getter method to retrieve the username associated with the notification
     public String getUsername() {
@@ -81,30 +77,21 @@ public class Notification {
         return type;
     }
 
-    // Setter method to set the type of the notification
-    public void setType(String type) {
-        this.type = type;
-    }
+
 
     // Getter method to retrieve the ID of the user who sent the notification
     public String getFrom_user_id() {
         return from_user_id;
     }
 
-    // Setter method to set the ID of the user who sent the notification
-    public void setFrom_user_id(String from_user_id) {
-        this.from_user_id = from_user_id;
-    }
+
 
     // Getter method to retrieve the ID of the user who received the notification
     public String getTo_user_id() {
         return to_user_id;
     }
 
-    // Setter method to set the ID of the user who received the notification
-    public void setTo_user_id(String to_user_id) {
-        this.to_user_id = to_user_id;
-    }
+
 
     // Getter method to retrieve the text of the notification
     public String getText() {
@@ -121,18 +108,12 @@ public class Notification {
         return post_id;
     }
 
-    // Setter method to set the ID of the post associated with the notification
-    public void setPost_id(String post_id) {
-        this.post_id = post_id;
-    }
+
 
     // Getter method to retrieve the timestamp indicating when the notification was created
     public String getCreated_at() {
         return created_at;
     }
 
-    // Setter method to set the timestamp indicating when the notification was created
-    public void setCreated_at(String created_at) {
-        this.created_at = created_at;
-    }
+
 }

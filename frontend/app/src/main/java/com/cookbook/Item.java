@@ -61,53 +61,30 @@ public class Item {
         this.name = name;
     }
 
-    public String getAuthor() {
-        return author;
-    }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
 
-    public int getImage() {
-        return image;
-    }
 
-    public void setImage(int image) {
-        this.image = image;
-    }
+
 
     public String getTime() {
         return time;
     }
 
-    public void setTime(String time) {
-        this.time = time;
-    }
 
     public String getIng1() {
         return ing1;
     }
 
-    public void setIng1(String ing1) {
-        this.ing1 = ing1;
-    }
 
     public String getIng2() {
         return ing2;
     }
 
-    public void setIng2(String ing2) {
-        this.ing2 = ing2;
-    }
 
     public int getAdmin() {
         return admin;
     }
 
-    public void setAdmin(int admin) {
-        this.admin = admin;
-    }
 
     public Recipe getRecipe() {
         return recipe;

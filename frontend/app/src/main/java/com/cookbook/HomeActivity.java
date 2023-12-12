@@ -62,7 +62,6 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewInter
     private static final List<Item> items = Collections.synchronizedList(new ArrayList<Item>());
 
     private TextView server_error_text;
-    ImageButton user_search_button;
     private FloatingActionButton addMenuButton;
     private FloatingActionButton addNewFriendButton;
     private FloatingActionButton addNewRecipeButton;

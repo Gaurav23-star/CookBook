@@ -18,10 +18,6 @@ public class ApiResponse {
         return response_code;
     }
 
-    // Setter method to set the HTTP response code
-    public void setResponse_code(int response_code) {
-        this.response_code = response_code;
-    }
 
     // Getter method to retrieve the response body
     public String getResponse_body() {
