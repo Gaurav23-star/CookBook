@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -294,20 +295,18 @@ final public class ApiCaller {
         uploadImageService upload = retrofit.create(uploadImageService.class);
         Call<ApiResponse> responseCall = upload.uploadRecipeImage(body, recipeId);
 
-
-        responseCall.enqueue(new Callback<ApiResponse>() {
-            @Override
-            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+        try {
+            Response<ApiResponse> response = responseCall.execute();
+            if (response.isSuccessful()) {
+                // Handle successful response
                 apiResponse[0] = new ApiResponse(response.body().getResponse_code(), response.body().getResponse_body());
+            } else {
+                // Handle error response
             }
-
-            @Override
-            public void onFailure(Call<ApiResponse> call, Throwable t) {
-
-            }
-
-        });
-
+        } catch (IOException e) {
+            // Handle exception
+            e.printStackTrace();
+        }
 
         return apiResponse[0];
 
